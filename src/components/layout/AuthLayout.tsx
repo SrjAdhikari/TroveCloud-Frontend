@@ -1,18 +1,16 @@
 //* src/components/layout/AuthLayout.tsx
 
+import { Outlet } from "react-router";
 import { Cloud } from "lucide-react";
 import ThemeToggle from "@/components/theme/theme-toggle";
 
-interface AuthLayoutProps {
-	children: React.ReactNode;
-}
-
 /**
  * Shared split-screen layout for all auth pages (login, register, verify OTP).
- * Left panel shows branding and illustration, right panel renders the form.
+ * Left panel shows branding and illustration, right panel renders the matched child route.
+ * Used as a layout route in React Router — pages render via <Outlet />.
  * On mobile, only the right panel (form) is shown.
  */
-const AuthLayout = ({ children }: AuthLayoutProps) => {
+const AuthLayout = () => {
 	return (
 		<div className="flex min-h-screen flex-col bg-background">
 			{/* Header */}
@@ -52,7 +50,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 
 				{/* Right panel — form content */}
 				<section className="flex flex-1 flex-col items-center p-4 py-10 lg:justify-center lg:p-10 lg:py-0">
-					{children}
+					<Outlet />
 				</section>
 			</main>
 		</div>
