@@ -3,11 +3,21 @@
 import axiosClient from "@/config/axiosClient";
 import type { ApiSuccessResponse } from "@/types/api.types";
 import type {
+	UserPayload,
 	RegisterPayload,
 	LoginPayload,
 	VerifyOTPPayload,
 	ResendOTPPayload,
 } from "@/types/auth.types";
+
+/**
+ * Fetches the currently authenticated user's profile.
+ */
+const getCurrentUser = async () => {
+	const { data } =
+		await axiosClient.get<ApiSuccessResponse<UserPayload>>("/auth/me");
+	return data;
+};
 
 /**
  * Registers a new user and triggers an OTP email.
@@ -71,4 +81,12 @@ const logoutAll = async () => {
 	return data;
 };
 
-export { register, verifyOTP, resendOTP, login, logout, logoutAll };
+export {
+	getCurrentUser,
+	register,
+	verifyOTP,
+	resendOTP,
+	login,
+	logout,
+	logoutAll,
+};

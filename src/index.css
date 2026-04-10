@@ -120,6 +120,40 @@
 	--sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Sonner toast — move close button inside toast, top-right */
+[data-sonner-toast] [data-close-button] {
+	position: absolute !important;
+	top: 6px !important;
+	right: 6px !important;
+	left: auto !important;
+	transform: none !important;
+	border: none !important;
+	background: transparent !important;
+	color: var(--color-secondary-foreground) !important;
+	opacity: 0.5;
+
+	&:hover {
+		opacity: 1;
+	}
+}
+
+/* Sonner toast — colored icons matching react-toastify style */
+[data-sonner-toast][data-type="success"] [data-icon] {
+	color: #22c55e !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+	color: #ef4444 !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+	color: #3b82f6 !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+	color: #eab308 !important;
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
