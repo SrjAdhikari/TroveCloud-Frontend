@@ -1,7 +1,8 @@
 //* src/hooks/useAuth.ts
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+	getCurrentUser,
 	register,
 	verifyOTP,
 	resendOTP,
@@ -9,6 +10,19 @@ import {
 	logout,
 	logoutAll,
 } from "@/api/auth.api";
+
+/**
+ * Query hook for fetching the current authenticated user.
+ * Used by auth guards to determine if the user is logged in.
+ */
+const useCurrentUser = () => {
+	return useQuery({
+		queryKey: ["currentUser"],
+		queryFn: getCurrentUser,
+		retry: false,
+		staleTime: Infinity,
+	});
+};
 
 /**
  * Mutation hook for user registration.
@@ -53,6 +67,7 @@ const useLogoutAll = () => {
 };
 
 export {
+	useCurrentUser,
 	useRegister,
 	useVerifyOTP,
 	useResendOTP,

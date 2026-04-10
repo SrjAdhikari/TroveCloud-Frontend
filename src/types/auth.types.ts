@@ -6,6 +6,18 @@
  * these types define structure only.
  */
 
+// GET /api/auth/me — authenticated user shape
+export interface UserPayload {
+	_id: string;
+	name: string;
+	email: string;
+	rootDirId: string;
+	profilePicture: string;
+	isVerified: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
 // POST /api/auth/register
 export interface RegisterPayload {
 	name: string;
