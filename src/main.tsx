@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
 import queryClient from "@/config/queryClient";
 import App from "@/App";
 import "./index.css";
@@ -18,7 +19,8 @@ createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
 			<BrowserRouter>
-				<App />
+				<TooltipProvider>
+					<App />
 				<Toaster
 					position="top-center"
 					closeButton={true}
@@ -35,6 +37,7 @@ createRoot(document.getElementById("root")!).render(
 						},
 					}}
 				/>
+				</TooltipProvider>
 			</BrowserRouter>
 		</QueryClientProvider>
 	</StrictMode>,

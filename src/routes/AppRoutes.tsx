@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from "react-router";
 import GuestRoute from "@/routes/GuestRoute";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import AuthLayout from "@/components/layout/AuthLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -32,7 +33,9 @@ const AppRoutes = () => {
 
 			{/* Protected routes — accessible only when logged in */}
 			<Route element={<ProtectedRoute />}>
-				<Route path="/dashboard" element={<div>Dashboard</div>} />
+				<Route element={<DashboardLayout />}>
+					<Route path="/dashboard" element={<div>Dashboard</div>} />
+				</Route>
 			</Route>
 		</Routes>
 	);
