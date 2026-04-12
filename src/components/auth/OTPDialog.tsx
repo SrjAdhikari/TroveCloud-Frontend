@@ -90,7 +90,7 @@ const OTPDialog = ({ open, email, onSuccess, onBack }: OTPDialogProps) => {
 	const handleChange = (value: string) => {
 		setOtp(value);
 		if (hasError) setHasError(false);
-		handleVerify(value);
+		if (!hasError) handleVerify(value);
 	};
 
 	const handleResend = () => {

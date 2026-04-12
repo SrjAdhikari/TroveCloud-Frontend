@@ -98,7 +98,7 @@ const LoginPage = () => {
 					{/* Submit */}
 					<Button
 						type="submit"
-						className="w-full cursor-pointer"
+						className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed"
 						disabled={isPending}
 					>
 						<span className="text-base font-medium">
