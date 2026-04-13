@@ -1,8 +1,16 @@
 //* src/pages/DashboardPage.tsx
 
-import { useSearchParams } from "react-router";
+import { useSearchParams, useNavigate } from "react-router";
+import { ChevronLeft } from "lucide-react";
 
+import { useCurrentUser } from "@/hooks/useAuth";
 import { useCurrentDirectory } from "@/hooks/useDirectory";
+import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import FolderCard from "@/components/dashboard/FolderCard";
 import FileCard from "@/components/dashboard/FileCard";
 import DirectorySkeleton from "@/components/dashboard/DirectorySkeleton";
@@ -12,11 +20,27 @@ import DirectorySkeleton from "@/components/dashboard/DirectorySkeleton";
  * Reads the directory ID from the `dir` search param (defaults to root if absent).
  */
 const DashboardPage = () => {
+	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const dirId = searchParams.get("dir") || undefined;
 
+	const { data: userResponse } = useCurrentUser();
+	const rootDirId = userResponse?.data?.rootDirId;
+
 	const { data, isLoading } = useCurrentDirectory(dirId);
 	const directory = data?.data;
+
+	const isRoot = !directory?.parentDirId;
+
+	/** Navigate to the parent directory. Goes to /dashboard (no params) if parent is root. */
+	const handleBack = () => {
+		const parentId = directory?.parentDirId;
+		if (!parentId || parentId === rootDirId) {
+			navigate("/dashboard");
+		} else {
+			navigate(`/dashboard?dir=${parentId}`);
+		}
+	};
 
 	if (isLoading) {
 		return <DirectorySkeleton />;
@@ -28,6 +52,27 @@ const DashboardPage = () => {
 
 	return (
 		<div className="space-y-6">
+			{/* Directory header — shows folder name and back button when not at root */}
+			{!isLoading && !isRoot && (
+				<div className="flex items-center gap-3">
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={handleBack}
+								className="size-6 rounded-full cursor-pointer"
+							>
+								<ChevronLeft className="size-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Go Back</TooltipContent>
+					</Tooltip>
+
+					<h1 className="text-lg font-semibold">{directory?.name}</h1>
+				</div>
+			)}
+
 			{isEmpty ? (
 				<div className="flex min-h-[calc(100svh-7rem)] flex-col items-center justify-center text-muted-foreground">
 					<img
