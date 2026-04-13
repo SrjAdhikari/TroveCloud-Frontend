@@ -10,6 +10,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import DashboardPage from "@/pages/DashboardPage";
 
 /**
  * Central route definitions for the app.
@@ -34,7 +35,7 @@ const AppRoutes = () => {
 			{/* Protected routes — accessible only when logged in */}
 			<Route element={<ProtectedRoute />}>
 				<Route element={<DashboardLayout />}>
-					<Route path="/dashboard" element={<div>Dashboard</div>} />
+					<Route path="/dashboard" element={<DashboardPage />} />
 				</Route>
 			</Route>
 		</Routes>
