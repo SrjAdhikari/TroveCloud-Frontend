@@ -7,8 +7,14 @@ import type { FileItemPayload } from "@/types/directory.types";
 /**
  * Uploads a file as a raw binary stream.
  * The backend expects the file body (not multipart) with a `filename` header.
+ * Accepts optional onUploadProgress callback and AbortSignal for cancellation.
  */
-const uploadFile = async (file: File, parentDirId?: string) => {
+const uploadFile = async (
+	file: File,
+	parentDirId?: string,
+	onUploadProgress?: (progress: number) => void,
+	signal?: AbortSignal,
+) => {
 	const url = parentDirId ? `/files/${parentDirId}` : "/files";
 	const { data } = await axiosClient.post<ApiSuccessResponse<FileItemPayload>>(
 		url,
@@ -18,6 +24,13 @@ const uploadFile = async (file: File, parentDirId?: string) => {
 				"Content-Type": file.type || "application/octet-stream",
 				filename: file.name,
 			},
+			onUploadProgress: (event) => {
+				if (event.total && onUploadProgress) {
+					const percent = Math.round((event.loaded / event.total) * 100);
+					onUploadProgress(percent);
+				}
+			},
+			signal,
 		},
 	);
 	return data;

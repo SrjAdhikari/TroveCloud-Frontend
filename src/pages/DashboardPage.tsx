@@ -6,6 +6,8 @@ import { ChevronLeft } from "lucide-react";
 
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useCurrentDirectory } from "@/hooks/useDirectory";
+import useFileUpload from "@/hooks/useFileUpload";
+
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -17,6 +19,7 @@ import FileCard from "@/components/dashboard/FileCard";
 import DirectorySkeleton from "@/components/dashboard/DirectorySkeleton";
 import CreateFolderDialog from "@/components/dashboard/CreateFolderDialog";
 import ToolbarDropdown from "@/components/dashboard/ToolbarDropdown";
+import UploadProgress from "@/components/dashboard/UploadProgress";
 
 /**
  * Main dashboard page — fetches and displays the contents of the current directory.
@@ -25,6 +28,7 @@ import ToolbarDropdown from "@/components/dashboard/ToolbarDropdown";
 const DashboardPage = () => {
 	const [showCreateFolder, setShowCreateFolder] = useState(false);
 	const navigate = useNavigate();
+
 	const [searchParams] = useSearchParams();
 	const dirId = searchParams.get("dir") || undefined;
 
@@ -35,6 +39,7 @@ const DashboardPage = () => {
 	const directory = data?.data;
 
 	const isRoot = !directory?.parentDirId;
+	const { uploads, upload, dismiss, cancel } = useFileUpload(dirId);
 
 	/** Navigate to the parent directory. Goes to /dashboard (no params) if parent is root. */
 	const handleBack = () => {
@@ -80,7 +85,10 @@ const DashboardPage = () => {
 					</h1>
 				</div>
 
-				<ToolbarDropdown onNewFolder={() => setShowCreateFolder(true)} />
+				<ToolbarDropdown
+					onNewFolder={() => setShowCreateFolder(true)}
+					onUpload={upload}
+				/>
 			</div>
 
 			{isEmpty ? (
@@ -128,11 +136,19 @@ const DashboardPage = () => {
 					)}
 				</>
 			)}
+
 			{/* Create folder dialog */}
 			<CreateFolderDialog
 				open={showCreateFolder}
 				onOpenChange={setShowCreateFolder}
 				parentDirId={dirId}
+			/>
+
+			{/* Upload progress panel — fixed bottom-right */}
+			<UploadProgress
+				uploads={uploads}
+				onDismiss={dismiss}
+				onCancel={cancel}
 			/>
 		</div>
 	);
