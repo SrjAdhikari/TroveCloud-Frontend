@@ -1,5 +1,6 @@
 //* src/pages/DashboardPage.tsx
 
+import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
 
@@ -14,12 +15,15 @@ import {
 import FolderCard from "@/components/dashboard/FolderCard";
 import FileCard from "@/components/dashboard/FileCard";
 import DirectorySkeleton from "@/components/dashboard/DirectorySkeleton";
+import CreateFolderDialog from "@/components/dashboard/CreateFolderDialog";
+import ToolbarDropdown from "@/components/dashboard/ToolbarDropdown";
 
 /**
  * Main dashboard page — fetches and displays the contents of the current directory.
  * Reads the directory ID from the `dir` search param (defaults to root if absent).
  */
 const DashboardPage = () => {
+	const [showCreateFolder, setShowCreateFolder] = useState(false);
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const dirId = searchParams.get("dir") || undefined;
@@ -52,26 +56,32 @@ const DashboardPage = () => {
 
 	return (
 		<div className="space-y-6">
-			{/* Directory header — shows folder name and back button when not at root */}
-			{!isLoading && !isRoot && (
+			{/* Directory header — title on the left, toolbar on the right */}
+			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Button
-								variant="outline"
-								size="icon"
-								onClick={handleBack}
-								className="size-6 rounded-full cursor-pointer"
-							>
-								<ChevronLeft className="size-4" />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>Go Back</TooltipContent>
-					</Tooltip>
+					{!isRoot && (
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="outline"
+									size="icon"
+									onClick={handleBack}
+									className="size-6 rounded-full cursor-pointer"
+								>
+									<ChevronLeft className="size-4" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Go Back</TooltipContent>
+						</Tooltip>
+					)}
 
-					<h1 className="text-lg font-semibold">{directory?.name}</h1>
+					<h1 className="text-lg font-medium">
+						{isRoot ? "My Files" : directory?.name}
+					</h1>
 				</div>
-			)}
+
+				<ToolbarDropdown onNewFolder={() => setShowCreateFolder(true)} />
+			</div>
 
 			{isEmpty ? (
 				<div className="flex min-h-[calc(100svh-7rem)] flex-col items-center justify-center text-muted-foreground">
@@ -118,6 +128,12 @@ const DashboardPage = () => {
 					)}
 				</>
 			)}
+			{/* Create folder dialog */}
+			<CreateFolderDialog
+				open={showCreateFolder}
+				onOpenChange={setShowCreateFolder}
+				parentDirId={dirId}
+			/>
 		</div>
 	);
 };
