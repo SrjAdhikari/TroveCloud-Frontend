@@ -10,11 +10,19 @@ import {
 
 /**
  * Mutation hook for uploading a file as a raw binary stream.
+ * Accepts an optional onUploadProgress callback for tracking upload percentage.
  */
 const useUploadFile = () => {
 	return useMutation({
-		mutationFn: ({ file, parentDirId }: { file: File; parentDirId?: string }) =>
-			uploadFile(file, parentDirId),
+		mutationFn: ({
+			file,
+			parentDirId,
+			onUploadProgress,
+		}: {
+			file: File;
+			parentDirId?: string;
+			onUploadProgress?: (progress: number) => void;
+		}) => uploadFile(file, parentDirId, onUploadProgress),
 	});
 };
 
