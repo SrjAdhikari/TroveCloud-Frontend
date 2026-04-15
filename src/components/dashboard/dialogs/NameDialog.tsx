@@ -1,4 +1,4 @@
-//* src/components/dashboard/NameDialog.tsx
+//* src/components/dashboard/dialogs/NameDialog.tsx
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";

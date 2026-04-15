@@ -22,7 +22,7 @@ const uploadFile = async (
 		{
 			headers: {
 				"Content-Type": file.type || "application/octet-stream",
-				filename: file.name,
+				filename: encodeURIComponent(file.name), // To handle special characters in file names
 			},
 			onUploadProgress: (event) => {
 				if (event.total && onUploadProgress) {

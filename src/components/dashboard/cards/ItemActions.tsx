@@ -1,6 +1,6 @@
-//* src/components/dashboard/ItemActions.tsx
+//* src/components/dashboard/cards/ItemActions.tsx
 
-import { EllipsisVertical, Pencil, Download, Trash2 } from "lucide-react";
+import { EllipsisVertical, Eye, Pencil, Download, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
 interface ItemActionsProps {
 	onRename: () => void;
 	onDelete: () => void;
+	onPreview?: () => void;
 	onDownload?: () => void;
 }
 
@@ -20,7 +21,7 @@ interface ItemActionsProps {
  * Three-dot dropdown menu with actions for a file or folder card.
  * Download action is only shown for files (when onDownload is provided).
  */
-const ItemActions = ({ onRename, onDelete, onDownload }: ItemActionsProps) => {
+const ItemActions = ({ onRename, onDelete, onPreview, onDownload }: ItemActionsProps) => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -35,6 +36,19 @@ const ItemActions = ({ onRename, onDelete, onDownload }: ItemActionsProps) => {
 			</DropdownMenuTrigger>
 
 			<DropdownMenuContent align="end" className="min-w-40 p-1.5">
+				{onPreview && (
+					<DropdownMenuItem
+						onClick={(e) => {
+							e.stopPropagation();
+							onPreview();
+						}}
+						className="cursor-pointer gap-2 px-2.5 py-1.5 text-[13px]"
+					>
+						<Eye className="size-3.5" />
+						Preview
+					</DropdownMenuItem>
+				)}
+
 				<DropdownMenuItem
 					onClick={(e) => {
 						e.stopPropagation();
