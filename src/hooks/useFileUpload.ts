@@ -20,9 +20,14 @@ interface UploadItem {
  * Successful uploads auto-dismiss after 2 seconds.
  */
 const useFileUpload = (dirId?: string) => {
-	const [uploads, setUploads] = useState<UploadItem[]>([]);
-	const abortControllers = useRef<Map<string, AbortController>>(new Map());
 	const queryClient = useQueryClient();
+	const [uploads, setUploads] = useState<UploadItem[]>([]);
+
+	/**
+	 * useRef instead of useState because we need to read/write controllers
+	 * synchronously (inside cancel) without triggering re-renders
+	 */
+	const abortControllers = useRef<Map<string, AbortController>>(new Map());
 
 	/** Removes a completed/failed upload from the panel */
 	const dismiss = useCallback((id: string) => {
@@ -49,11 +54,14 @@ const useFileUpload = (dirId?: string) => {
 			Array.from(files).forEach(async (file) => {
 				const id = crypto.randomUUID();
 
-				// Create a new AbortController for each file
-				// This allows us to cancel individual uploads independently
+				/**
+				 * Create a new AbortController for each file
+				 * This allows us to cancel individual uploads independently
+				 */
 				const controller = new AbortController();
 				abortControllers.current.set(id, controller);
 
+				// Add the new upload to the state
 				setUploads((prev) => [
 					...prev,
 					{ id, fileName: file.name, progress: 0, status: "uploading" },
@@ -72,10 +80,14 @@ const useFileUpload = (dirId?: string) => {
 								),
 							);
 						},
+
+						// Pass the AbortController signal to the uploadFile function
 						controller.signal,
 					);
 
+					// Remove the AbortController from the map once the upload is complete
 					abortControllers.current.delete(id);
+
 					setUploads((prev) =>
 						prev.map((item) =>
 							item.id === id
@@ -83,17 +95,28 @@ const useFileUpload = (dirId?: string) => {
 								: item,
 						),
 					);
+
+					// Invalidate the directory query to refresh the file list
 					queryClient.invalidateQueries({ queryKey: ["directory"] });
+
+					// Remove the upload from the panel after 2 seconds
 					setTimeout(() => {
 						setUploads((prev) => prev.filter((item) => item.id !== id));
 					}, 2000);
 				} catch (error) {
+					// Remove the AbortController from the map once the upload is failed
 					abortControllers.current.delete(id);
+
+					/**
+					 * If the user cancelled the upload, the abort throws an error —
+					 * we don't want to show an error toast for a user-initiated action
+					 */
 					if (controller.signal.aborted) return;
 
 					const message =
 						(error as { message?: string })?.message ||
 						`Failed to upload ${file.name}`;
+
 					setUploads((prev) =>
 						prev.map((item) =>
 							item.id === id
