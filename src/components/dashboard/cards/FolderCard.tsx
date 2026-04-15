@@ -1,4 +1,4 @@
-//* src/components/dashboard/FolderCard.tsx
+//* src/components/dashboard/cards/FolderCard.tsx
 
 import { useState } from "react";
 import { useSearchParams } from "react-router";
@@ -6,9 +6,9 @@ import { useSearchParams } from "react-router";
 import { formatDate } from "@/lib/dateFormatters";
 import { getFolderIcon } from "@/lib/iconMapper";
 import type { DirectoryItemPayload } from "@/types/directory.types";
-import ItemActions from "@/components/dashboard/ItemActions";
-import RenameDialog from "@/components/dashboard/RenameDialog";
-import DeleteDialog from "@/components/dashboard/DeleteDialog";
+import ItemActions from "@/components/dashboard/cards/ItemActions";
+import RenameDialog from "@/components/dashboard/dialogs/RenameDialog";
+import DeleteDialog from "@/components/dashboard/dialogs/DeleteDialog";
 
 interface FolderCardProps {
 	folder: DirectoryItemPayload;
@@ -32,8 +32,11 @@ const FolderCard = ({ folder }: FolderCardProps) => {
 
 	return (
 		<>
-			<button
+			<div
+				role="button"
+				tabIndex={0}
 				onClick={handleClick}
+				onKeyDown={(e) => e.key === "Enter" && handleClick()}
 				className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-accent cursor-pointer"
 			>
 				<div
@@ -53,7 +56,7 @@ const FolderCard = ({ folder }: FolderCardProps) => {
 					onRename={() => setShowRename(true)}
 					onDelete={() => setShowDelete(true)}
 				/>
-			</button>
+			</div>
 
 			<RenameDialog
 				open={showRename}

@@ -34,6 +34,7 @@ const FILE_ICON_MAP: Record<string, FileIconEntry> = {
 	doc: { icon: FileText, color: "text-blue-600" },
 	docx: { icon: FileText, color: "text-blue-600" },
 	txt: { icon: FileText, color: "text-gray-500" },
+	md: { icon: FileText, color: "text-gray-500" },
 	rtf: { icon: FileText, color: "text-gray-500" },
 
 	// Spreadsheets

@@ -1,4 +1,4 @@
-//* src/components/dashboard/CreateFolderDialog.tsx
+//* src/components/dashboard/dialogs/CreateFolderDialog.tsx
 
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -6,8 +6,8 @@ import { FolderPlus } from "lucide-react";
 
 import { useCreateDirectory } from "@/hooks/useDirectory";
 import { folderNameSchema } from "@/schemas/itemName.schema";
-import NameDialog from "@/components/dashboard/NameDialog";
-import type { NameDialogContent } from "@/components/dashboard/NameDialog";
+import NameDialog from "@/components/dashboard/dialogs/NameDialog";
+import type { NameDialogContent } from "@/components/dashboard/dialogs/NameDialog";
 
 interface CreateFolderDialogProps {
 	open: boolean;

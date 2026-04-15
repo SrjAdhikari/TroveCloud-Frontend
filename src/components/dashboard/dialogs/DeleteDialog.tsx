@@ -1,4 +1,4 @@
-//* src/components/dashboard/DeleteDialog.tsx
+//* src/components/dashboard/dialogs/DeleteDialog.tsx
 
 import { Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";

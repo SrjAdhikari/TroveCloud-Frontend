@@ -1,4 +1,4 @@
-//* src/components/dashboard/RenameDialog.tsx
+//* src/components/dashboard/dialogs/RenameDialog.tsx
 
 import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -8,8 +8,8 @@ import { Pencil } from "lucide-react";
 import { useRenameDirectory } from "@/hooks/useDirectory";
 import { useRenameFile } from "@/hooks/useFile";
 import { folderNameSchema, fileNameSchema } from "@/schemas/itemName.schema";
-import NameDialog from "@/components/dashboard/NameDialog";
-import type { NameDialogContent } from "@/components/dashboard/NameDialog";
+import NameDialog from "@/components/dashboard/dialogs/NameDialog";
+import type { NameDialogContent } from "@/components/dashboard/dialogs/NameDialog";
 
 interface RenameDialogProps {
 	open: boolean;

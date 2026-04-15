@@ -14,10 +14,10 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import FolderCard from "@/components/dashboard/FolderCard";
-import FileCard from "@/components/dashboard/FileCard";
+import FolderCard from "@/components/dashboard/cards/FolderCard";
+import FileCard from "@/components/dashboard/cards/FileCard";
 import DirectorySkeleton from "@/components/dashboard/DirectorySkeleton";
-import CreateFolderDialog from "@/components/dashboard/CreateFolderDialog";
+import CreateFolderDialog from "@/components/dashboard/dialogs/CreateFolderDialog";
 import ToolbarDropdown from "@/components/dashboard/ToolbarDropdown";
 import UploadProgress from "@/components/dashboard/UploadProgress";
 

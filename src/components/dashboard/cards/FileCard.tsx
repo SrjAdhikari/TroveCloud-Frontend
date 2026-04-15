@@ -1,4 +1,4 @@
-//* src/components/dashboard/FileCard.tsx
+//* src/components/dashboard/cards/FileCard.tsx
 
 import { useState } from "react";
 import { toast } from "sonner";
@@ -7,9 +7,10 @@ import { formatDate } from "@/lib/dateFormatters";
 import { getFileIcon } from "@/lib/iconMapper";
 import type { FileItemPayload } from "@/types/directory.types";
 import { useDownloadFile } from "@/hooks/useFile";
-import ItemActions from "@/components/dashboard/ItemActions";
-import RenameDialog from "@/components/dashboard/RenameDialog";
-import DeleteDialog from "@/components/dashboard/DeleteDialog";
+import ItemActions from "@/components/dashboard/cards/ItemActions";
+import RenameDialog from "@/components/dashboard/dialogs/RenameDialog";
+import DeleteDialog from "@/components/dashboard/dialogs/DeleteDialog";
+import FilePreviewDialog from "@/components/dashboard/dialogs/FilePreviewDialog";
 
 interface FileCardProps {
 	file: FileItemPayload;
@@ -20,8 +21,10 @@ interface FileCardProps {
  * Includes a three-dot menu for rename, download, and delete actions.
  */
 const FileCard = ({ file }: FileCardProps) => {
+	const [showPreview, setShowPreview] = useState(false);
 	const [showRename, setShowRename] = useState(false);
 	const [showDelete, setShowDelete] = useState(false);
+
 	const { icon: Icon, color } = getFileIcon(file.extension);
 	const { mutate: download } = useDownloadFile();
 
@@ -47,11 +50,17 @@ const FileCard = ({ file }: FileCardProps) => {
 
 	return (
 		<>
-			<div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent">
+			<div
+				role="button"
+				tabIndex={0}
+				onClick={() => setShowPreview(true)}
+				onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
+				className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-accent cursor-pointer"
+			>
 				<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
 					<Icon className={`size-5 ${color}`} />
 				</div>
-				
+
 				<div className="min-w-0 flex-1">
 					<p className="truncate text-sm font-medium">{file.name}</p>
 					<p className="text-xs text-muted-foreground">
@@ -62,9 +71,17 @@ const FileCard = ({ file }: FileCardProps) => {
 				<ItemActions
 					onRename={() => setShowRename(true)}
 					onDelete={() => setShowDelete(true)}
+					onPreview={() => setShowPreview(true)}
 					onDownload={handleDownload}
 				/>
 			</div>
+
+			<FilePreviewDialog
+				open={showPreview}
+				onOpenChange={setShowPreview}
+				file={file}
+				onDownload={handleDownload}
+			/>
 
 			<RenameDialog
 				open={showRename}
