@@ -1,8 +1,10 @@
 //* src/components/layout/DashboardLayout.tsx
 
+import { useState } from "react";
 import { Outlet } from "react-router";
-import { Cloud, Ellipsis, FolderClosed, LogOut } from "lucide-react";
+import { Cloud, Ellipsis, FolderClosed, LogOut, Settings } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useAuth";
+import LogoutDialog from "@/components/dashboard/dialogs/LogoutDialog";
 
 import {
 	Sidebar,
@@ -52,6 +54,8 @@ const getInitials = (name: string) => {
  */
 const DashboardLayout = () => {
 	const { data: userResponse } = useCurrentUser();
+	const [logoutOpen, setLogoutOpen] = useState(false);
+
 	const user = userResponse?.data;
 
 	return (
@@ -97,7 +101,7 @@ const DashboardLayout = () => {
 				</SidebarContent>
 
 				{/* User menu with dropdown */}
-				<SidebarFooter>
+				<SidebarFooter className="border-t">
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<DropdownMenu>
@@ -133,11 +137,12 @@ const DashboardLayout = () => {
 								</DropdownMenuTrigger>
 
 								<DropdownMenuContent
-									className="w-56"
-									side="right"
-									align="end"
-									sideOffset={8}
+									className="w-[calc(var(--radix-dropdown-menu-trigger-width)-0.5rem)] min-w-56"
+									side="top"
+									align="center"
+									sideOffset={16}
 								>
+									{/* User info */}
 									<DropdownMenuLabel className="font-normal">
 										<div className="flex items-center gap-3 px-1 py-1">
 											<Avatar className="size-8">
@@ -165,15 +170,41 @@ const DashboardLayout = () => {
 
 									<DropdownMenuSeparator />
 
+									{/* TODO: Replace hardcoded values with real storage data once backend supports it */}
+									<div className="px-3 py-2">
+										<div className="flex items-center justify-between text-xs text-muted-foreground">
+											<span>Storage</span>
+											<span>2.4 / 10 GB</span>
+										</div>
+
+										<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+											<div
+												className="h-full rounded-full bg-blue-500"
+												style={{ width: "24%" }}
+											/>
+										</div>
+									</div>
+
+									<DropdownMenuSeparator />
+
+									{/* Settings */}
 									<DropdownMenuGroup>
-										<DropdownMenuItem>
+										<DropdownMenuItem className="cursor-pointer">
+											<Settings className="mr-2 size-4" />
+											Settings
+										</DropdownMenuItem>
+									</DropdownMenuGroup>
+
+									<DropdownMenuSeparator />
+
+									{/* Logout */}
+									<DropdownMenuGroup>
+										<DropdownMenuItem
+											className="cursor-pointer"
+											onSelect={() => setLogoutOpen(true)}
+										>
 											<LogOut className="mr-2 size-4" />
 											Log out
-										</DropdownMenuItem>
-
-										<DropdownMenuItem>
-											<LogOut className="mr-2 size-4" />
-											Log out everywhere
 										</DropdownMenuItem>
 									</DropdownMenuGroup>
 								</DropdownMenuContent>
@@ -199,6 +230,8 @@ const DashboardLayout = () => {
 					<Outlet />
 				</div>
 			</SidebarInset>
+
+			<LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />
 		</SidebarProvider>
 	);
 };
