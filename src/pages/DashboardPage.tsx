@@ -113,7 +113,7 @@ const DashboardPage = () => {
 							<h2 className="mb-3 text-sm font-medium text-muted-foreground">
 								Folders
 							</h2>
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+							<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 								{folders.map((folder) => (
 									<FolderCard key={folder._id} folder={folder} />
 								))}
@@ -127,7 +127,7 @@ const DashboardPage = () => {
 							<h2 className="mb-3 text-sm font-medium text-muted-foreground">
 								Files
 							</h2>
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+							<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 								{files.map((file) => (
 									<FileCard key={file._id} file={file} />
 								))}

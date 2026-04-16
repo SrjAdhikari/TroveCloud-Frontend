@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router";
 
-import { formatDate } from "@/lib/dateFormatters";
+import { formatDate, formatFileSize } from "@/lib/formatters";
 import { getFolderIcon } from "@/lib/iconMapper";
 import type { DirectoryItemPayload } from "@/types/directory.types";
 import ItemActions from "@/components/dashboard/cards/ItemActions";
@@ -30,6 +30,20 @@ const FolderCard = ({ folder }: FolderCardProps) => {
 		setSearchParams({ dir: folder._id });
 	};
 
+	/** Builds a short summary string like "3 files · 1.2 MB" */
+	const buildMeta = (): string | null => {
+		const parts: string[] = [];
+		if (folder.fileCount != null) {
+			parts.push(`${folder.fileCount} ${folder.fileCount === 1 ? "file" : "files"}`);
+		}
+		if (folder.totalSize != null) {
+			parts.push(formatFileSize(folder.totalSize));
+		}
+		return parts.length > 0 ? parts.join(" · ") : null;
+	};
+
+	const meta = buildMeta();
+
 	return (
 		<>
 			<div
@@ -37,25 +51,36 @@ const FolderCard = ({ folder }: FolderCardProps) => {
 				tabIndex={0}
 				onClick={handleClick}
 				onKeyDown={(e) => e.key === "Enter" && handleClick()}
-				className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-accent cursor-pointer"
+				className="group rounded-xl border border-border bg-card p-4 text-left transition-all hover:bg-accent/50 hover:shadow-sm cursor-pointer"
 			>
-				<div
-					className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${bg}`}
-				>
-					<Icon className={`size-5 ${color}`} />
+				{/* Top row — icon + meta + actions */}
+				<div className="flex items-start justify-between">
+					<div
+						className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${bg}`}
+					>
+						<Icon className={`size-6 ${color}`} />
+					</div>
+
+					<div className="flex items-center gap-2">
+						{meta && (
+							<span className="text-xs text-muted-foreground">
+								{meta}
+							</span>
+						)}
+						<ItemActions
+							onRename={() => setShowRename(true)}
+							onDelete={() => setShowDelete(true)}
+						/>
+					</div>
 				</div>
 
-				<div className="min-w-0 flex-1">
+				{/* Bottom — folder name + date */}
+				<div className="mt-4 min-w-0">
 					<p className="truncate text-sm font-medium">{folder.name}</p>
-					<p className="text-xs text-muted-foreground">
+					<p className="mt-1 text-xs text-muted-foreground">
 						{formatDate(folder.updatedAt)}
 					</p>
 				</div>
-
-				<ItemActions
-					onRename={() => setShowRename(true)}
-					onDelete={() => setShowDelete(true)}
-				/>
 			</div>
 
 			<RenameDialog
