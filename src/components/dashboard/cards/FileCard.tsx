@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { formatDate, formatFileSize } from "@/lib/formatters";
+import { formatDate } from "@/lib/dateFormatters";
 import { getFileIcon } from "@/lib/iconMapper";
 import type { FileItemPayload } from "@/types/directory.types";
 import { useDownloadFile } from "@/hooks/useFile";
@@ -25,7 +25,7 @@ const FileCard = ({ file }: FileCardProps) => {
 	const [showRename, setShowRename] = useState(false);
 	const [showDelete, setShowDelete] = useState(false);
 
-	const { icon: Icon, color, src } = getFileIcon(file.extension);
+	const { icon: Icon, color } = getFileIcon(file.extension);
 	const { mutate: download } = useDownloadFile();
 
 	/**
@@ -55,40 +55,25 @@ const FileCard = ({ file }: FileCardProps) => {
 				tabIndex={0}
 				onClick={() => setShowPreview(true)}
 				onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
-				className="group rounded-xl border border-border bg-card p-4 text-left transition-all hover:bg-accent/50 hover:shadow-sm cursor-pointer"
+				className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-accent cursor-pointer"
 			>
-				{/* Top row — icon + file size + actions */}
-				<div className="flex items-start justify-between">
-					<div className="flex size-12 shrink-0 items-center justify-center">
-						{src ? (
-							<img src={src} alt="" className="size-12" />
-						) : (
-							<Icon className={`size-8 ${color}`} />
-						)}
-					</div>
-
-					<div className="flex items-center gap-2">
-						{file.size != null && (
-							<span className="text-xs text-muted-foreground">
-								{formatFileSize(file.size)}
-							</span>
-						)}
-						<ItemActions
-							onRename={() => setShowRename(true)}
-							onDelete={() => setShowDelete(true)}
-							onPreview={() => setShowPreview(true)}
-							onDownload={handleDownload}
-						/>
-					</div>
+				<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+					<Icon className={`size-5 ${color}`} />
 				</div>
 
-				{/* Bottom — file name + date */}
-				<div className="mt-4 min-w-0">
+				<div className="min-w-0 flex-1">
 					<p className="truncate text-sm font-medium">{file.name}</p>
-					<p className="mt-1 text-xs text-muted-foreground">
+					<p className="text-xs text-muted-foreground">
 						{formatDate(file.updatedAt)}
 					</p>
 				</div>
+
+				<ItemActions
+					onRename={() => setShowRename(true)}
+					onDelete={() => setShowDelete(true)}
+					onPreview={() => setShowPreview(true)}
+					onDownload={handleDownload}
+				/>
 			</div>
 
 			<FilePreviewDialog

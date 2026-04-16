@@ -57,15 +57,11 @@ const PreviewContent = ({ file }: PreviewContentProps) => {
 			return <TextPreview url={previewUrl} />;
 
 		default: {
-			const { icon: Icon, color, src } = getFileIcon(file.extension);
+			const { icon: Icon, color } = getFileIcon(file.extension);
 			return (
 				<div className="flex flex-col items-center gap-5 py-8">
-					<div className="flex size-16 items-center justify-center">
-						{src ? (
-							<img src={src} alt="" className="size-16" />
-						) : (
-							<Icon className={`size-10 ${color}`} />
-						)}
+					<div className="flex size-16 items-center justify-center rounded-xl bg-muted">
+						<Icon className={`size-8 ${color}`} />
 					</div>
 
 					<div className="flex items-center gap-1.5 text-sm text-muted-foreground">

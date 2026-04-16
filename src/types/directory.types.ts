@@ -11,8 +11,6 @@ export interface DirectoryItemPayload {
 	name: string;
 	parentDirId: string | null;
 	userId: string;
-	fileCount?: number;
-	totalSize?: number;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -22,7 +20,6 @@ export interface FileItemPayload {
 	_id: string;
 	name: string;
 	extension: string;
-	size?: number;
 	parentDirId: string;
 	userId: string;
 	createdAt: string;
