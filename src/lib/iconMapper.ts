@@ -20,72 +20,80 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 
+
 // ─── File Icons ──────────────────────────────────────────────
 
 interface FileIconEntry {
 	icon: LucideIcon;
 	color: string;
+	src?: string;
 }
 
-/** Maps file extensions to lucide icons and colors, grouped by category */
+/** Base path for custom file-type SVG icons */
+const ICON_BASE = "/assets/icons";
+
+/** Maps file extensions to custom SVG icons with Lucide fallbacks, grouped by category */
 const FILE_ICON_MAP: Record<string, FileIconEntry> = {
 	// Documents
-	pdf: { icon: FileText, color: "text-red-500" },
-	doc: { icon: FileText, color: "text-blue-600" },
-	docx: { icon: FileText, color: "text-blue-600" },
-	txt: { icon: FileText, color: "text-gray-500" },
-	md: { icon: FileText, color: "text-gray-500" },
-	rtf: { icon: FileText, color: "text-gray-500" },
+	pdf: { icon: FileText, color: "text-red-500", src: `${ICON_BASE}/pdf.svg` },
+	doc: { icon: FileText, color: "text-blue-600", src: `${ICON_BASE}/doc.svg` },
+	docx: { icon: FileText, color: "text-blue-600", src: `${ICON_BASE}/doc.svg` },
+	txt: { icon: FileText, color: "text-gray-500", src: `${ICON_BASE}/txt.svg` },
+	md: { icon: FileText, color: "text-gray-500", src: `${ICON_BASE}/md.svg` },
+	rtf: { icon: FileText, color: "text-gray-500", src: `${ICON_BASE}/rtf.svg` },
+	ppt: { icon: FileText, color: "text-orange-500", src: `${ICON_BASE}/ppt.svg` },
+	pptx: { icon: FileText, color: "text-orange-500", src: `${ICON_BASE}/ppt.svg` },
 
 	// Spreadsheets
-	xls: { icon: FileSpreadsheet, color: "text-green-600" },
-	xlsx: { icon: FileSpreadsheet, color: "text-green-600" },
-	csv: { icon: FileSpreadsheet, color: "text-green-600" },
+	xls: { icon: FileSpreadsheet, color: "text-green-600", src: `${ICON_BASE}/xls.svg` },
+	xlsx: { icon: FileSpreadsheet, color: "text-green-600", src: `${ICON_BASE}/xls.svg` },
+	csv: { icon: FileSpreadsheet, color: "text-green-600", src: `${ICON_BASE}/csv.svg` },
 
 	// Images
-	png: { icon: FileImage, color: "text-purple-500" },
-	jpg: { icon: FileImage, color: "text-purple-500" },
-	jpeg: { icon: FileImage, color: "text-purple-500" },
-	gif: { icon: FileImage, color: "text-purple-500" },
-	svg: { icon: FileImage, color: "text-purple-500" },
-	webp: { icon: FileImage, color: "text-purple-500" },
+	png: { icon: FileImage, color: "text-purple-500", src: `${ICON_BASE}/png.svg` },
+	jpg: { icon: FileImage, color: "text-purple-500", src: `${ICON_BASE}/jpg.svg` },
+	jpeg: { icon: FileImage, color: "text-purple-500", src: `${ICON_BASE}/jpg.svg` },
+	gif: { icon: FileImage, color: "text-purple-500", src: `${ICON_BASE}/gif.svg` },
+	svg: { icon: FileImage, color: "text-purple-500", src: `${ICON_BASE}/svg.svg` },
+	webp: { icon: FileImage, color: "text-purple-500", src: `${ICON_BASE}/webp.svg` },
 
 	// Video
-	mp4: { icon: FileVideo, color: "text-pink-500" },
-	mov: { icon: FileVideo, color: "text-pink-500" },
-	avi: { icon: FileVideo, color: "text-pink-500" },
-	mkv: { icon: FileVideo, color: "text-pink-500" },
+	mp4: { icon: FileVideo, color: "text-pink-500", src: `${ICON_BASE}/mp4.svg` },
+	mov: { icon: FileVideo, color: "text-pink-500", src: `${ICON_BASE}/mov.svg` },
+	avi: { icon: FileVideo, color: "text-pink-500", src: `${ICON_BASE}/avi.svg` },
+	mkv: { icon: FileVideo, color: "text-pink-500", src: `${ICON_BASE}/mkv.svg` },
 
 	// Audio
-	mp3: { icon: FileAudio, color: "text-orange-500" },
-	wav: { icon: FileAudio, color: "text-orange-500" },
-	flac: { icon: FileAudio, color: "text-orange-500" },
+	mp3: { icon: FileAudio, color: "text-orange-500", src: `${ICON_BASE}/mp3.svg` },
+	wav: { icon: FileAudio, color: "text-orange-500", src: `${ICON_BASE}/wav.svg` },
+	flac: { icon: FileAudio, color: "text-orange-500", src: `${ICON_BASE}/flac.svg` },
 
 	// Archives
-	zip: { icon: FileArchive, color: "text-yellow-600" },
-	rar: { icon: FileArchive, color: "text-yellow-600" },
-	"7z": { icon: FileArchive, color: "text-yellow-600" },
-	tar: { icon: FileArchive, color: "text-yellow-600" },
-	gz: { icon: FileArchive, color: "text-yellow-600" },
+	zip: { icon: FileArchive, color: "text-yellow-600", src: `${ICON_BASE}/zip.svg` },
+	rar: { icon: FileArchive, color: "text-yellow-600", src: `${ICON_BASE}/rar.svg` },
+	"7z": { icon: FileArchive, color: "text-yellow-600", src: `${ICON_BASE}/7z.svg` },
 
-	// Code
-	js: { icon: FileCode, color: "text-yellow-500" },
-	ts: { icon: FileCode, color: "text-blue-500" },
-	jsx: { icon: FileCode, color: "text-cyan-500" },
-	tsx: { icon: FileCode, color: "text-cyan-500" },
-	html: { icon: FileCode, color: "text-orange-600" },
-	css: { icon: FileCode, color: "text-blue-400" },
-	json: { icon: FileCode, color: "text-gray-500" },
-	py: { icon: FileCode, color: "text-green-500" },
+	// Code & Config
+	js: { icon: FileCode, color: "text-yellow-500", src: `${ICON_BASE}/js.svg` },
+	ts: { icon: FileCode, color: "text-blue-500", src: `${ICON_BASE}/ts.svg` },
+	html: { icon: FileCode, color: "text-orange-600", src: `${ICON_BASE}/html.svg` },
+	css: { icon: FileCode, color: "text-blue-400", src: `${ICON_BASE}/css.svg` },
+	json: { icon: FileCode, color: "text-gray-500", src: `${ICON_BASE}/json.svg` },
+	py: { icon: FileCode, color: "text-green-500", src: `${ICON_BASE}/py.svg` },
+	sql: { icon: FileCode, color: "text-blue-500", src: `${ICON_BASE}/sql.svg` },
+
+	// Executables
+	exe: { icon: File, color: "text-gray-600", src: `${ICON_BASE}/exe.svg` },
 };
 
 const DEFAULT_FILE_ICON: FileIconEntry = {
 	icon: File,
 	color: "text-muted-foreground",
+	src: `${ICON_BASE}/file.svg`,
 };
 
 /**
- * Returns the icon and color for a file based on its extension.
+ * Returns the icon, color, and optional custom SVG path for a file based on its extension.
  * Falls back to a generic file icon for unknown extensions.
  */
 const getFileIcon = (extension: string): FileIconEntry => {

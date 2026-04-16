@@ -28,7 +28,7 @@ const ItemActions = ({ onRename, onDelete, onPreview, onDownload }: ItemActionsP
 				<Button
 					variant="ghost"
 					size="icon"
-					className="size-7 shrink-0 cursor-pointer"
+					className="size-7 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
 					onClick={(e) => e.stopPropagation()}
 				>
 					<EllipsisVertical className="size-4" />
