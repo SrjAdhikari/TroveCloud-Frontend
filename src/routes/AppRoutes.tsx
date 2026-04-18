@@ -11,6 +11,7 @@ import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import DashboardPage from "@/pages/DashboardPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 /**
  * Central route definitions for the app.
@@ -36,6 +37,7 @@ const AppRoutes = () => {
 			<Route element={<ProtectedRoute />}>
 				<Route element={<DashboardLayout />}>
 					<Route path="/dashboard" element={<DashboardPage />} />
+					<Route path="/settings" element={<SettingsPage />} />
 				</Route>
 			</Route>
 		</Routes>

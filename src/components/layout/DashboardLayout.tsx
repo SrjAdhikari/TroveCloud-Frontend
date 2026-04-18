@@ -1,7 +1,7 @@
 //* src/components/layout/DashboardLayout.tsx
 
 import { useState } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import { Cloud, Ellipsis, FolderClosed, LogOut, Settings } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useAuth";
 import LogoutDialog from "@/components/dashboard/dialogs/LogoutDialog";
@@ -53,6 +53,7 @@ const getInitials = (name: string) => {
  * Sidebar uses collapsible="icon" to show only icons when collapsed.
  */
 const DashboardLayout = () => {
+	const navigate = useNavigate();
 	const { data: userResponse } = useCurrentUser();
 	const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -189,7 +190,10 @@ const DashboardLayout = () => {
 
 									{/* Settings */}
 									<DropdownMenuGroup>
-										<DropdownMenuItem className="cursor-pointer">
+										<DropdownMenuItem
+											className="cursor-pointer"
+											onSelect={() => navigate("/settings")}
+										>
 											<Settings className="mr-2 size-4" />
 											Settings
 										</DropdownMenuItem>
