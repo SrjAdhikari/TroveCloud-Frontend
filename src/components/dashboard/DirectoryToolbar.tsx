@@ -1,0 +1,122 @@
+//* src/components/dashboard/DirectoryToolbar.tsx
+
+import { FolderPlus, FolderUp, LayoutGrid, List, Upload } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface DirectoryToolbarProps {
+	view: "grid" | "list";
+	onNewFolder: () => void;
+	onUploadFiles: () => void;
+	onToggleView: () => void;
+}
+
+/**
+ * Toolbar with icon buttons for directory actions —
+ * new folder, upload files, upload folder (placeholder),
+ * import from drive (placeholder), and grid/list view toggle.
+ */
+const DirectoryToolbar = ({
+	view,
+	onNewFolder,
+	onUploadFiles,
+	onToggleView,
+}: DirectoryToolbarProps) => {
+	return (
+		<div className="flex items-center gap-3">
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={onNewFolder}
+						className="size-8 cursor-pointer"
+					>
+						<FolderPlus className="size-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>New Folder</TooltipContent>
+			</Tooltip>
+
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={onUploadFiles}
+						className="size-8 cursor-pointer"
+					>
+						<Upload className="size-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>Upload Files</TooltipContent>
+			</Tooltip>
+
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="outline"
+						size="icon"
+						className="size-8 cursor-pointer"
+					>
+						<FolderUp className="size-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>Upload Folder — Coming soon</TooltipContent>
+			</Tooltip>
+
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="outline"
+						size="icon"
+						className="size-8 cursor-pointer"
+					>
+						<svg
+							viewBox="0 0 48 48"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="3"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							className="size-4"
+						>
+							<path d="M18.15,7.11,4.5,30.75l5.85,10.14h27.3L43.5,30.75,29.85,7.11Z" />
+							<line x1="4.5" y1="30.75" x2="31.79" y2="30.75" />
+							<line x1="37.65" y1="40.89" x2="24" y2="17.25" />
+							<line x1="29.85" y1="7.11" x2="16.21" y2="30.75" />
+						</svg>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>Import from Drive — Coming soon</TooltipContent>
+			</Tooltip>
+
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={onToggleView}
+						className="size-8 cursor-pointer"
+					>
+						{view === "grid" ? (
+							<List className="size-4" />
+						) : (
+							<LayoutGrid className="size-4" />
+						)}
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					{view === "grid" ? "List view" : "Grid view"}
+				</TooltipContent>
+			</Tooltip>
+		</div>
+	);
+};
+
+export default DirectoryToolbar;
