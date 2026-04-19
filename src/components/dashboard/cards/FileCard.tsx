@@ -58,7 +58,7 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 				onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
 				className={`group text-left transition-all cursor-pointer ${
 					view === "list"
-						? "grid grid-cols-[auto_3fr_2fr_1fr_auto] items-center gap-4 px-4 py-3 hover:bg-accent/50 rounded-lg *:last:ml-20 xl:*:last:ml-30"
+						? "grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_3fr_2fr_auto] lg:grid-cols-[auto_3fr_2fr_1fr_auto] items-center gap-4 px-4 py-3 hover:bg-accent/50 rounded-lg lg:*:last:ml-20 xl:*:last:ml-30"
 						: "rounded-xl border border-border bg-card p-4 hover:bg-accent/50 hover:shadow-sm"
 				}`}
 			>
@@ -84,11 +84,11 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 							</p>
 						</div>
 
-						<span className="text-sm text-muted-foreground text-right">
+						<span className="hidden md:block text-sm text-muted-foreground text-right">
 							{formatDateTime(file.updatedAt)}
 						</span>
 
-						<span className="text-sm text-muted-foreground text-right">
+						<span className="hidden lg:block text-sm text-muted-foreground text-right">
 							{file.size != null ? formatFileSize(file.size) : "--"}
 						</span>
 
