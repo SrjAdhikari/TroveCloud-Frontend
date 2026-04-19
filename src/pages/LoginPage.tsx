@@ -40,7 +40,7 @@ const LoginPage = () => {
 				toast.success(res.message || "Login successful");
 				reset();
 
-				// Invalidate cached auth state so "GuestRoute" refetches and redirects to "/dashboard"
+				// Invalidate cached auth state so "GuestRoute" refetches and redirects to "/my-files"
 				// Because we set staleTime to Infinity in "useCurrentUser". So, manual invalidation is required
 				queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 			},
