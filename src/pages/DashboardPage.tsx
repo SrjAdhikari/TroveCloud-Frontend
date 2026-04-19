@@ -1,6 +1,6 @@
 //* src/pages/DashboardPage.tsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
 
@@ -62,6 +62,18 @@ const DashboardPage = () => {
 	const isRoot = !directory?.parentDirId;
 	const { uploads, upload, dismiss, cancel } = useFileUpload(dirId);
 
+	/** Listen for actions dispatched from the sidebar "New" button */
+	useEffect(() => {
+		const handleAction = (e: Event) => {
+			const action = (e as CustomEvent).detail;
+			if (action === "new-folder") setShowCreateFolder(true);
+			if (action === "upload-files") setShowUpload(true);
+		};
+
+		window.addEventListener("dashboard:action", handleAction);
+		return () => window.removeEventListener("dashboard:action", handleAction);
+	}, []);
+
 	/** Toggle between grid and list view, persisting the choice in localStorage. */
 	const toggleView = () => {
 		const next = view === "grid" ? "list" : "grid";
@@ -83,8 +95,15 @@ const DashboardPage = () => {
 		return <DirectorySkeleton />;
 	}
 
-	const folders = directory?.childDirectories ?? [];
-	const files = directory?.files ?? [];
+	const searchQuery = searchParams.get("q")?.toLowerCase() || "";
+
+	/** Filter folders and files by name when a search query is active */
+	const folders = (directory?.childDirectories ?? []).filter((f) =>
+		f.name.toLowerCase().includes(searchQuery),
+	);
+	const files = (directory?.files ?? []).filter((f) =>
+		f.name.toLowerCase().includes(searchQuery),
+	);
 	const isEmpty = folders.length === 0 && files.length === 0;
 
 	return (
@@ -122,7 +141,18 @@ const DashboardPage = () => {
 			</div>
 
 			{isEmpty ? (
-				<EmptyDirectory />
+				searchQuery ? (
+					<div className="flex min-h-[calc(100svh-12rem)] flex-col items-center justify-center text-muted-foreground">
+						<h2 className="font-heading text-xl font-semibold text-foreground">
+							No results found
+						</h2>
+						<p className="mt-1 text-sm">
+							No files or folders match &ldquo;{searchParams.get("q")}&rdquo;
+						</p>
+					</div>
+				) : (
+					<EmptyDirectory />
+				)
 			) : (
 				<>
 					{/* Folders */}
