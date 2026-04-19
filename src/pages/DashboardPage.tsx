@@ -17,16 +17,37 @@ import {
 import FolderCard from "@/components/dashboard/cards/FolderCard";
 import FileCard from "@/components/dashboard/cards/FileCard";
 import DirectorySkeleton from "@/components/dashboard/DirectorySkeleton";
+import DirectoryToolbar from "@/components/dashboard/DirectoryToolbar";
+import EmptyDirectory from "@/components/dashboard/EmptyDirectory";
 import CreateFolderDialog from "@/components/dashboard/dialogs/CreateFolderDialog";
-import ToolbarDropdown from "@/components/dashboard/ToolbarDropdown";
+import UploadDialog from "@/components/dashboard/dialogs/UploadDialog";
 import UploadProgress from "@/components/dashboard/UploadProgress";
 
 /**
  * Main dashboard page — fetches and displays the contents of the current directory.
  * Reads the directory ID from the `dir` search param (defaults to root if absent).
  */
+const STORAGE_KEY = "view";
+
+/**
+ * Reads the saved view preference from localStorage.
+ * Falls back to "grid" if no preference is stored.
+ */
+const getSavedView = (): "grid" | "list" => {
+	const saved = localStorage.getItem(STORAGE_KEY);
+	return saved === "list" ? "list" : "grid";
+};
+
+/** CSS class for the grid/list container shared by folders and files sections */
+const getContainerClass = (view: "grid" | "list") =>
+	view === "grid"
+		? "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+		: "rounded-xl border border-border bg-card divide-y divide-border";
+
 const DashboardPage = () => {
 	const [showCreateFolder, setShowCreateFolder] = useState(false);
+	const [showUpload, setShowUpload] = useState(false);
+	const [view, setView] = useState<"grid" | "list">(getSavedView);
 	const navigate = useNavigate();
 
 	const [searchParams] = useSearchParams();
@@ -40,6 +61,13 @@ const DashboardPage = () => {
 
 	const isRoot = !directory?.parentDirId;
 	const { uploads, upload, dismiss, cancel } = useFileUpload(dirId);
+
+	/** Toggle between grid and list view, persisting the choice in localStorage. */
+	const toggleView = () => {
+		const next = view === "grid" ? "list" : "grid";
+		setView(next);
+		localStorage.setItem(STORAGE_KEY, next);
+	};
 
 	/** Navigate to the parent directory. Goes to /dashboard (no params) if parent is root. */
 	const handleBack = () => {
@@ -85,26 +113,16 @@ const DashboardPage = () => {
 					</h1>
 				</div>
 
-				<ToolbarDropdown
+				<DirectoryToolbar
+					view={view}
 					onNewFolder={() => setShowCreateFolder(true)}
-					onUpload={upload}
+					onUploadFiles={() => setShowUpload(true)}
+					onToggleView={toggleView}
 				/>
 			</div>
 
 			{isEmpty ? (
-				<div className="flex min-h-[calc(100svh-7rem)] flex-col items-center justify-center text-muted-foreground">
-					<img
-						src="/assets/images/empty-folder.svg"
-						alt="Empty folder illustration"
-						className="mb-6 w-64"
-					/>
-					<h2 className="font-heading text-xl font-semibold text-foreground">
-						This folder is empty
-					</h2>
-					<p className="mt-1 text-sm">
-						Upload files or create a folder to get started
-					</p>
-				</div>
+				<EmptyDirectory />
 			) : (
 				<>
 					{/* Folders */}
@@ -113,9 +131,10 @@ const DashboardPage = () => {
 							<h2 className="mb-3 text-sm font-medium text-muted-foreground">
 								Folders
 							</h2>
-							<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+
+							<div className={getContainerClass(view)}>
 								{folders.map((folder) => (
-									<FolderCard key={folder._id} folder={folder} />
+									<FolderCard key={folder._id} folder={folder} view={view} />
 								))}
 							</div>
 						</section>
@@ -127,9 +146,10 @@ const DashboardPage = () => {
 							<h2 className="mb-3 text-sm font-medium text-muted-foreground">
 								Files
 							</h2>
-							<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+
+							<div className={getContainerClass(view)}>
 								{files.map((file) => (
-									<FileCard key={file._id} file={file} />
+									<FileCard key={file._id} file={file} view={view} />
 								))}
 							</div>
 						</section>
@@ -144,12 +164,15 @@ const DashboardPage = () => {
 				parentDirId={dirId}
 			/>
 
-			{/* Upload progress panel — fixed bottom-right */}
-			<UploadProgress
-				uploads={uploads}
-				onDismiss={dismiss}
-				onCancel={cancel}
+			{/* Upload dialog */}
+			<UploadDialog
+				open={showUpload}
+				onOpenChange={setShowUpload}
+				onUpload={upload}
 			/>
+
+			{/* Upload progress panel — fixed bottom-right */}
+			<UploadProgress uploads={uploads} onDismiss={dismiss} onCancel={cancel} />
 		</div>
 	);
 };

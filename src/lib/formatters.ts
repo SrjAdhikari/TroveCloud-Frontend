@@ -26,4 +26,18 @@ const formatFileSize = (bytes: number): string => {
 	return `${size % 1 === 0 ? size : size.toFixed(1)} ${units[i]}`;
 };
 
-export { formatDate, formatFileSize };
+/**
+ * Formats an ISO date string into a readable format with time.
+ * e.g., "2026-04-12T10:30:00Z" → "Apr 12, 2026, 10:30 AM"
+ */
+const formatDateTime = (dateStr: string) => {
+	return new Date(dateStr).toLocaleString("en-US", {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+		hour: "numeric",
+		minute: "2-digit",
+	});
+};
+
+export { formatDate, formatFileSize, formatDateTime };
