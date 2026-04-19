@@ -1,4 +1,4 @@
-//* src/components/dashboard/DirectoryToolbar.tsx
+//* src/components/dashboard/directory/DirectoryToolbar.tsx
 
 import { FolderPlus, FolderUp, LayoutGrid, List, Upload } from "lucide-react";
 

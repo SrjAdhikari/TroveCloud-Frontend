@@ -1,6 +1,6 @@
 //* src/routes/AppRoutes.tsx
 
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route } from "react-router";
 
 import GuestRoute from "@/routes/GuestRoute";
 import ProtectedRoute from "@/routes/ProtectedRoute";
@@ -15,8 +15,8 @@ import SettingsPage from "@/pages/SettingsPage";
 
 /**
  * Central route definitions for the app.
- * Guest routes (auth pages) redirect to dashboard if already logged in.
- * Protected routes redirect to login if not authenticated.
+ * Guest routes (auth pages) redirect to /my-files if already logged in.
+ * Protected routes redirect to /login if not authenticated.
  */
 const AppRoutes = () => {
 	return (
@@ -30,13 +30,10 @@ const AppRoutes = () => {
 				</Route>
 			</Route>
 
-			{/* Root redirect */}
-			<Route path="/" element={<Navigate to="/login" replace />} />
-
 			{/* Protected routes — accessible only when logged in */}
 			<Route element={<ProtectedRoute />}>
 				<Route element={<DashboardLayout />}>
-					<Route path="/dashboard" element={<DashboardPage />} />
+					<Route path="/my-files" element={<DashboardPage />} />
 					<Route path="/settings" element={<SettingsPage />} />
 				</Route>
 			</Route>

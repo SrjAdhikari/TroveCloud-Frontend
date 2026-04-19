@@ -1,4 +1,4 @@
-//* src/components/dashboard/EmptyDirectory.tsx
+//* src/components/dashboard/directory/EmptyDirectory.tsx
 
 /**
  * Placeholder shown when a directory has no files or folders.
