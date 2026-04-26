@@ -25,6 +25,12 @@ const variantIcons: Record<Variant, ReactNode> = {
 	info: <Info size={16} className="shrink-0 mt-0.5" />,
 };
 
+const variantRoles: Record<Variant, "alert" | "status"> = {
+	error: "alert",
+	warning: "status",
+	info: "status",
+};
+
 /**
  * Tinted banner for contextual feedback that doesn't belong to a single field.
  * Use above forms for: wrong credentials, account locked, email-not-verified,
@@ -32,7 +38,7 @@ const variantIcons: Record<Variant, ReactNode> = {
  */
 const AlertBanner = ({ variant, children, className }: AlertBannerProps) => (
 	<div
-		role="alert"
+		role={variantRoles[variant]}
 		className={cn(
 			"flex items-start gap-3 p-3 rounded-lg border text-sm",
 			variantStyles[variant],

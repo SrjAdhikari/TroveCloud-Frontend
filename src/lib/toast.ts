@@ -34,10 +34,14 @@ const warning = (message: string) =>
 	sonner.warning(message, { duration: 5000 });
 
 /**
- * Unexpected server error (5xx) — persistent until the user dismisses it.
+ * Unexpected server error (5xx, network failure, expired session).
+ * Defaults to persistent (Infinity) so the user can't miss it.
+ * Pass `duration` to override for less critical cases.
  */
-const error = (message = "Something went wrong. Please try again.") =>
-	sonner.error(message, { duration: Infinity });
+const error = (
+	message = "Something went wrong. Please try again.",
+	duration: number = Infinity,
+) => sonner.error(message, { duration });
 
 /**
  * Async-aware toast — transitions through loading → success or error

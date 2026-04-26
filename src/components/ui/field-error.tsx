@@ -5,6 +5,7 @@ import { AlertCircle } from "lucide-react";
 import cn from "@/lib/utils";
 
 interface FieldErrorProps {
+	id?: string;
 	message?: string;
 	className?: string;
 }
@@ -12,12 +13,16 @@ interface FieldErrorProps {
 /**
  * Inline field-level error shown directly below an input. Renders nothing when
  * `message` is falsy, so it's safe to mount unconditionally next to any field.
+ *
+ * Pass `id` to wire it via `aria-describedby` on the corresponding input so
+ * screen readers announce the error in context.
  */
-const FieldError = ({ message, className }: FieldErrorProps) => {
+const FieldError = ({ id, message, className }: FieldErrorProps) => {
 	if (!message) return null;
 
 	return (
 		<div
+			id={id}
 			role="alert"
 			className={cn(
 				"flex items-center gap-1.5 mt-1 text-xs text-danger",

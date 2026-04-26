@@ -12,17 +12,23 @@ type ToasterProps = ComponentProps<typeof Sonner>;
  * useTheme hook so toasts visually match the app's light/dark mode.
  * Variant tints use semantic tokens so both modes work automatically.
  */
-const Toaster = (props: ToasterProps) => {
+const Toaster = ({
+	toastOptions: callerToastOptions,
+	theme: _callerTheme,
+	...restProps
+}: ToasterProps) => {
 	const { theme } = useTheme();
 
 	return (
 		<Sonner
+			{...restProps}
 			theme={theme}
 			position="bottom-right"
 			gap={8}
 			visibleToasts={3}
 			closeButton
 			toastOptions={{
+				...callerToastOptions,
 				classNames: {
 					toast:
 						"group flex items-start gap-3 w-full rounded-xl border px-4 py-3 text-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] bg-card border-border text-foreground",
@@ -38,9 +44,9 @@ const Toaster = (props: ToasterProps) => {
 					error: "border-danger/25 bg-danger/5",
 					warning: "border-warning/25 bg-warning/5",
 					info: "border-purple/25 bg-purple/5",
+					...callerToastOptions?.classNames,
 				},
 			}}
-			{...props}
 		/>
 	);
 };
