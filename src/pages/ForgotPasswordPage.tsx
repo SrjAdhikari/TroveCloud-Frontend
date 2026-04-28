@@ -24,7 +24,7 @@ const ForgotPasswordPage = () => {
 	});
 
 	return (
-		<div className="w-full max-w-md rounded-2xl border border-border/50 shadow-lg p-8">
+		<div className="w-full max-w-[400px]">
 			<div className="space-y-2 text-center">
 				<h2 className="font-heading text-3xl font-bold">Forgot Password</h2>
 				<p className="text-sm text-muted-foreground">
@@ -34,11 +34,11 @@ const ForgotPasswordPage = () => {
 
 			<form className="space-y-6 mt-10 mb-3">
 				<FormField
-					label="Email"
+					label="Email Address"
 					id="email"
 					type="email"
 					autoComplete="off"
-					placeholder="Enter your email"
+					placeholder="Enter your email address"
 					error={errors.email?.message}
 					{...register("email")}
 				/>
@@ -46,7 +46,7 @@ const ForgotPasswordPage = () => {
 				{/* Submit — disabled until backend is ready */}
 				<Button
 					type="button"
-					className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed disabled:hover:bg-primary"
+					className="w-full h-11 cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed disabled:hover:bg-primary"
 					disabled
 				>
 					<span className="text-base font-medium">Coming Soon</span>

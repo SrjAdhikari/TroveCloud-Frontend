@@ -41,3 +41,8 @@ export interface VerifyOTPPayload {
 export interface ResendOTPPayload {
 	email: string;
 }
+
+// POST /api/auth/google
+export interface GoogleSignInPayload {
+	idToken: string;
+}
