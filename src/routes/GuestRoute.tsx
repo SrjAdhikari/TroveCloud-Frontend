@@ -2,6 +2,7 @@
 
 import { Navigate, Outlet } from "react-router";
 import { useCurrentUser } from "@/hooks/useAuth";
+import ROUTES from "@/routes/paths";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
@@ -13,7 +14,7 @@ const GuestRoute = () => {
 	const { data, isLoading } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	if (data) return <Navigate to="/my-files" replace />;
+	if (data) return <Navigate to={ROUTES.MY_FILES} replace />;
 
 	return <Outlet />;
 };

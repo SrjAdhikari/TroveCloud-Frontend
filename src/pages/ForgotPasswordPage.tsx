@@ -7,6 +7,7 @@ import { Link } from "react-router";
 import FormField from "@/components/form/FormField";
 import { Button } from "@/components/ui/button";
 
+import ROUTES from "@/routes/paths";
 import { resendOTPSchema, type ResendOTPFormData } from "@/schemas/auth.schema";
 
 /**
@@ -36,6 +37,7 @@ const ForgotPasswordPage = () => {
 					label="Email"
 					id="email"
 					type="email"
+					autoComplete="off"
 					placeholder="Enter your email"
 					error={errors.email?.message}
 					{...register("email")}
@@ -44,18 +46,21 @@ const ForgotPasswordPage = () => {
 				{/* Submit — disabled until backend is ready */}
 				<Button
 					type="button"
-					className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed"
+					className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed disabled:hover:bg-primary"
 					disabled
 				>
 					<span className="text-base font-medium">Coming Soon</span>
 				</Button>
 			</form>
 
-			{/* Back to login link */}
+			{/* Back to sign in link */}
 			<p className="text-center text-sm text-muted-foreground">
 				Remember your password?{" "}
-				<Link to="/login" className="font-medium text-primary hover:underline">
-					Back to Login
+				<Link
+					to={ROUTES.ROOT}
+					className="font-medium text-primary hover:underline"
+				>
+					Back to Sign In
 				</Link>
 			</p>
 		</div>
