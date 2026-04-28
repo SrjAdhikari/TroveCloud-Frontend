@@ -60,15 +60,15 @@ const AuthLayout = () => {
 
 				<div className="flex items-center gap-2">
 					<img
-						src="/assets/logos/logo.png"
+						src={`${import.meta.env.BASE_URL}assets/logos/logo.png`}
 						alt="TroveCloud"
 						className="size-10 shrink-0"
 					/>
 					<span className="text-2xl font-bold text-foreground">TroveCloud</span>
 				</div>
 
-				<div className="flex flex-1 flex-col justify-center max-w-lg mx-auto w-full space-y-6 xl:space-y-10">
-					<h1 className="hidden xl:block text-2xl xl:text-3xl font-bold text-foreground leading-tight">
+				<div className="flex flex-1 flex-col justify-center max-w-lg mx-auto w-full xl:gap-10">
+					<h1 className="sr-only xl:not-sr-only text-2xl xl:text-3xl font-bold text-foreground leading-tight">
 						Organize your files the way you want to
 					</h1>
 

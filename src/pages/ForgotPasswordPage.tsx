@@ -37,6 +37,7 @@ const ForgotPasswordPage = () => {
 					label="Email"
 					id="email"
 					type="email"
+					autoComplete="off"
 					placeholder="Enter your email"
 					error={errors.email?.message}
 					{...register("email")}

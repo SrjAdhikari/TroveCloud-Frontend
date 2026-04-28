@@ -47,7 +47,9 @@ const RegisterPage = () => {
 				setTimeout(() => setShowOTP(true), 500);
 			},
 			onError: (error) => {
-				setAuthError(error.message);
+				setAuthError(
+					error.message || "Something went wrong. Please try again.",
+				);
 			},
 		});
 	};
@@ -83,6 +85,7 @@ const RegisterPage = () => {
 						label="Full Name"
 						id="name"
 						type="text"
+						autoComplete="off"
 						placeholder="Enter your full name"
 						error={errors.name?.message}
 						{...register("name")}
@@ -92,6 +95,7 @@ const RegisterPage = () => {
 						label="Email"
 						id="email"
 						type="email"
+						autoComplete="off"
 						placeholder="Enter your email"
 						error={errors.email?.message}
 						{...register("email")}
@@ -101,6 +105,7 @@ const RegisterPage = () => {
 						label="Password"
 						id="password"
 						type="password"
+						autoComplete="off"
 						placeholder="Enter your password"
 						error={errors.password?.message}
 						{...register("password")}

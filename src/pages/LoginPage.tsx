@@ -51,11 +51,20 @@ const LoginPage = () => {
 			},
 			onError: (error) => {
 				if (error.code === "USER_NOT_VERIFIED") {
+					setAuthError("Please verify your email before signing in.");
 					setEmail(data.email);
-					setShowOTP(true);
+
+					setTimeout(() => {
+						setAuthError(null);
+						setShowOTP(true);
+					}, 1500);
+
 					return;
 				}
-				setAuthError(error.message);
+
+				setAuthError(
+					error.message || "Something went wrong. Please try again.",
+				);
 			},
 		});
 	};
@@ -90,6 +99,7 @@ const LoginPage = () => {
 						label="Email Address"
 						id="email"
 						type="email"
+						autoComplete="off"
 						placeholder="Enter your email address"
 						error={errors.email?.message}
 						{...register("email")}
@@ -99,6 +109,7 @@ const LoginPage = () => {
 						label="Password"
 						id="password"
 						type="password"
+						autoComplete="off"
 						placeholder="Enter your password"
 						error={errors.password?.message}
 						labelExtra={
