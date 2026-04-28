@@ -8,6 +8,7 @@ import type {
 	LoginPayload,
 	VerifyOTPPayload,
 	ResendOTPPayload,
+	GoogleSignInPayload,
 } from "@/types/auth.types";
 
 /**
@@ -65,6 +66,17 @@ const login = async (payload: LoginPayload) => {
 };
 
 /**
+ * Signs in (or signs up) a user using a Google ID token.
+ */
+const signInWithGoogle = async (payload: GoogleSignInPayload) => {
+	const { data } = await axiosClient.post<ApiSuccessResponse>(
+		"/auth/google",
+		payload,
+	);
+	return data;
+};
+
+/**
  * Logs out the current session by clearing the cookie and deleting the session.
  */
 const logout = async () => {
@@ -87,6 +99,7 @@ export {
 	verifyOTP,
 	resendOTP,
 	login,
+	signInWithGoogle,
 	logout,
 	logoutAll,
 };

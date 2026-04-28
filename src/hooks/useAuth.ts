@@ -7,6 +7,7 @@ import {
 	verifyOTP,
 	resendOTP,
 	login,
+	signInWithGoogle,
 	logout,
 	logoutAll,
 } from "@/api/auth.api";
@@ -53,6 +54,13 @@ const useLogin = () => {
 };
 
 /**
+ * Mutation hook for signing in with a Google ID token.
+ */
+const useGoogleSignIn = () => {
+	return useMutation({ mutationFn: signInWithGoogle });
+};
+
+/**
  * Mutation hook for logging out the current session.
  */
 const useLogout = () => {
@@ -72,6 +80,7 @@ export {
 	useVerifyOTP,
 	useResendOTP,
 	useLogin,
+	useGoogleSignIn,
 	useLogout,
 	useLogoutAll,
 };
