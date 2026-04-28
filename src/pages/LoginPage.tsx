@@ -5,22 +5,27 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import FormField from "@/components/form/FormField";
 import { Button } from "@/components/ui/button";
+import AlertBanner from "@/components/ui/alert-banner";
 import OTPDialog from "@/components/auth/OTPDialog";
+import toast from "@/lib/toast";
 
+import ROUTES from "@/routes/paths";
 import { loginSchema, type LoginFormData } from "@/schemas/auth.schema";
 import { useLogin } from "@/hooks/useAuth";
 
 /**
  * Login page — email and password form inside the shared AuthLayout.
- * On success, navigates to dashboard. On USER_NOT_VERIFIED, opens OTP dialog.
+ * On success, navigates to dashboard via query invalidation.
+ * On USER_NOT_VERIFIED, opens OTP dialog.
+ * Other errors render inline as an AlertBanner above the form.
  */
 const LoginPage = () => {
 	const [showOTP, setShowOTP] = useState(false);
 	const [email, setEmail] = useState("");
+	const [authError, setAuthError] = useState<string | null>(null);
 	const { mutate, isPending } = useLogin();
 	const queryClient = useQueryClient();
 
@@ -28,28 +33,29 @@ const LoginPage = () => {
 		register,
 		handleSubmit,
 		reset,
-		formState: { errors },
+		formState: { errors, isValid },
 	} = useForm<LoginFormData>({
 		mode: "onChange",
 		resolver: zodResolver(loginSchema),
 	});
 
 	const onSubmit = (data: LoginFormData) => {
+		setAuthError(null);
 		mutate(data, {
-			onSuccess: (res) => {
-				toast.success(res.message || "Login successful");
+			onSuccess: () => {
 				reset();
-
-				// Invalidate cached auth state so "GuestRoute" refetches and redirects to "/my-files"
-				// Because we set staleTime to Infinity in "useCurrentUser". So, manual invalidation is required
+				// Invalidate cached auth state so GuestRoute refetches and
+				// redirects to /my-files. useCurrentUser uses staleTime: Infinity,
+				// so manual invalidation is required.
 				queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 			},
 			onError: (error) => {
 				if (error.code === "USER_NOT_VERIFIED") {
 					setEmail(data.email);
 					setShowOTP(true);
+					return;
 				}
-				toast.error(error.message);
+				setAuthError(error.message);
 			},
 		});
 	};
@@ -73,15 +79,18 @@ const LoginPage = () => {
 					</p>
 				</div>
 
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className="space-y-6 mt-10 mb-3"
-				>
+				{authError && (
+					<AlertBanner variant="error" className="mt-6">
+						{authError}
+					</AlertBanner>
+				)}
+
+				<form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6 mb-3">
 					<FormField
-						label="Email"
+						label="Email Address"
 						id="email"
 						type="email"
-						placeholder="Enter your email"
+						placeholder="Enter your email address"
 						error={errors.email?.message}
 						{...register("email")}
 					/>
@@ -92,44 +101,40 @@ const LoginPage = () => {
 						type="password"
 						placeholder="Enter your password"
 						error={errors.password?.message}
+						labelExtra={
+							<Link
+								to={ROUTES.FORGOT_PASSWORD}
+								className="text-xs text-muted-foreground hover:text-accent-foreground hover:underline cursor-pointer"
+							>
+								Forgot password?
+							</Link>
+						}
 						{...register("password")}
 					/>
 
-					{/* Submit */}
 					<Button
 						type="submit"
-						className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed"
-						disabled={isPending}
+						className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed disabled:hover:bg-primary"
+						disabled={isPending || !isValid}
 					>
 						<span className="text-base font-medium">
-							{isPending ? "Logging in..." : "Login"}
+							{isPending ? "Signing in..." : "Sign in"}
 						</span>
 					</Button>
 				</form>
 
-				<div className="space-y-1">
-					{/* Forgot password link */}
+				<p className="text-center text-sm text-muted-foreground">
+					Don&apos;t have an account?{" "}
 					<Link
-						to="/forgot-password"
-						className="block text-center text-sm text-muted-foreground hover:text-foreground"
+						to={ROUTES.CREATE_ACCOUNT}
+						className="font-medium text-primary hover:underline"
 					>
-						Forgot password?
+						Sign up
 					</Link>
-
-					{/* Register link */}
-					<p className="text-center text-sm text-muted-foreground">
-						New to TroveCloud?{" "}
-						<Link
-							to="/register"
-							className="font-medium text-primary hover:underline"
-						>
-							Create Account
-						</Link>
-					</p>
-				</div>
+				</p>
 			</div>
 
-			{/* OTP Dialog — shown when unverified user tries to login */}
+			{/* OTP Dialog — shown when an unverified user attempts to login */}
 			<OTPDialog
 				open={showOTP}
 				email={email}

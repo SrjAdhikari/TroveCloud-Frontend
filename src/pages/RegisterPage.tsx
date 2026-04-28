@@ -4,22 +4,27 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
 
 import FormField from "@/components/form/FormField";
 import { Button } from "@/components/ui/button";
+import AlertBanner from "@/components/ui/alert-banner";
 import OTPDialog from "@/components/auth/OTPDialog";
+import toast from "@/lib/toast";
 
+import ROUTES from "@/routes/paths";
 import { registerSchema, type RegisterFormData } from "@/schemas/auth.schema";
 import { useRegister } from "@/hooks/useAuth";
 
 /**
  * Register page — name, email, and password form inside the shared AuthLayout.
- * On success, opens the OTP verification dialog.
+ * On success, opens the OTP verification dialog. Errors render inline as an
+ * AlertBanner above the form (per feedback patterns — auth errors belong in
+ * context, not as a toast).
  */
 const RegisterPage = () => {
 	const [showOTP, setShowOTP] = useState(false);
 	const [email, setEmail] = useState("");
+	const [authError, setAuthError] = useState<string | null>(null);
 	const navigate = useNavigate();
 	const { mutate, isPending } = useRegister();
 
@@ -27,13 +32,14 @@ const RegisterPage = () => {
 		register,
 		handleSubmit,
 		reset,
-		formState: { errors },
+		formState: { errors, isValid },
 	} = useForm<RegisterFormData>({
 		mode: "onChange",
 		resolver: zodResolver(registerSchema),
 	});
 
 	const onSubmit = (data: RegisterFormData) => {
+		setAuthError(null);
 		mutate(data, {
 			onSuccess: (res) => {
 				toast.success(res.message || `Verification code sent to ${data.email}`);
@@ -41,7 +47,7 @@ const RegisterPage = () => {
 				setTimeout(() => setShowOTP(true), 500);
 			},
 			onError: (error) => {
-				toast.error(error.message);
+				setAuthError(error.message);
 			},
 		});
 	};
@@ -49,7 +55,7 @@ const RegisterPage = () => {
 	const handleOTPSuccess = () => {
 		setShowOTP(false);
 		reset();
-		navigate("/login");
+		navigate(ROUTES.ROOT);
 	};
 
 	const handleOTPBack = () => {
@@ -66,10 +72,13 @@ const RegisterPage = () => {
 					</p>
 				</div>
 
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className="space-y-6 mt-10 mb-3"
-				>
+				{authError && (
+					<AlertBanner variant="error" className="mt-6">
+						{authError}
+					</AlertBanner>
+				)}
+
+				<form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6 mb-3">
 					<FormField
 						label="Full Name"
 						id="name"
@@ -100,8 +109,8 @@ const RegisterPage = () => {
 					{/* Submit */}
 					<Button
 						type="submit"
-						className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed"
-						disabled={isPending}
+						className="w-full cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed disabled:hover:bg-primary"
+						disabled={isPending || !isValid}
 					>
 						<span className="text-base font-medium">
 							{isPending ? "Creating account..." : "Create Account"}
@@ -109,11 +118,10 @@ const RegisterPage = () => {
 					</Button>
 				</form>
 
-				{/* Login link */}
 				<p className="text-center text-sm text-muted-foreground">
 					Already have an account?{" "}
 					<Link
-						to="/login"
+						to={ROUTES.ROOT}
 						className="font-medium text-primary hover:underline"
 					>
 						Sign in

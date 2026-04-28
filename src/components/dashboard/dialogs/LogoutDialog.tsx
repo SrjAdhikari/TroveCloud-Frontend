@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useLogout, useLogoutAll } from "@/hooks/useAuth";
+import ROUTES from "@/routes/paths";
 import type { ApiError } from "@/types/api.types";
 import {
 	AlertDialog,
@@ -27,7 +28,7 @@ interface LogoutDialogProps {
 /**
  * Confirmation dialog for logging out.
  * Offers two actions: log out the current session, or log out everywhere (all devices).
- * On success, invalidates the currentUser query and redirects to /login.
+ * On success, invalidates the currentUser query and redirects to / (sign in).
  */
 const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
 	const navigate = useNavigate();
@@ -45,7 +46,7 @@ const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
 		queryClient.removeQueries({ queryKey: ["directory"] });
 
 		onOpenChange(false);
-		navigate("/login");
+		navigate(ROUTES.ROOT);
 		toast.success(message);
 	};
 

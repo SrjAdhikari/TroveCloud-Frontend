@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router";
 
 import GuestRoute from "@/routes/GuestRoute";
 import ProtectedRoute from "@/routes/ProtectedRoute";
+import ROUTES from "@/routes/paths";
 import AuthLayout from "@/components/layout/AuthLayout";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
@@ -16,7 +17,7 @@ import SettingsPage from "@/pages/SettingsPage";
 /**
  * Central route definitions for the app.
  * Guest routes (auth pages) redirect to /my-files if already logged in.
- * Protected routes redirect to /login if not authenticated.
+ * Protected routes redirect to / (sign in) if not authenticated.
  */
 const AppRoutes = () => {
 	return (
@@ -24,17 +25,17 @@ const AppRoutes = () => {
 			{/* Guest routes — accessible only when NOT logged in */}
 			<Route element={<GuestRoute />}>
 				<Route element={<AuthLayout />}>
-					<Route path="/login" element={<LoginPage />} />
-					<Route path="/register" element={<RegisterPage />} />
-					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+					<Route path={ROUTES.ROOT} element={<LoginPage />} />
+					<Route path={ROUTES.CREATE_ACCOUNT} element={<RegisterPage />} />
+					<Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
 				</Route>
 			</Route>
 
 			{/* Protected routes — accessible only when logged in */}
 			<Route element={<ProtectedRoute />}>
 				<Route element={<DashboardLayout />}>
-					<Route path="/my-files" element={<DashboardPage />} />
-					<Route path="/settings" element={<SettingsPage />} />
+					<Route path={ROUTES.MY_FILES} element={<DashboardPage />} />
+					<Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
 				</Route>
 			</Route>
 		</Routes>
