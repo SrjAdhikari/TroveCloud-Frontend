@@ -7,6 +7,8 @@ import {
 	verifyOTP,
 	resendOTP,
 	login,
+	forgotPassword,
+	resetPassword,
 	signInWithGoogle,
 	signInWithGitHub,
 	logout,
@@ -55,6 +57,20 @@ const useLogin = () => {
 };
 
 /**
+ * Mutation hook for requesting a password-reset OTP.
+ */
+const useForgotPassword = () => {
+	return useMutation({ mutationFn: forgotPassword });
+};
+
+/**
+ * Mutation hook for completing the password reset (OTP + new password).
+ */
+const useResetPassword = () => {
+	return useMutation({ mutationFn: resetPassword });
+};
+
+/**
  * Mutation hook for signing in with a Google ID token.
  */
 const useGoogleSignIn = () => {
@@ -88,6 +104,8 @@ export {
 	useVerifyOTP,
 	useResendOTP,
 	useLogin,
+	useForgotPassword,
+	useResetPassword,
 	useGoogleSignIn,
 	useGitHubSignIn,
 	useLogout,
