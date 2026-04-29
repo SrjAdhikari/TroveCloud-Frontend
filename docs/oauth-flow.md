@@ -24,7 +24,7 @@ TroveCloud authenticates users via three paths:
 | Google OAuth | Google Identity Services (popup) → ID token → `/api/auth/google` | ✅ Live (PR #29) |
 | GitHub OAuth | Full-page redirect → authorization code → `/api/auth/github` | ✅ Live (PR #30) |
 
-All three paths converge on the same outcome: **the backend sets a single `HttpOnly`, `Secure`, `SameSite=Lax` session cookie called `token`** with a 7-day TTL. The frontend never sees the cookie value; it can only know the user is authenticated by issuing `GET /api/auth/me` and seeing a 200 with the user payload.
+All three paths converge on the same outcome: **the backend sets a single signed session cookie called `token`** — `HttpOnly` and `SameSite=Lax` always, `Secure` in production only — with a 7-day TTL. The frontend never sees the cookie value; it can only know the user is authenticated by issuing `GET /api/auth/me` and seeing a 200 with the user payload.
 
 This document covers the two OAuth paths (Google and GitHub) — what they do step-by-step, how they're wired, and why the GitHub flow looks different from the Google flow despite both being "OAuth sign-in".
 
@@ -36,8 +36,8 @@ Both OAuth flows reuse the same core infrastructure. Understanding these pieces 
 
 ### 2.1 Cookie-based session
 
-- Backend sets `Set-Cookie: token=<signed-id>; HttpOnly; Secure; SameSite=Lax; Max-Age=604800` on any successful auth (login, register-verify-otp, OAuth).
-- Cookie is **httpOnly** — JavaScript cannot read or write it. The only way the frontend "knows" auth state is by calling `/me`.
+- Backend sets the `token` cookie with `HttpOnly`, `SameSite=Lax`, `Secure` (in production), and a 7-day TTL on any successful auth (login, register-verify-otp, OAuth).
+- Cookie is **HttpOnly** — JavaScript cannot read or write it. The only way the frontend "knows" auth state is by calling `/me`.
 - Axios is configured with `withCredentials: true` so the browser sends the cookie on every API call.
 
 ### 2.2 Axios client and error normalization
@@ -97,7 +97,7 @@ sequenceDiagram
     G->>L: Render Outlet (Login form)
 
     U->>B: Click "Continue with Google"
-    B->>SDK: Opens popup (Google's iframe)
+    B->>SDK: Triggers GIS button → window.open popup
     SDK->>U: Prompts: account chooser + consent
     U->>SDK: Selects account, consents
     SDK-->>B: onSuccess({credential: idToken})
@@ -125,7 +125,7 @@ sequenceDiagram
 `useGoogleAuth({ setError: setAuthError, onSuccess: reset })` returns `{ handleSuccess, handleError, isPending }`. The `<GoogleSignInButton onSuccess={handleSuccess} onError={handleError} />` is rendered above the email form.
 
 **Step 3 — Button click.**
-`GoogleSignInButton` is a custom-styled `<button>` with an **invisible** `<GoogleLogin>` widget overlaid on top via `position: absolute` + `opacity: 0`. The visible button captures the user's eye; the invisible widget catches the actual click and triggers Google's popup. This trick is necessary because the official `<GoogleLogin>` widget can't be styled freely — Google's SDK draws its own pixels inside an iframe.
+`GoogleSignInButton` is a custom-styled `<button>` with an **invisible** `<GoogleLogin>` widget overlaid on top via `position: absolute` + `opacity: 0`. The visible button captures the user's eye; the invisible widget catches the actual click and triggers Google's popup. This trick is necessary because the official `<GoogleLogin>` widget renders Google's own branded button via Google Identity Services and only exposes a few customization knobs (theme, size, width) — we can't restyle it to match TroveCloud's visual language.
 
 **Step 4 — Popup, consent, ID token.**
 Google opens a popup window for the user. The user picks an account and grants consent. The popup posts the result back via `postMessage` to the parent window. Google's SDK invokes the `onSuccess` callback with `{ credential: idToken }`. The popup closes.
@@ -155,8 +155,8 @@ Backend verifies the ID token with Google's certs, finds or creates the user, is
 ### 3.4 Notable implementation details
 
 - **`<GoogleOAuthProvider>` at the root** — Google Identity Services needs to initialize before any `<GoogleLogin>` widget mounts. The provider is hoisted to `main.tsx` so it's available across the entire React tree.
-- **Invisible-overlay trick** — Google's official `<GoogleLogin>` widget renders an iframe we can't style. To get TroveCloud's visual design, we render a styled `<button>` and overlay an invisible `<GoogleLogin>` on top of it. The user sees our button; Google's SDK receives the click.
-- **400 px width** — Google's iframe enforces a minimum width of about 400 px. The `width="400"` prop on `<GoogleLogin>` matches that, and the surrounding `max-w-[400px]` on the form keeps everything aligned. A responsive `<ResizeObserver>` approach was considered and rejected as over-engineering for this single edge case.
+- **Invisible-overlay trick** — Google Identity Services renders its own branded button into the `<GoogleLogin>` widget's DOM and only allows tweaking `theme`, `size`, and `width`. To get TroveCloud's visual design, we render a styled `<button>` and overlay an invisible `<GoogleLogin>` on top of it. The user sees our button; the GIS-rendered button (sitting on top with `opacity: 0`) catches the actual click and opens Google's popup.
+- **400 px width** — the `width="400"` prop on `<GoogleLogin>` sets the click-area width to match the surrounding `max-w-[400px]` form wrapper. Picking a fixed value avoids a `<ResizeObserver>` round-trip; tested at narrower widths the GIS-rendered button truncates its label, so 400 is the lowest value that displays cleanly with our `size="large"` setting.
 - **`group-focus-within` ring** — keyboard focus on the invisible `<GoogleLogin>` is forwarded to a focus ring on the visible wrapper via Tailwind's `group-focus-within:ring-2`. Without this, keyboard users would see no focus indicator.
 - **Synchronous trigger** — `mutate(...)` is called from inside Google's `onSuccess` callback, which the SDK invokes synchronously after the popup posts back. This is React Query's intended use case for mutations, and scoped `onSuccess` / `onError` callbacks fire reliably.
 
@@ -464,7 +464,7 @@ This is the scenario that caused the route-placement decision in §6.2. With the
 - **Account linking.** Letting an authenticated user link a Google or GitHub identity to an existing email/password account. Requires a new authenticated endpoint (`POST /api/auth/link/google`, etc.) and a new entry point from Settings. The current callback route placement (outside auth guards) is already compatible with this — an authenticated user can land on the callback and have it process correctly.
 - **Logout handling on stale cookies.** If a user's cookie is invalid but the cached `useCurrentUser` is still populated, they could attempt OAuth and get a `PROVIDER_MISMATCH` for an account they don't actually have access to. Adding a "verify-then-clear-cache" step on logout would close this gap.
 - **Additional providers.** Microsoft, Apple, Facebook, etc. would follow whichever pattern fits their SDK situation — popup-flow providers slot into the Google template, redirect-flow providers slot into the GitHub template. The OAuth helpers in `src/lib/githubOAuth.ts` could be generalized into a shared `src/lib/oauthState.ts` if a third redirect-flow provider is added.
-- **Failing-provider button outline.** Login error state #06 (per `tasks/redesign-tasks.md`) calls for the failing OAuth button to be outlined red after a provider failure. The current implementation doesn't track which provider failed in the `authError` state shape — adding this would require widening `string | null` to `{ message: string; provider?: "google" | "github" }`.
+- **Failing-provider button outline.** On a provider failure, the design intent is to outline the failing OAuth button in red so the user can see at a glance which provider rejected them. Neither button is currently outlined — the implementation doesn't track which provider failed in the `authError` state shape. Adding this would require widening `string | null` to `{ message: string; provider?: "google" | "github" }`.
 
 ---
 
