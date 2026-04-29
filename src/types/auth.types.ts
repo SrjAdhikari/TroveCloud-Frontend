@@ -46,3 +46,8 @@ export interface ResendOTPPayload {
 export interface GoogleSignInPayload {
 	idToken: string;
 }
+
+// POST /api/auth/github
+export interface GitHubSignInPayload {
+	code: string;
+}

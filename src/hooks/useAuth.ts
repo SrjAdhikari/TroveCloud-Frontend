@@ -8,6 +8,7 @@ import {
 	resendOTP,
 	login,
 	signInWithGoogle,
+	signInWithGitHub,
 	logout,
 	logoutAll,
 } from "@/api/auth.api";
@@ -61,6 +62,13 @@ const useGoogleSignIn = () => {
 };
 
 /**
+ * Mutation hook for signing in with a GitHub authorization code.
+ */
+const useGitHubSignIn = () => {
+	return useMutation({ mutationFn: signInWithGitHub });
+};
+
+/**
  * Mutation hook for logging out the current session.
  */
 const useLogout = () => {
@@ -81,6 +89,7 @@ export {
 	useResendOTP,
 	useLogin,
 	useGoogleSignIn,
+	useGitHubSignIn,
 	useLogout,
 	useLogoutAll,
 };

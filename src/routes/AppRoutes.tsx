@@ -11,6 +11,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import GitHubCallbackPage from "@/pages/GitHubCallbackPage";
 import DashboardPage from "@/pages/DashboardPage";
 import SettingsPage from "@/pages/SettingsPage";
 
@@ -28,6 +29,7 @@ const AppRoutes = () => {
 					<Route path={ROUTES.ROOT} element={<LoginPage />} />
 					<Route path={ROUTES.CREATE_ACCOUNT} element={<RegisterPage />} />
 					<Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+					<Route path={ROUTES.GITHUB_CALLBACK} element={<GitHubCallbackPage />} />
 				</Route>
 			</Route>
 
