@@ -9,6 +9,7 @@ import type {
 	VerifyOTPPayload,
 	ResendOTPPayload,
 	GoogleSignInPayload,
+	GitHubSignInPayload,
 } from "@/types/auth.types";
 
 /**
@@ -77,6 +78,17 @@ const signInWithGoogle = async (payload: GoogleSignInPayload) => {
 };
 
 /**
+ * Signs in (or signs up) a user using a GitHub authorization code.
+ */
+const signInWithGitHub = async (payload: GitHubSignInPayload) => {
+	const { data } = await axiosClient.post<ApiSuccessResponse>(
+		"/auth/github",
+		payload,
+	);
+	return data;
+};
+
+/**
  * Logs out the current session by clearing the cookie and deleting the session.
  */
 const logout = async () => {
@@ -100,6 +112,7 @@ export {
 	resendOTP,
 	login,
 	signInWithGoogle,
+	signInWithGitHub,
 	logout,
 	logoutAll,
 };

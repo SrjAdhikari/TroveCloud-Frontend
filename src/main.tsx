@@ -13,8 +13,12 @@ import App from "@/App";
 import "./index.css";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-if (!GOOGLE_CLIENT_ID) {
-	throw new Error("VITE_GOOGLE_CLIENT_ID is not defined in .env file");
+const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
+
+if (!GOOGLE_CLIENT_ID || !GITHUB_CLIENT_ID) {
+	throw new Error(
+		"VITE_GOOGLE_CLIENT_ID or VITE_GITHUB_CLIENT_ID is not defined in .env file",
+	);
 }
 
 /**

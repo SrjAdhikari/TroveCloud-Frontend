@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import AlertBanner from "@/components/ui/alert-banner";
 import OTPDialog from "@/components/auth/OTPDialog";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import GitHubSignInButton from "@/components/auth/GitHubSignInButton";
 import OrDivider from "@/components/auth/OrDivider";
 import toast from "@/lib/toast";
 
@@ -86,12 +87,18 @@ const RegisterPage = () => {
 					</p>
 				</div>
 
-				<div className="mt-6 space-y-6">
+				<div className="mt-6 space-y-3">
 					<GoogleSignInButton
 						onSuccess={handleGoogleSuccess}
 						onError={handleGoogleError}
 					/>
 
+					<GitHubSignInButton
+						disabled={isPending || isGoogleSigningIn}
+					/>
+				</div>
+
+				<div className="mt-6">
 					<OrDivider label="Or continue with email" />
 				</div>
 

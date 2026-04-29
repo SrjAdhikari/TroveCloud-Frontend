@@ -11,6 +11,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import GitHubCallbackPage from "@/pages/GitHubCallbackPage";
 import DashboardPage from "@/pages/DashboardPage";
 import SettingsPage from "@/pages/SettingsPage";
 
@@ -29,6 +30,13 @@ const AppRoutes = () => {
 					<Route path={ROUTES.CREATE_ACCOUNT} element={<RegisterPage />} />
 					<Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
 				</Route>
+			</Route>
+
+			{/* OAuth callback — must process the auth code regardless of current
+			    auth state, so it lives outside GuestRoute (which would otherwise
+			    redirect already-authenticated users away before the code is used). */}
+			<Route element={<AuthLayout />}>
+				<Route path={ROUTES.GITHUB_CALLBACK} element={<GitHubCallbackPage />} />
 			</Route>
 
 			{/* Protected routes — accessible only when logged in */}
