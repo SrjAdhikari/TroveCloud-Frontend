@@ -29,8 +29,14 @@ const AppRoutes = () => {
 					<Route path={ROUTES.ROOT} element={<LoginPage />} />
 					<Route path={ROUTES.CREATE_ACCOUNT} element={<RegisterPage />} />
 					<Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
-					<Route path={ROUTES.GITHUB_CALLBACK} element={<GitHubCallbackPage />} />
 				</Route>
+			</Route>
+
+			{/* OAuth callback — must process the auth code regardless of current
+			    auth state, so it lives outside GuestRoute (which would otherwise
+			    redirect already-authenticated users away before the code is used). */}
+			<Route element={<AuthLayout />}>
+				<Route path={ROUTES.GITHUB_CALLBACK} element={<GitHubCallbackPage />} />
 			</Route>
 
 			{/* Protected routes — accessible only when logged in */}

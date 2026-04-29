@@ -47,11 +47,13 @@ const useGitHubAuth = ({ setError, onSuccess }: UseGitHubAuthOptions) => {
 			setError(null);
 			try {
 				await mutateAsync({ code });
-				onSuccess?.();
 
-				// Invalidate cached auth state so GuestRoute refetches and redirects to /my-files.
-				// useCurrentUser uses staleTime: Infinity, so manual invalidation is required.
-				queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+				// Refetch "/me" with the freshly-set cookie BEFORE navigating, so the
+				// destination route's ProtectedRoute guard sees the new user state on
+				// mount instead of the cached 401 from app startup.
+				await queryClient.refetchQueries({ queryKey: ["currentUser"] });
+
+				onSuccess?.();
 			} catch (err) {
 				// Axios interceptor guarantees ApiError shape on rejection.
 				const apiErr = err as ApiError;

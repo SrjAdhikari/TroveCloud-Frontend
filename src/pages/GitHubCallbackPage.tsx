@@ -1,7 +1,7 @@
 //* src/pages/GitHubCallbackPage.tsx
 
-import { useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,12 +26,18 @@ const GENERIC_ERROR_MESSAGE =
 const GitHubCallbackPage = () => {
 	const [params] = useSearchParams();
 	const [error, setError] = useState<string | null>(null);
+	const navigate = useNavigate();
 
 	// Prevents StrictMode's double-effect from sending the (single-use)
 	// authorization code to the backend twice.
 	const handledRef = useRef(false);
 
-	const { handleCode } = useGitHubAuth({ setError });
+	// Stable callback so useGitHubAuth's useCallback-deps don't churn.
+	const goToMyFiles = useCallback(() => {
+		navigate(ROUTES.MY_FILES, { replace: true });
+	}, [navigate]);
+
+	const { handleCode } = useGitHubAuth({ setError, onSuccess: goToMyFiles });
 
 	useEffect(() => {
 		if (handledRef.current) return;
