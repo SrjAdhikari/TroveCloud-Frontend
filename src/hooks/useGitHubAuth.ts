@@ -1,5 +1,6 @@
 //* src/hooks/useGitHubAuth.ts
 
+import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGitHubSignIn } from "@/hooks/useAuth";
 import type { ApiError } from "@/types/api.types";
@@ -40,24 +41,29 @@ const useGitHubAuth = ({ setError, onSuccess }: UseGitHubAuthOptions) => {
 	const queryClient = useQueryClient();
 	const { mutateAsync, isPending } = useGitHubSignIn();
 
-	const handleCode = async (code: string) => {
-		setError(null);
-		try {
-			await mutateAsync({ code });
-			onSuccess?.();
-			// Invalidate cached auth state so GuestRoute refetches and redirects to /my-files.
-			// useCurrentUser uses staleTime: Infinity, so manual invalidation is required.
-			queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-		} catch (err) {
-			// Axios interceptor guarantees ApiError shape on rejection.
-			const apiErr = err as ApiError;
-			setError(
-				SHOWABLE_ERROR_CODES.has(apiErr.code)
-					? apiErr.message
-					: GENERIC_ERROR_MESSAGE,
-			);
-		}
-	};
+	// Memoized to prevent callback page's useEffect from re-running on every render.
+	const handleCode = useCallback(
+		async (code: string) => {
+			setError(null);
+			try {
+				await mutateAsync({ code });
+				onSuccess?.();
+
+				// Invalidate cached auth state so GuestRoute refetches and redirects to /my-files.
+				// useCurrentUser uses staleTime: Infinity, so manual invalidation is required.
+				queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+			} catch (err) {
+				// Axios interceptor guarantees ApiError shape on rejection.
+				const apiErr = err as ApiError;
+				setError(
+					SHOWABLE_ERROR_CODES.has(apiErr.code)
+						? apiErr.message
+						: GENERIC_ERROR_MESSAGE,
+				);
+			}
+		},
+		[setError, onSuccess, mutateAsync, queryClient],
+	);
 
 	return { handleCode, isPending };
 };

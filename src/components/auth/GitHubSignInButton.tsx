@@ -12,9 +12,6 @@ interface GitHubSignInButtonProps {
  * GitHub sign-in button. On click, stores a CSRF state token and redirects
  * the browser to GitHub's authorize page. Control returns to the app via
  * `/auth/github/callback`, which exchanges the `code` with the backend.
- *
- * Unlike the Google button, this is a regular `<button>` (no third-party
- * widget overlay) — the GitHub OAuth flow is a full-page redirect.
  */
 const GitHubSignInButton = ({
 	disabled = false,
@@ -22,6 +19,8 @@ const GitHubSignInButton = ({
 }: GitHubSignInButtonProps) => {
 	const handleClick = () => {
 		const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+		if (!clientId) return;
+
 		const state = generateState();
 		window.location.assign(buildAuthorizeUrl(clientId, state));
 	};
