@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 import FormField from "@/components/form/FormField";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ const ForgotPasswordPage = () => {
 	} | null>(null);
 
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const { mutate, isPending } = useForgotPassword();
 
 	const {
@@ -89,9 +91,12 @@ const ForgotPasswordPage = () => {
 	const handleDialogSuccess = () => {
 		setShowDialog(false);
 		reset();
-		toast.success("Password reset successfully. Please sign in.");
 
-		// Backend invalidates all sessions on reset — redirect to login
+		// Backend invalidates all sessions on reset; clear the cached
+		// currentUser so route guards on `/` don't see stale auth state.
+		queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+
+		toast.success("Password reset successfully. Please sign in.");
 		navigate(ROUTES.ROOT);
 	};
 
