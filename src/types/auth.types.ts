@@ -42,6 +42,18 @@ export interface ResendOTPPayload {
 	email: string;
 }
 
+// POST /api/auth/forgot-password
+export interface ForgotPasswordPayload {
+	email: string;
+}
+
+// POST /api/auth/reset-password
+export interface ResetPasswordPayload {
+	email: string;
+	otp: string;
+	newPassword: string;
+}
+
 // POST /api/auth/google
 export interface GoogleSignInPayload {
 	idToken: string;

@@ -8,6 +8,8 @@ import type {
 	LoginPayload,
 	VerifyOTPPayload,
 	ResendOTPPayload,
+	ForgotPasswordPayload,
+	ResetPasswordPayload,
 	GoogleSignInPayload,
 	GitHubSignInPayload,
 } from "@/types/auth.types";
@@ -67,6 +69,29 @@ const login = async (payload: LoginPayload) => {
 };
 
 /**
+ * Sends a password-reset OTP to the user's email.
+ */
+const forgotPassword = async (payload: ForgotPasswordPayload) => {
+	const { data } = await axiosClient.post<ApiSuccessResponse>(
+		"/auth/forgot-password",
+		payload,
+	);
+	return data;
+};
+
+/**
+ * Resets the user's password by verifying the OTP and
+ * updating the password in a single atomic call.
+ */
+const resetPassword = async (payload: ResetPasswordPayload) => {
+	const { data } = await axiosClient.post<ApiSuccessResponse>(
+		"/auth/reset-password",
+		payload,
+	);
+	return data;
+};
+
+/**
  * Signs in (or signs up) a user using a Google ID token.
  */
 const signInWithGoogle = async (payload: GoogleSignInPayload) => {
@@ -111,6 +136,8 @@ export {
 	verifyOTP,
 	resendOTP,
 	login,
+	forgotPassword,
+	resetPassword,
 	signInWithGoogle,
 	signInWithGitHub,
 	logout,
