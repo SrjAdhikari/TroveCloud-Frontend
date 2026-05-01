@@ -1,7 +1,6 @@
 //* src/components/auth/OTPDialog.tsx
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 
 import {
 	Dialog,
@@ -10,61 +9,71 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
+import OTPField from "@/components/auth/OTPField";
+
+import useOTPResend from "@/hooks/useOTPResend";
 import { useVerifyOTP, useResendOTP } from "@/hooks/useAuth";
 
-const COOLDOWN_SECONDS = 60;
+const OTP_ERROR_MESSAGES: Record<string, string> = {
+	INVALID_OTP: "Invalid verification code. Please try again.",
+	OTP_EXPIRED: "The verification code has expired. Please request a new one.",
+};
 
 interface OTPDialogProps {
-	open: boolean;
 	email: string;
-	onSuccess: () => void; // callback after successful verification
-	onBack: () => void; // callback to close the dialog
+	onSuccess: () => void;
+	onBack: () => void;
+	initialCooldown?: number;
 }
 
 /**
- * Dialog for entering the 6-digit OTP sent to the user's email after registration.
- * Includes a resend button with 60-second cooldown and a back link.
+ * Email-verification OTP dialog used by register (post-signup) and login
+ * (when an unverified user tries to sign in). Verifies the 6-digit code via
+ * the register/verify-otp endpoint; on success the parent handles the
+ * post-verify flow (login: prompt re-auth; register: navigate to dashboard).
+ *
+ * Mounting model: parent renders this conditionally (`{showOTP && <Dialog/>}`)
+ * so internal state initialises fresh on every open via `useState` defaults —
+ * no reset-on-open effect needed.
  */
-const OTPDialog = ({ open, email, onSuccess, onBack }: OTPDialogProps) => {
+const OTPDialog = ({
+	email,
+	onSuccess,
+	onBack,
+	initialCooldown,
+}: OTPDialogProps) => {
 	const [otp, setOtp] = useState("");
-	const [hasError, setHasError] = useState(false);
-	const [cooldown, setCooldown] = useState(COOLDOWN_SECONDS);
+	const [error, setError] = useState<string | null>(null);
 
 	const { mutate: verify, isPending: isVerifying } = useVerifyOTP();
-	const { mutate: resend, isPending: isResending } = useResendOTP();
+	const resendMutation = useResendOTP();
 
-	/**
-	 * Countdown timer for resend cooldown — starts immediately when dialog opens
-	 */
-	useEffect(() => {
-		if (!open || cooldown <= 0) return;
-
-		const timer = setInterval(() => {
-			setCooldown((prev) => prev - 1);
-		}, 1000);
-
-		return () => clearInterval(timer);
-	}, [open, cooldown]);
-
-	/**
-	 * Reset state when dialog opens
-	 */
-	useEffect(() => {
-		if (open) {
+	const { cooldown, isResending, resend } = useOTPResend({
+		email,
+		mutation: resendMutation,
+		onResendSuccess: () => {
 			setOtp("");
-			setHasError(false);
-			setCooldown(COOLDOWN_SECONDS);
-		}
-	}, [open]);
+			setError(null);
+		},
+		onResendError: setError,
+		initialCooldown,
+	});
 
 	/**
-	 * Verify the OTP code — called automatically when 6 digits are entered
+	 * Update OTP state and auto-submit when all 6 digits are entered.
+	 * Clears any prior error first so the retry path isn't blocked by stale
+	 * state when the user starts retyping.
+	 */
+	const handleChange = (value: string) => {
+		setOtp(value);
+		if (error) setError(null);
+		if (value.length === 6) handleVerify(value);
+	};
+
+	/**
+	 * Verify the OTP code. Maps backend error codes to inline messages —
+	 * never toasts auth failures (per `reference_feedback_patterns.md`).
 	 */
 	const handleVerify = (code: string) => {
 		if (code.length !== 6 || isVerifying) return;
@@ -72,54 +81,31 @@ const OTPDialog = ({ open, email, onSuccess, onBack }: OTPDialogProps) => {
 		verify(
 			{ email, otp: code },
 			{
-				onSuccess: (res) => {
-					toast.success(res.message || "Email verified successfully");
+				onSuccess: () => {
 					onSuccess();
 				},
 				onError: (error) => {
-					toast.error(error.message);
-					setHasError(true);
-				},
-			},
-		);
-	};
-
-	/**
-	 * Update OTP state and auto-submit when all 6 digits are entered
-	 */
-	const handleChange = (value: string) => {
-		setOtp(value);
-		if (hasError) setHasError(false);
-		if (!hasError) handleVerify(value);
-	};
-
-	const handleResend = () => {
-		if (cooldown > 0 || isResending) return;
-
-		resend(
-			{ email },
-			{
-				onSuccess: (res) => {
-					toast.success(res.message || "OTP resent successfully");
-					setCooldown(COOLDOWN_SECONDS);
-					setOtp("");
-				},
-				onError: (error) => {
-					toast.error(error.message);
+					const message = OTP_ERROR_MESSAGES[error.code];
+					if (message) {
+						setOtp("");
+						setError(message);
+						return;
+					}
+					setError("Couldn't verify the code. Please try again.");
 				},
 			},
 		);
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={(isOpen) => !isOpen && onBack()}>
+		<Dialog open onOpenChange={(isOpen) => !isOpen && onBack()}>
 			<DialogContent
 				className="sm:max-w-md"
 				onInteractOutside={(e) => e.preventDefault()}
 			>
 				<DialogHeader className="space-y-2 text-center">
 					<DialogTitle className="font-heading text-2xl font-bold">
-						Verify Your Email
+						Verify your email
 					</DialogTitle>
 
 					<DialogDescription>
@@ -129,48 +115,39 @@ const OTPDialog = ({ open, email, onSuccess, onBack }: OTPDialogProps) => {
 				</DialogHeader>
 
 				<div className="flex flex-col items-center gap-6 py-4">
-					{/* OTP Input */}
-					<InputOTP
-						maxLength={6}
+					<OTPField
 						value={otp}
 						onChange={handleChange}
-						containerClassName="gap-3"
-					>
-						{Array.from({ length: 6 }, (_, i) => (
-							<InputOTPGroup key={i}>
-								<InputOTPSlot
-									index={i}
-									className="size-12 text-lg"
-									aria-invalid={hasError}
-								/>
-							</InputOTPGroup>
-						))}
-					</InputOTP>
+						errorMessage={error}
+						disabled={isVerifying}
+						autoFocus
+					/>
 
-					{/* Verify button */}
 					<Button
-						variant={"default"}
+						variant="default"
+						type="button"
 						className="w-[calc(6*3rem+5*0.75rem)] cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed"
 						disabled={otp.length !== 6 || isVerifying}
 						onClick={() => handleVerify(otp)}
 					>
-						{isVerifying ? "Verifying..." : "Verify"}
+						{isVerifying ? "Verifying..." : "Verify Email"}
 					</Button>
 
-					{/* Resend + Back links */}
-					<div className="space-y-1 text-center">
-						<p className="text-sm text-muted-foreground">
-							Didn&apos;t receive the code?{" "}
-							<button
-								type="button"
-								onClick={handleResend}
-								disabled={cooldown > 0 || isResending}
-								className="font-medium text-primary hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
-							>
-								{cooldown > 0 ? `Resend in ${cooldown}s` : "Click to resend"}
-							</button>
-						</p>
-					</div>
+					<p className="text-center text-sm text-muted-foreground">
+						Didn&apos;t receive the code?{" "}
+						<button
+							type="button"
+							onClick={resend}
+							disabled={cooldown > 0 || isResending}
+							className="font-medium text-primary hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
+						>
+							{cooldown > 0
+								? `Resend in ${cooldown}s`
+								: isResending
+									? "Sending..."
+									: "Resend code"}
+						</button>
+					</p>
 				</div>
 			</DialogContent>
 		</Dialog>

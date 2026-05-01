@@ -1,9 +1,8 @@
 //* src/components/auth/ForgotPasswordDialog.tsx
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { REGEXP_ONLY_DIGITS } from "input-otp";
 
 import {
 	Dialog,
@@ -12,22 +11,23 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
 import FormField from "@/components/form/FormField";
 import AlertBanner from "@/components/ui/alert-banner";
+import OTPField from "@/components/auth/OTPField";
 
+import useOTPResend from "@/hooks/useOTPResend";
 import { useForgotPassword, useResetPassword } from "@/hooks/useAuth";
+
 import {
 	resetPasswordSchema,
 	type ResetPasswordFormData,
 } from "@/schemas/auth.schema";
 
-const COOLDOWN_SECONDS = 60;
+const OTP_ERROR_MESSAGES: Record<string, string> = {
+	INVALID_OTP: "Invalid verification code. Please try again.",
+	OTP_EXPIRED: "The verification code has expired. Please request a new one.",
+};
 
 interface ForgotPasswordDialogProps {
 	email: string;
@@ -58,11 +58,19 @@ const ForgotPasswordDialog = ({
 	const [otp, setOtp] = useState("");
 	const [otpError, setOtpError] = useState<string | null>(null);
 	const [formError, setFormError] = useState<string | null>(null);
-	const [cooldown, setCooldown] = useState(COOLDOWN_SECONDS);
 
-	const { mutate: resendForgotPassword, isPending: isResending } =
-		useForgotPassword();
+	const forgotPasswordMutation = useForgotPassword();
 	const { mutate: resetPassword, isPending: isResetting } = useResetPassword();
+
+	const { cooldown, isResending, resend } = useOTPResend({
+		email,
+		mutation: forgotPasswordMutation,
+		onResendSuccess: () => {
+			setOtp("");
+			setOtpError(null);
+		},
+		onResendError: setOtpError,
+	});
 
 	const {
 		register,
@@ -74,18 +82,7 @@ const ForgotPasswordDialog = ({
 	});
 
 	/**
-	 * Resend cooldown ticker. Starts at 60s on mount (the parent just sent
-	 * the initial code) and after every successful resend.
-	 */
-	useEffect(() => {
-		if (cooldown <= 0) return;
-		const timer = setInterval(() => setCooldown((c) => c - 1), 1000);
-		return () => clearInterval(timer);
-	}, [cooldown]);
-
-	/**
 	 * Handles the change event of the OTP input field.
-	 * @param value The new value of the OTP input.
 	 */
 	const handleChange = (value: string) => {
 		setOtp(value);
@@ -102,28 +99,6 @@ const ForgotPasswordDialog = ({
 		setStep("password");
 	};
 
-	const handleResend = () => {
-		if (cooldown > 0 || isResending) return;
-
-		resendForgotPassword(
-			{ email },
-			{
-				onSuccess: () => {
-					setOtp("");
-					setOtpError(null);
-					setCooldown(COOLDOWN_SECONDS);
-				},
-				onError: (error) => {
-					setOtpError(
-						error.code === "OTP_COOLDOWN"
-							? "Please wait a moment before requesting another code."
-							: error.message || "Couldn't resend the code. Please try again.",
-					);
-				},
-			},
-		);
-	};
-
 	const onSubmitPassword = (data: ResetPasswordFormData) => {
 		setFormError(null);
 
@@ -134,20 +109,14 @@ const ForgotPasswordDialog = ({
 					onSuccess();
 				},
 				onError: (error) => {
-					if (error.code === "INVALID_OTP" || error.code === "OTP_EXPIRED") {
-						const message =
-							error.code === "OTP_EXPIRED"
-								? "The verification code has expired. Please request a new one."
-								: "Invalid verification code. Please try again.";
+					const message = OTP_ERROR_MESSAGES[error.code];
+					if (message) {
 						setStep("otp");
 						setOtp("");
 						setOtpError(message);
 						return;
 					}
-					setFormError(
-						error.message ||
-							"Couldn't reset account password. Please try again.",
-					);
+					setFormError("Couldn't reset account password. Please try again.");
 				},
 			},
 		);
@@ -180,34 +149,11 @@ const ForgotPasswordDialog = ({
 
 				{step === "otp" ? (
 					<div className="flex flex-col items-center gap-6 py-4">
-						<div className="flex flex-col items-center space-y-2">
-							<InputOTP
-								maxLength={6}
-								value={otp}
-								pattern={REGEXP_ONLY_DIGITS}
-								onChange={handleChange}
-								containerClassName="gap-3"
-							>
-								{Array.from({ length: 6 }, (_, i) => (
-									<InputOTPGroup key={i}>
-										<InputOTPSlot
-											index={i}
-											className="size-12 text-lg"
-											aria-invalid={!!otpError}
-										/>
-									</InputOTPGroup>
-								))}
-							</InputOTP>
-
-							{otpError && (
-								<p
-									role="alert"
-									className="text-center text-sm text-destructive"
-								>
-									{otpError}
-								</p>
-							)}
-						</div>
+						<OTPField
+							value={otp}
+							onChange={handleChange}
+							errorMessage={otpError}
+						/>
 
 						<Button
 							variant="default"
@@ -223,7 +169,7 @@ const ForgotPasswordDialog = ({
 							Didn&apos;t receive the code?{" "}
 							<button
 								type="button"
-								onClick={handleResend}
+								onClick={resend}
 								disabled={cooldown > 0 || isResending}
 								className="font-medium text-primary hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
 							>
