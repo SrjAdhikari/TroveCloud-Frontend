@@ -12,7 +12,6 @@ import OTPDialog from "@/components/auth/OTPDialog";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import GitHubSignInButton from "@/components/auth/GitHubSignInButton";
 import OrDivider from "@/components/auth/OrDivider";
-import toast from "@/lib/toast";
 
 import ROUTES from "@/routes/paths";
 import { registerSchema, type RegisterFormData } from "@/schemas/auth.schema";
@@ -54,15 +53,12 @@ const RegisterPage = () => {
 	const onSubmit = (data: RegisterFormData) => {
 		setAuthError(null);
 		mutate(data, {
-			onSuccess: (res) => {
-				toast.success(res.message || `Verification code sent to ${data.email}`);
+			onSuccess: () => {
 				setEmail(data.email);
-				setTimeout(() => setShowOTP(true), 500);
+				setShowOTP(true);
 			},
-			onError: (error) => {
-				setAuthError(
-					error.message || "Something went wrong. Please try again.",
-				);
+			onError: () => {
+				setAuthError("Something went wrong. Please try again.");
 			},
 		});
 	};
@@ -163,12 +159,13 @@ const RegisterPage = () => {
 			</div>
 
 			{/* OTP Dialog */}
-			<OTPDialog
-				open={showOTP}
-				email={email}
-				onSuccess={handleOTPSuccess}
-				onBack={handleOTPBack}
-			/>
+			{showOTP && (
+				<OTPDialog
+					email={email}
+					onSuccess={handleOTPSuccess}
+					onBack={handleOTPBack}
+				/>
+			)}
 		</>
 	);
 };

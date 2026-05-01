@@ -71,13 +71,15 @@ const LoginPage = () => {
 					setTimeout(() => {
 						setAuthError(null);
 						setShowOTP(true);
-					}, 1500);
+					}, 1000);
 
 					return;
 				}
 
 				setAuthError(
-					error.message || "Something went wrong. Please try again.",
+					error.code === "INVALID_CREDENTIALS"
+						? "Invalid email or password. Please try again."
+						: "Something went wrong. Please try again.",
 				);
 			},
 		});
@@ -88,9 +90,7 @@ const LoginPage = () => {
 		toast.success("Email verified! Please login again.");
 	};
 
-	const handleOTPBack = () => {
-		setShowOTP(false);
-	};
+	const handleOTPBack = () => setShowOTP(false);
 
 	return (
 		<>
@@ -108,9 +108,7 @@ const LoginPage = () => {
 						onError={handleGoogleError}
 					/>
 
-					<GitHubSignInButton
-						disabled={isPending || isGoogleSigningIn}
-					/>
+					<GitHubSignInButton disabled={isPending || isGoogleSigningIn} />
 				</div>
 
 				<div className="mt-6">
@@ -175,12 +173,14 @@ const LoginPage = () => {
 			</div>
 
 			{/* OTP Dialog — shown when an unverified user attempts to login */}
-			<OTPDialog
-				open={showOTP}
-				email={email}
-				onSuccess={handleOTPSuccess}
-				onBack={handleOTPBack}
-			/>
+			{showOTP && (
+				<OTPDialog
+					email={email}
+					initialCooldown={0}
+					onSuccess={handleOTPSuccess}
+					onBack={handleOTPBack}
+				/>
+			)}
 		</>
 	);
 };
