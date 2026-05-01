@@ -29,7 +29,10 @@ import useGoogleAuth from "@/hooks/useGoogleAuth";
 const LoginPage = () => {
 	const [showOTP, setShowOTP] = useState(false);
 	const [email, setEmail] = useState("");
-	const [authError, setAuthError] = useState<string | null>(null);
+	const [authError, setAuthError] = useState<{
+		variant: "error" | "warning";
+		message: string;
+	} | null>(null);
 
 	const { mutate, isPending } = useLogin();
 	const queryClient = useQueryClient();
@@ -49,7 +52,8 @@ const LoginPage = () => {
 		handleError: handleGoogleError,
 		isPending: isGoogleSigningIn,
 	} = useGoogleAuth({
-		setError: setAuthError,
+		setError: (message) =>
+			setAuthError(message ? { variant: "error", message } : null),
 		onSuccess: reset,
 	});
 
@@ -65,7 +69,10 @@ const LoginPage = () => {
 			},
 			onError: (error) => {
 				if (error.code === "USER_NOT_VERIFIED") {
-					setAuthError("Please verify your email before signing in.");
+					setAuthError({
+						variant: "warning",
+						message: "Please verify your email before signing in.",
+					});
 					setEmail(data.email);
 
 					setTimeout(() => {
@@ -76,11 +83,22 @@ const LoginPage = () => {
 					return;
 				}
 
-				setAuthError(
-					error.code === "INVALID_CREDENTIALS"
-						? "Invalid email or password. Please try again."
-						: "Something went wrong. Please try again.",
-				);
+				if (error.code === "TOO_MANY_ATTEMPTS") {
+					setAuthError({
+						variant: "warning",
+						message:
+							"Too many failed attempts. Please wait a few minutes before trying again.",
+					});
+					return;
+				}
+
+				setAuthError({
+					variant: "error",
+					message:
+						error.code === "INVALID_CREDENTIALS"
+							? "Invalid email or password. Please try again."
+							: "Something went wrong. Please try again.",
+				});
 			},
 		});
 	};
@@ -116,8 +134,8 @@ const LoginPage = () => {
 				</div>
 
 				{authError && (
-					<AlertBanner variant="error" className="mt-4">
-						{authError}
+					<AlertBanner variant={authError.variant} className="mt-4">
+						{authError.message}
 					</AlertBanner>
 				)}
 

@@ -57,8 +57,12 @@ const RegisterPage = () => {
 				setEmail(data.email);
 				setShowOTP(true);
 			},
-			onError: () => {
-				setAuthError("Something went wrong. Please try again.");
+			onError: (error) => {
+				setAuthError(
+					error.code === "USER_ALREADY_EXISTS"
+						? "An account with this email already exists. Please sign in to continue."
+						: "Something went wrong. Please try again.",
+				);
 			},
 		});
 	};
