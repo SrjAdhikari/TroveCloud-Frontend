@@ -9,6 +9,8 @@ import {
 	Share2,
 } from "lucide-react";
 
+import ThemeToggle from "@/components/theme/theme-toggle";
+
 interface Feature {
 	icon: ReactNode;
 	title: string;
@@ -97,6 +99,9 @@ const AuthLayout = () => {
 
 			{/* Right panel — form content */}
 			<main className="relative flex flex-1 items-center justify-center p-6">
+				<div className="absolute top-5 right-5 xl:top-8 xl:right-8">
+					<ThemeToggle />
+				</div>
 				<div className="w-full max-w-md">
 					<Outlet />
 				</div>
