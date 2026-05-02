@@ -1,6 +1,7 @@
 //* src/components/layout/DashboardLayout.tsx
 
 import { Outlet } from "react-router";
+import { Bell } from "lucide-react";
 
 import {
 	Sidebar,
@@ -8,6 +9,7 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme/theme-toggle";
 import SearchBar from "@/components/dashboard/SearchBar";
 import SidebarLogo from "@/components/dashboard/sidebar/SidebarLogo";
@@ -35,10 +37,25 @@ const DashboardLayout = () => {
 			<SidebarInset>
 				{/* Top header bar */}
 				<header className="flex h-14 items-center gap-3 border-b px-4">
-					<SidebarTrigger variant="outline" size="icon" className="size-7 lg:hidden" />
+					<SidebarTrigger
+						variant="outline"
+						size="icon"
+						className="size-7 lg:hidden"
+					/>
 					<div className="flex-1 lg:hidden" />
 					<SearchBar />
 					<div className="flex-1" />
+
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						className="size-7 focus-visible:ring-0"
+						aria-label="Notifications"
+					>
+						<Bell className="size-4" />
+					</Button>
+
 					<ThemeToggle />
 				</header>
 

@@ -22,12 +22,12 @@ const SidebarLogo = () => {
 						className="hover:bg-transparent active:bg-transparent cursor-default"
 					>
 						<img
-							src="/assets/logos/logo.png"
+							src={`${import.meta.env.BASE_URL}assets/logos/logo.png`}
 							alt="TroveCloud"
-							className="size-7 shrink-0"
+							className="size-10 shrink-0"
 						/>
 
-						<span className="text-xl font-semibold text-[#7C3AED] dark:text-[#8B5CF6]">
+						<span className="text-2xl font-bold text-foreground">
 							TroveCloud
 						</span>
 					</SidebarMenuButton>

@@ -211,9 +211,13 @@
 		color: var(--foreground);
 	}
 
-	/* Sidebar menu cursor */
+	/* Sidebar menu button — base + active state */
 	[data-sidebar="menu-button"] {
 		@apply cursor-pointer;
+
+		&[data-active="true"] {
+			@apply border-l-4 border-primary pl-3;
+		}
 	}
 
 	/* Custom scrollbar — subtle 6px */

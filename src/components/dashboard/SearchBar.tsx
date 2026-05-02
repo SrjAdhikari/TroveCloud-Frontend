@@ -60,7 +60,7 @@ const SearchBar = () => {
 				value={query}
 				onChange={(e) => setQuery(e.target.value)}
 				placeholder="Search files and folders..."
-				className="h-9 w-full rounded-lg border border-border bg-muted/50 pl-9 pr-9 text-sm outline-none placeholder:text-muted-foreground/60 focus:border-ring focus:bg-background transition-colors"
+				className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-9 text-sm outline-none placeholder:text-muted-foreground/60 focus:border-ring transition-colors"
 			/>
 
 			{query && (

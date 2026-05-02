@@ -125,7 +125,7 @@ const SidebarUserMenu = () => {
 
 									<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
 										<div
-											className="h-full rounded-full bg-blue-500"
+											className="h-full rounded-full bg-primary"
 											style={{ width: "24%" }}
 										/>
 									</div>
