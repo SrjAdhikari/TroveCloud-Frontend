@@ -7,7 +7,7 @@ import useFileUpload from "@/hooks/useFileUpload";
 
 import FolderCard from "@/components/dashboard/cards/FolderCard";
 import FileCard from "@/components/dashboard/cards/FileCard";
-import BackButton from "@/components/dashboard/directory/BackButton";
+import Breadcrumbs from "@/components/dashboard/directory/Breadcrumbs";
 import DirectorySection from "@/components/dashboard/directory/DirectorySection";
 import DirectoryToolbar from "@/components/dashboard/directory/DirectoryToolbar";
 import EmptyDirectory from "@/components/dashboard/directory/EmptyDirectory";
@@ -22,62 +22,81 @@ import UploadProgress from "@/components/dashboard/UploadProgress";
  */
 const DashboardPage = () => {
 	const { view, toggleView } = useViewToggle();
-	const { dirId, directory, isLoading, isRoot, folders, files, isEmpty, searchQuery, rawQuery, handleBack } = useDirectoryContents();
-	const { showCreateFolder, setShowCreateFolder, showUpload, setShowUpload } = useSidebarActions();
+	const {
+		dirId,
+		directory,
+		isLoading,
+		isRoot,
+		folders,
+		files,
+		isEmpty,
+		searchQuery,
+		rawQuery,
+	} = useDirectoryContents();
+	const { showCreateFolder, setShowCreateFolder, showUpload, setShowUpload } =
+		useSidebarActions();
 	const { uploads, upload, dismiss, cancel } = useFileUpload(dirId);
 
 	if (isLoading) {
 		return null;
 	}
 
+	const displayName = isRoot ? "My Files" : (directory?.name ?? "");
+
 	return (
-		<div className="space-y-6">
-			{/* Directory header — title on the left, toolbar on the right */}
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-3">
-					{!isRoot && <BackButton onClick={handleBack} />}
+		<div className="-m-6">
+			<div className="space-y-2 border-b px-3 py-2 sm:px-6">
+				{!isRoot && (
+					<Breadcrumbs
+						ancestors={directory?.ancestors ?? []}
+						currentName={displayName}
+					/>
+				)}
 
-					<h1 className="text-lg font-medium">
-						{isRoot ? "My Files" : directory?.name}
+				<div className="flex items-center justify-between gap-4">
+					<h1 className="truncate text-xl font-medium md:text-2xl">
+						{displayName}
 					</h1>
-				</div>
 
-				<DirectoryToolbar
-					view={view}
-					onNewFolder={() => setShowCreateFolder(true)}
-					onUploadFiles={() => setShowUpload(true)}
-					onToggleView={toggleView}
-				/>
+					<DirectoryToolbar
+						view={view}
+						onNewFolder={() => setShowCreateFolder(true)}
+						onUploadFiles={() => setShowUpload(true)}
+						onToggleView={toggleView}
+					/>
+				</div>
 			</div>
 
-			{/* Directory contents */}
-			{isEmpty ? (
-				searchQuery ? (
-					<NoResults query={rawQuery} />
+			{/* Page content — re-add the layout's p-6 padding + vertical rhythm */}
+			<div className="space-y-6 p-6">
+				{isEmpty ? (
+					searchQuery ? (
+						<NoResults query={rawQuery} />
+					) : (
+						<EmptyDirectory />
+					)
 				) : (
-					<EmptyDirectory />
-				)
-			) : (
-				<>
-					{/* Folders */}
-					{folders.length > 0 && (
-						<DirectorySection title="Folders" view={view}>
-							{folders.map((folder) => (
-								<FolderCard key={folder._id} folder={folder} view={view} />
-							))}
-						</DirectorySection>
-					)}
+					<>
+						{/* Folders */}
+						{folders.length > 0 && (
+							<DirectorySection title="Folders" view={view}>
+								{folders.map((folder) => (
+									<FolderCard key={folder._id} folder={folder} view={view} />
+								))}
+							</DirectorySection>
+						)}
 
-					{/* Files */}
-					{files.length > 0 && (
-						<DirectorySection title="Files" view={view}>
-							{files.map((file) => (
-								<FileCard key={file._id} file={file} view={view} />
-							))}
-						</DirectorySection>
-					)}
-				</>
-			)}
+						{/* Files */}
+						{files.length > 0 && (
+							<DirectorySection title="Files" view={view}>
+								{files.map((file) => (
+									<FileCard key={file._id} file={file} view={view} />
+								))}
+							</DirectorySection>
+						)}
+					</>
+				)}
+			</div>
 
 			{/* Create folder dialog */}
 			<CreateFolderDialog
