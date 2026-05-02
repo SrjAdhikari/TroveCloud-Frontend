@@ -29,12 +29,21 @@ export interface FileItemPayload {
 	updatedAt: string;
 }
 
+// A breadcrumb ancestor entry — root → immediate parent of the current dir
+export interface DirectoryAncestorPayload {
+	_id: string;
+	name: string;
+}
+
 // Full directory contents returned by GET /api/directories/:id?
 export interface DirectoryContentsPayload {
 	_id: string;
 	name: string;
 	parentDirId: string | null;
 	userId: string;
+	fileCount?: number;
+	totalSize?: number;
+	ancestors: DirectoryAncestorPayload[];
 	files: FileItemPayload[];
 	childDirectories: DirectoryItemPayload[];
 }
