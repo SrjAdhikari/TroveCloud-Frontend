@@ -50,7 +50,10 @@ const SidebarNav = () => {
 				<SidebarGroupContent>
 					<SidebarMenu>
 						{navItems.map((item) => {
-							const isActive = item.path === location.pathname;
+							const isActive = item.path
+								? location.pathname === item.path ||
+									location.pathname.startsWith(`${item.path}/`)
+								: false;
 							return (
 								<SidebarMenuItem key={item.label}>
 									<SidebarMenuButton

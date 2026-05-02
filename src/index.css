@@ -216,7 +216,7 @@
 		@apply cursor-pointer;
 
 		&[data-active="true"] {
-			@apply border-l-4 border-primary pl-2;
+			@apply border-l-4 border-primary pl-3;
 		}
 	}
 
