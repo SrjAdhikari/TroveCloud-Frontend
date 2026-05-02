@@ -4,8 +4,7 @@ import { useNavigate, useLocation } from "react-router";
 import {
 	FolderClosed,
 	Share2,
-	UsersRound,
-	Star,
+	Heart,
 	Trash2,
 	type LucideIcon,
 } from "lucide-react";
@@ -30,8 +29,7 @@ interface NavItem {
 const navItems: NavItem[] = [
 	{ label: "My Files", icon: FolderClosed, path: "/my-files" },
 	{ label: "Shared", icon: Share2, path: "/shared" },
-	{ label: "Shared with me", icon: UsersRound, path: "/shared-with-me" },
-	{ label: "Starred", icon: Star, path: "/starred" },
+	{ label: "Favorites", icon: Heart, path: "/favorites" },
 	{ label: "Trash", icon: Trash2, path: "/trash" },
 ];
 
@@ -51,20 +49,24 @@ const SidebarNav = () => {
 
 				<SidebarGroupContent>
 					<SidebarMenu>
-						{navItems.map((item) => (
-							<SidebarMenuItem key={item.label}>
-								<SidebarMenuButton
-									isActive={item.path === location.pathname}
-									tooltip={item.label}
-									disabled={item.disabled}
-									className="h-9"
-									onClick={() => item.path && navigate(item.path)}
-								>
-									<item.icon />
-									<span>{item.label}</span>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						))}
+						{navItems.map((item) => {
+							const isActive = item.path === location.pathname;
+							return (
+								<SidebarMenuItem key={item.label}>
+									<SidebarMenuButton
+										isActive={isActive}
+										aria-current={isActive ? "page" : undefined}
+										tooltip={item.label}
+										disabled={item.disabled}
+										className="h-10 pl-3"
+										onClick={() => item.path && navigate(item.path)}
+									>
+										<item.icon />
+										<span>{item.label}</span>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							);
+						})}
 					</SidebarMenu>
 				</SidebarGroupContent>
 			</SidebarGroup>

@@ -26,14 +26,14 @@ const dispatchAction = (action: string) => {
  */
 const SidebarNewButton = () => {
 	return (
-		<SidebarMenu className="px-2 pt-2">
+		<SidebarMenu className="px-2 pt-3 pb-2">
 			<SidebarMenuItem>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton
 							size="lg"
 							tooltip="New"
-							className="justify-center text-white hover:text-white active:text-white bg-[#7C3AED] hover:bg-[#5B21B6] active:bg-[#8B5CF6] transition-colors duration-300"
+							className="justify-center text-primary-foreground hover:text-primary-foreground bg-primary hover:bg-primary/80 transition-colors duration-300"
 						>
 							<Plus strokeWidth={2.5} />
 							<span className="text-base font-medium">New</span>
