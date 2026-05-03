@@ -49,9 +49,7 @@ const PreviewContent = ({ file }: PreviewContentProps) => {
 			);
 
 		case "audio":
-			return (
-				<audio src={previewUrl} controls className="w-full" />
-			);
+			return <audio src={previewUrl} controls className="w-full" />;
 
 		case "text":
 			return <TextPreview url={previewUrl} />;
@@ -61,7 +59,7 @@ const PreviewContent = ({ file }: PreviewContentProps) => {
 			return (
 				<div className="flex flex-col items-center gap-5 py-8">
 					<div className="flex size-16 items-center justify-center">
-						<img src={src} alt="" className="size-16" />
+						<img src={src} alt={`${file.extension} file`} className="size-16" />
 					</div>
 
 					<div className="flex items-center gap-1.5 text-sm text-muted-foreground">

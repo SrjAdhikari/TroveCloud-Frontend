@@ -67,7 +67,11 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 				{view === "list" ? (
 					<>
 						<div className="flex size-8 shrink-0 items-center justify-center">
-							<img src={src} alt="Icon" className="size-7" />
+							<img
+								src={src}
+								alt={`${file.extension} file`}
+								className="size-7"
+							/>
 						</div>
 
 						<div className="min-w-0">
@@ -79,7 +83,7 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 						</span>
 
 						<span className="hidden lg:block text-sm text-muted-foreground text-center">
-							{file.size != null ? formatFileSize(file.size) : "--"}
+							{sizeText ?? "--"}
 						</span>
 
 						<div className="flex justify-center">
@@ -106,7 +110,11 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 						{/* Centered icon + file name */}
 						<div className="flex flex-col items-center gap-3">
 							<div className="flex size-14 shrink-0 items-center justify-center">
-								<img src={src} alt="Icon" className="size-14" />
+								<img
+									src={src}
+									alt={`${file.extension} file`}
+									className="size-14"
+								/>
 							</div>
 
 							<p className="w-full truncate text-center text-sm font-medium">

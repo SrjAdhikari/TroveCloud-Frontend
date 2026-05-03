@@ -39,7 +39,7 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 	const sizeText =
 		folder.totalSize != null ? formatFileSize(folder.totalSize) : null;
 
-	const listMeta =
+	const metadata =
 		[fileCountText, sizeText].filter(Boolean).join(" · ") || null;
 
 	return (
@@ -114,7 +114,7 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 
 						{/* Folder metadata */}
 						<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
-							<p className="truncate">{listMeta ?? "—"}</p>
+							<p className="truncate">{metadata ?? "—"}</p>
 							<p>{formatDateTime(folder.updatedAt)}</p>
 						</div>
 					</>
