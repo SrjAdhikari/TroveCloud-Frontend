@@ -1,8 +1,8 @@
 //* src/components/dashboard/cards/FileCard.tsx
 
 import { useState } from "react";
-import { toast } from "sonner";
 
+import toast from "@/lib/toast";
 import { formatDateTime, formatFileSize } from "@/lib/formatters";
 import { getFileIcon } from "@/lib/iconMapper";
 import type { FileItemPayload } from "@/types/directory.types";
@@ -26,8 +26,10 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 	const [showRename, setShowRename] = useState(false);
 	const [showDelete, setShowDelete] = useState(false);
 
-	const { icon: Icon, color, src } = getFileIcon(file.extension);
+	const { src } = getFileIcon(file.extension);
 	const { mutate: download } = useDownloadFile();
+
+	const sizeText = file.size != null ? formatFileSize(file.size) : null;
 
 	/**
 	 * Downloads the file by fetching it as a Blob, creating a temporary
@@ -43,8 +45,8 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 				a.click();
 				URL.revokeObjectURL(url);
 			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to download file");
+			onError: () => {
+				toast.error("Couldn't download the file. Please try again.");
 			},
 		});
 	};
@@ -58,82 +60,65 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 				onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
 				className={`group text-left transition-all cursor-pointer ${
 					view === "list"
-						? "grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_3fr_2fr_auto] lg:grid-cols-[auto_3fr_2fr_1fr_auto] items-center gap-4 px-4 py-3 hover:bg-accent/50 rounded-lg lg:*:last:ml-20 xl:*:last:ml-30"
-						: "rounded-xl border border-border bg-card p-4 hover:bg-accent/50 hover:shadow-sm"
+						? "grid grid-cols-[auto_1fr_4rem] md:grid-cols-[auto_3fr_2fr_4rem] lg:grid-cols-[auto_3fr_2fr_1fr_4rem] items-center gap-4 px-4 py-2"
+						: "relative rounded-xl border border-border bg-background p-4"
 				}`}
 			>
 				{view === "list" ? (
 					<>
-						<div className="flex size-10 shrink-0 items-center justify-center">
-							{src ? (
-								<img src={src} alt="" className="size-10" />
-							) : (
-								<Icon className={`size-6 ${color}`} />
-							)}
+						<div className="flex size-8 shrink-0 items-center justify-center">
+							<img src={src} alt="Icon" className="size-7" />
 						</div>
 
 						<div className="min-w-0">
 							<p className="truncate text-sm font-medium">{file.name}</p>
-							<p className="text-xs text-muted-foreground">
-								{[
-									file.extension?.toUpperCase(),
-									file.size != null ? formatFileSize(file.size) : null,
-								]
-									.filter(Boolean)
-									.join(" · ")}
-							</p>
 						</div>
 
-						<span className="hidden md:block text-sm text-muted-foreground text-right">
+						<span className="hidden md:block text-sm text-muted-foreground text-center">
 							{formatDateTime(file.updatedAt)}
 						</span>
 
-						<span className="hidden lg:block text-sm text-muted-foreground text-right">
+						<span className="hidden lg:block text-sm text-muted-foreground text-center">
 							{file.size != null ? formatFileSize(file.size) : "--"}
 						</span>
 
-						<ItemActions
-							onRename={() => setShowRename(true)}
-							onDelete={() => setShowDelete(true)}
-							onPreview={() => setShowPreview(true)}
-							onDownload={handleDownload}
-						/>
+						<div className="flex justify-center">
+							<ItemActions
+								onRename={() => setShowRename(true)}
+								onDelete={() => setShowDelete(true)}
+								onPreview={() => setShowPreview(true)}
+								onDownload={handleDownload}
+							/>
+						</div>
 					</>
 				) : (
 					<>
-						{/* Top row — icon + file size + actions */}
-						<div className="flex items-start justify-between">
-							<div className="flex size-12 shrink-0 items-center justify-center">
-								{src ? (
-									<img src={src} alt="" className="size-12" />
-								) : (
-									<Icon className={`size-8 ${color}`} />
-								)}
-							</div>
-
-							<div className="flex items-center gap-2">
-								{file.size != null && (
-									<span className="text-xs text-muted-foreground">
-										{formatFileSize(file.size)}
-									</span>
-								)}
-
-								<ItemActions
-									onRename={() => setShowRename(true)}
-									onDelete={() => setShowDelete(true)}
-									onPreview={() => setShowPreview(true)}
-									onDownload={handleDownload}
-								/>
-							</div>
+						{/* Action menu — absolute top-right so it doesn't break centering */}
+						<div className="absolute right-2 top-2">
+							<ItemActions
+								onRename={() => setShowRename(true)}
+								onDelete={() => setShowDelete(true)}
+								onPreview={() => setShowPreview(true)}
+								onDownload={handleDownload}
+							/>
 						</div>
 
-						{/* Bottom — file name + date */}
-						<div className="mt-4 min-w-0">
-							<p className="truncate text-sm font-medium">{file.name}</p>
+						{/* Centered icon + file name */}
+						<div className="flex flex-col items-center gap-3">
+							<div className="flex size-14 shrink-0 items-center justify-center">
+								<img src={src} alt="Icon" className="size-14" />
+							</div>
 
-							<p className="mt-1 text-xs text-muted-foreground">
-								{formatDateTime(file.updatedAt)}
+							<p className="w-full truncate text-center text-sm font-medium">
+								{file.name}
 							</p>
+						</div>
+
+						<hr className="my-3 -mx-4 border-border" />
+
+						<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
+							<p className="truncate">{sizeText ?? "—"}</p>
+							<p>{formatDateTime(file.updatedAt)}</p>
 						</div>
 					</>
 				)}

@@ -8,7 +8,8 @@ import useFileUpload from "@/hooks/useFileUpload";
 import FolderCard from "@/components/dashboard/cards/FolderCard";
 import FileCard from "@/components/dashboard/cards/FileCard";
 import Breadcrumbs from "@/components/dashboard/directory/Breadcrumbs";
-import DirectorySection from "@/components/dashboard/directory/DirectorySection";
+import DirectoryGridView from "@/components/dashboard/directory/DirectoryGridView";
+import DirectoryListView from "@/components/dashboard/directory/DirectoryListView";
 import DirectoryToolbar from "@/components/dashboard/directory/DirectoryToolbar";
 import EmptyDirectory from "@/components/dashboard/directory/EmptyDirectory";
 import NoResults from "@/components/dashboard/directory/NoResults";
@@ -75,24 +76,24 @@ const DashboardPage = () => {
 					) : (
 						<EmptyDirectory />
 					)
+				) : view === "list" ? (
+					<DirectoryListView folders={folders} files={files} />
 				) : (
 					<>
-						{/* Folders */}
 						{folders.length > 0 && (
-							<DirectorySection title="Folders" view={view}>
+							<DirectoryGridView title="Folders">
 								{folders.map((folder) => (
 									<FolderCard key={folder._id} folder={folder} view={view} />
 								))}
-							</DirectorySection>
+							</DirectoryGridView>
 						)}
 
-						{/* Files */}
 						{files.length > 0 && (
-							<DirectorySection title="Files" view={view}>
+							<DirectoryGridView title="Files">
 								{files.map((file) => (
 									<FileCard key={file._id} file={file} view={view} />
 								))}
-							</DirectorySection>
+							</DirectoryGridView>
 						)}
 					</>
 				)}
