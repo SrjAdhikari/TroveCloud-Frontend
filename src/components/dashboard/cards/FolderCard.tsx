@@ -31,21 +31,16 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 		setSearchParams({ dir: folder._id });
 	};
 
-	/** Builds a short summary string like "3 files · 1.2 MB" */
-	const buildMeta = (): string | null => {
-		const parts: string[] = [];
-		if (folder.fileCount != null) {
-			parts.push(
-				`${folder.fileCount} ${folder.fileCount === 1 ? "file" : "files"}`,
-			);
-		}
-		if (folder.totalSize != null) {
-			parts.push(formatFileSize(folder.totalSize));
-		}
-		return parts.length > 0 ? parts.join(" · ") : null;
-	};
+	const fileCountText =
+		folder.fileCount != null
+			? `${folder.fileCount} ${folder.fileCount === 1 ? "file" : "files"}`
+			: null;
 
-	const meta = buildMeta();
+	const sizeText =
+		folder.totalSize != null ? formatFileSize(folder.totalSize) : null;
+
+	const metadata =
+		[fileCountText, sizeText].filter(Boolean).join(" · ") || null;
 
 	return (
 		<>
@@ -56,70 +51,71 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 				onKeyDown={(e) => e.key === "Enter" && handleClick()}
 				className={`group text-left transition-all cursor-pointer ${
 					view === "list"
-						? "grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_3fr_2fr_auto] lg:grid-cols-[auto_3fr_2fr_1fr_auto] items-center gap-4 px-4 py-3 hover:bg-accent/50 rounded-lg lg:*:last:ml-20 xl:*:last:ml-30"
-						: "rounded-xl border border-border bg-card p-4 hover:bg-accent/50 hover:shadow-sm"
+						? "grid grid-cols-[auto_1fr_4rem] md:grid-cols-[auto_3fr_2fr_4rem] lg:grid-cols-[auto_3fr_2fr_1fr_4rem] items-center gap-4 px-4 py-2"
+						: "relative rounded-xl border border-border bg-background p-4"
 				}`}
 			>
 				{view === "list" ? (
 					<>
 						<div
-							className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${bg}`}
+							className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${bg}`}
 						>
 							<Icon className={`size-5 ${color}`} />
 						</div>
 
-						<div className="min-w-0">
-							<p className="truncate text-sm font-medium">
-								{folder.name}
-							</p>
-							{meta && (
-								<p className="text-xs text-muted-foreground">
-									{meta}
-								</p>
+						<div className="flex min-w-0 items-center gap-3">
+							<p className="truncate text-sm font-medium">{folder.name}</p>
+							{fileCountText && (
+								<span className="shrink-0 text-xs text-muted-foreground">
+									({fileCountText})
+								</span>
 							)}
 						</div>
 
-						<span className="hidden md:block text-sm text-muted-foreground text-right">
+						<span className="hidden md:block text-sm text-muted-foreground text-center">
 							{formatDateTime(folder.updatedAt)}
 						</span>
 
-						<span className="hidden lg:block text-sm text-muted-foreground text-right">
-							--
+						<span className="hidden lg:block text-sm text-muted-foreground text-center">
+							{sizeText ?? "--"}
 						</span>
 
-						<ItemActions
-							onRename={() => setShowRename(true)}
-							onDelete={() => setShowDelete(true)}
-						/>
+						<div className="flex justify-center">
+							<ItemActions
+								onRename={() => setShowRename(true)}
+								onDelete={() => setShowDelete(true)}
+							/>
+						</div>
 					</>
 				) : (
 					<>
-						{/* Top row — icon + meta + actions */}
-						<div className="flex items-start justify-between">
+						{/* Action menu - top right corner */}
+						<div className="absolute right-2 top-2">
+							<ItemActions
+								onRename={() => setShowRename(true)}
+								onDelete={() => setShowDelete(true)}
+							/>
+						</div>
+
+						{/* Centered icon + folder name */}
+						<div className="flex flex-col items-center gap-3">
 							<div
 								className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${bg}`}
 							>
 								<Icon className={`size-6 ${color}`} />
 							</div>
 
-							<div className="flex items-center gap-2">
-								{meta && (
-									<span className="text-xs text-muted-foreground">{meta}</span>
-								)}
-
-								<ItemActions
-									onRename={() => setShowRename(true)}
-									onDelete={() => setShowDelete(true)}
-								/>
-							</div>
+							<p className="w-full truncate text-center text-sm font-medium">
+								{folder.name}
+							</p>
 						</div>
 
-						{/* Bottom — folder name + date */}
-						<div className="mt-4 min-w-0">
-							<p className="truncate text-sm font-medium">{folder.name}</p>
-							<p className="mt-1 text-xs text-muted-foreground">
-								{formatDateTime(folder.updatedAt)}
-							</p>
+						<hr className="my-3 -mx-4 border-border" />
+
+						{/* Folder metadata */}
+						<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
+							<p className="truncate">{metadata ?? "—"}</p>
+							<p>{formatDateTime(folder.updatedAt)}</p>
 						</div>
 					</>
 				)}
