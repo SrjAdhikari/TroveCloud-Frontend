@@ -1,6 +1,19 @@
 //* src/components/dashboard/cards/ItemActions.tsx
 
-import { EllipsisVertical, Eye, Pencil, Download, Trash2 } from "lucide-react";
+import type { ReactNode } from "react";
+import {
+	Download,
+	EllipsisVertical,
+	Eye,
+	FolderInput,
+	Info,
+	Link,
+	Pencil,
+	Share2,
+	Star,
+	Trash2,
+	type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,73 +30,114 @@ interface ItemActionsProps {
 	onDownload?: () => void;
 }
 
+interface MenuItemProps {
+	icon: LucideIcon;
+	children: ReactNode;
+	onClick?: () => void;
+	disabled?: boolean;
+	variant?: "default" | "destructive";
+}
+
 /**
- * Three-dot dropdown menu with actions for a file or folder card.
- * Download action is only shown for files (when onDownload is provided).
+ * Internal helper - wraps `DropdownMenuItem` with the project's icon label layout.
+ *
+ * @param Icon - Icon to be displayed
+ * @param children - Child elements
+ * @param onClick - Function to be called on click
+ * @param disabled - To disable the menu item
+ * @param variant - Variant of the menu item
+ * @returns MenuItem component
  */
-const ItemActions = ({ onRename, onDelete, onPreview, onDownload }: ItemActionsProps) => {
+const MenuItem = ({
+	icon: Icon,
+	children,
+	onClick,
+	disabled,
+	variant,
+}: MenuItemProps) => {
+	return (
+		<DropdownMenuItem
+			disabled={disabled}
+			variant={variant}
+			onClick={
+				onClick
+					? (e) => {
+							e.stopPropagation();
+							onClick();
+						}
+					: undefined
+			}
+			className={`gap-2 px-2.5 py-1.5 text-[13px] focus:bg-muted focus:text-foreground not-data-[variant=destructive]:focus:**:text-foreground ${
+				disabled ? "" : "cursor-pointer"
+			}`}
+		>
+			<Icon aria-hidden="true" className="size-3.5" />
+			{children}
+		</DropdownMenuItem>
+	);
+};
+
+/**
+ * Item Actions Component - Three-dot dropdown menu with actions for a file or folder card.
+ *
+ * @param onRename - Function to rename the item
+ * @param onDelete - Function to delete the item
+ * @param onPreview - Function to preview the item
+ * @param onDownload - Function to download the item
+ * @returns ItemActions component
+ */
+const ItemActions = ({
+	onRename,
+	onDelete,
+	onPreview,
+	onDownload,
+}: ItemActionsProps) => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="ghost"
 					size="icon"
-					className="size-7 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+					className="size-7 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
 					onClick={(e) => e.stopPropagation()}
 				>
-					<EllipsisVertical className="size-4" />
+					<EllipsisVertical aria-hidden="true" className="size-4" />
 				</Button>
 			</DropdownMenuTrigger>
 
-			<DropdownMenuContent align="end" className="min-w-40 p-1.5">
+			<DropdownMenuContent
+				align="end"
+				side="bottom"
+				avoidCollisions={false}
+				className="min-w-44 bg-background p-1.5"
+			>
+				<MenuItem icon={Info}>Details</MenuItem>
+
 				{onPreview && (
-					<DropdownMenuItem
-						onClick={(e) => {
-							e.stopPropagation();
-							onPreview();
-						}}
-						className="cursor-pointer gap-2 px-2.5 py-1.5 text-[13px]"
-					>
-						<Eye className="size-3.5" />
+					<MenuItem icon={Eye} onClick={onPreview}>
 						Preview
-					</DropdownMenuItem>
+					</MenuItem>
 				)}
 
-				<DropdownMenuItem
-					onClick={(e) => {
-						e.stopPropagation();
-						onRename();
-					}}
-					className="cursor-pointer gap-2 px-2.5 py-1.5 text-[13px]"
-				>
-					<Pencil className="size-3.5" />
+				<MenuItem icon={Pencil} onClick={onRename}>
 					Rename
-				</DropdownMenuItem>
+				</MenuItem>
+
+				<MenuItem icon={Star}>Add to Favorites</MenuItem>
+				<MenuItem icon={Share2}>Share</MenuItem>
+				<MenuItem icon={FolderInput}>Move to</MenuItem>
 
 				{onDownload && (
-					<DropdownMenuItem
-						onClick={(e) => {
-							e.stopPropagation();
-							onDownload();
-						}}
-						className="cursor-pointer gap-2 px-2.5 py-1.5 text-[13px]"
-					>
-						<Download className="size-3.5" />
+					<MenuItem icon={Download} onClick={onDownload}>
 						Download
-					</DropdownMenuItem>
+					</MenuItem>
 				)}
 
-				<DropdownMenuItem
-					variant="destructive"
-					onClick={(e) => {
-						e.stopPropagation();
-						onDelete();
-					}}
-					className="cursor-pointer gap-2 px-2.5 py-1.5 text-[13px]"
-				>
-					<Trash2 className="size-3.5" />
+				<MenuItem icon={Link}>Copy link</MenuItem>
+
+				<MenuItem icon={Trash2} variant="destructive" onClick={onDelete}>
 					Move to Trash
-				</DropdownMenuItem>
+				</MenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
