@@ -111,7 +111,7 @@ const ItemActions = ({
 				avoidCollisions={false}
 				className="min-w-44 bg-background p-1.5"
 			>
-				<MenuItem icon={Info}>Details</MenuItem>
+				<MenuItem icon={Info} disabled>Details</MenuItem>
 
 				{onPreview && (
 					<MenuItem icon={Eye} onClick={onPreview}>
@@ -123,9 +123,9 @@ const ItemActions = ({
 					Rename
 				</MenuItem>
 
-				<MenuItem icon={Star}>Add to Favorites</MenuItem>
-				<MenuItem icon={Share2}>Share</MenuItem>
-				<MenuItem icon={FolderInput}>Move to</MenuItem>
+				<MenuItem icon={Star} disabled>Add to Favorites</MenuItem>
+				<MenuItem icon={Share2} disabled>Share</MenuItem>
+				<MenuItem icon={FolderInput} disabled>Move to</MenuItem>
 
 				{onDownload && (
 					<MenuItem icon={Download} onClick={onDownload}>
@@ -133,7 +133,7 @@ const ItemActions = ({
 					</MenuItem>
 				)}
 
-				<MenuItem icon={Link}>Copy link</MenuItem>
+				<MenuItem icon={Link} disabled>Copy link</MenuItem>
 
 				<MenuItem icon={Trash2} variant="destructive" onClick={onDelete}>
 					Move to Trash
