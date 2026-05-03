@@ -33,7 +33,7 @@ const EmptyDirectory = ({ onUploadFiles, onNewFolder }: EmptyDirectoryProps) => 
 					className="cursor-pointer"
 				>
 					<FolderPlus aria-hidden="true" className="size-4" />
-					Create folder
+					Create Folder
 				</Button>
 			</div>
 		</DirectoryPlaceholder>
