@@ -59,7 +59,7 @@ const MenuItem = ({
 		<DropdownMenuItem
 			disabled={disabled}
 			variant={variant}
-			onClick={
+			onSelect={
 				onClick
 					? (e) => {
 							e.stopPropagation();
