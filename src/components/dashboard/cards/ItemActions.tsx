@@ -98,6 +98,7 @@ const ItemActions = ({
 				<Button
 					variant="ghost"
 					size="icon"
+					aria-label="More actions"
 					className="size-7 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
 					onClick={(e) => e.stopPropagation()}
 				>
