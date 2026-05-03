@@ -1,29 +1,42 @@
 //* src/components/dashboard/directory/EmptyDirectory.tsx
 
-import { FolderOpen } from "lucide-react";
+import { FolderOpen, FolderPlus, Upload } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import DirectoryPlaceholder from "@/components/dashboard/directory/DirectoryPlaceholder";
+
+interface EmptyDirectoryProps {
+	onUploadFiles: () => void;
+	onNewFolder: () => void;
+}
 
 /**
  * Placeholder shown when a directory has no files or folders.
+ * Renders Upload + Create folder CTAs so the empty state is also a starting point.
  */
-const EmptyDirectory = () => {
+const EmptyDirectory = ({ onUploadFiles, onNewFolder }: EmptyDirectoryProps) => {
 	return (
-		<div className="flex min-h-[calc(100svh-11rem)] items-center justify-center text-muted-foreground py-10">
-			<div className="flex flex-col items-center gap-6">
-				<div className="rounded-3xl bg-primary/5 p-6">
-					<FolderOpen className="size-14 md:size-16 text-primary" strokeWidth={1} />
-				</div>
+		<DirectoryPlaceholder
+			icon={FolderOpen}
+			title="No files or folders yet"
+			description="Upload files or create a folder to get started"
+		>
+			<div className="flex flex-wrap items-center justify-center gap-3">
+				<Button onClick={onUploadFiles} className="cursor-pointer">
+					<Upload aria-hidden="true" className="size-4" />
+					Upload Files
+				</Button>
 
-				<div className="text-center">
-					<h3 className="text-lg md:text-xl font-medium text-foreground">
-						No files or folders yet
-					</h3>
-
-					<p className="mt-1 text-sm">
-						Upload files or create a folder to get started
-					</p>
-				</div>
+				<Button
+					onClick={onNewFolder}
+					variant="outline"
+					className="cursor-pointer"
+				>
+					<FolderPlus aria-hidden="true" className="size-4" />
+					Create Folder
+				</Button>
 			</div>
-		</div>
+		</DirectoryPlaceholder>
 	);
 };
 

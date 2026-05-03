@@ -74,7 +74,10 @@ const DashboardPage = () => {
 					searchQuery ? (
 						<NoResults query={rawQuery} />
 					) : (
-						<EmptyDirectory />
+						<EmptyDirectory
+							onUploadFiles={() => setShowUpload(true)}
+							onNewFolder={() => setShowCreateFolder(true)}
+						/>
 					)
 				) : view === "list" ? (
 					<DirectoryListView folders={folders} files={files} />
