@@ -1,9 +1,9 @@
 //* src/components/dashboard/dialogs/CreateFolderDialog.tsx
 
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { FolderPlus } from "lucide-react";
 
+import toast from "@/lib/toast";
 import { useCreateDirectory } from "@/hooks/useDirectory";
 import { folderNameSchema } from "@/schemas/itemName.schema";
 import NameDialog from "@/components/dashboard/dialogs/NameDialog";
@@ -41,13 +41,12 @@ const CreateFolderDialog = ({
 		mutate(
 			{ name, parentDirId },
 			{
-				onSuccess: (res) => {
-					toast.success(res.message || "Folder created");
+				onSuccess: () => {
 					queryClient.invalidateQueries({ queryKey: ["directory"] });
 					onOpenChange(false);
 				},
-				onError: (error) => {
-					toast.error(error.message || "Failed to create folder");
+				onError: () => {
+					toast.error("Couldn't create folder. Please try again.");
 				},
 			},
 		);
