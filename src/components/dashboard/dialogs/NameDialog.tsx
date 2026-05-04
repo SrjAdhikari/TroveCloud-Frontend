@@ -22,8 +22,6 @@ import FormField from "@/components/form/FormField";
 /** Visual and text content for the dialog */
 interface NameDialogContent {
 	icon: LucideIcon;
-	iconClassName?: string;
-	iconBg?: string;
 	title: string;
 	description: string;
 	label: string;
@@ -58,8 +56,6 @@ const NameDialog = ({
 }: NameDialogProps) => {
 	const {
 		icon: Icon,
-		iconClassName = "text-blue-500",
-		iconBg = "bg-blue-500/10",
 		title,
 		description,
 		label,
@@ -72,7 +68,7 @@ const NameDialog = ({
 		register,
 		handleSubmit,
 		reset,
-		formState: { errors },
+		formState: { errors, isValid },
 	} = useForm<NameFormData>({
 		mode: "onChange",
 		resolver: zodResolver(schema),
@@ -92,26 +88,22 @@ const NameDialog = ({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="min-w-xs max-w-xs sm:max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)]">
+			<DialogContent className="min-w-xs max-w-xs sm:max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background">
 				<DialogHeader className="text-center gap-1">
-					<div
-						className={`mx-auto mb-1 flex size-10 items-center justify-center rounded-lg ${iconBg}`}
-					>
-						<Icon className={`size-5 ${iconClassName}`} />
+					<div className="mx-auto mb-1 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+						<Icon aria-hidden="true" className="size-5 text-primary" />
 					</div>
 
 					<DialogTitle className="font-heading text-base font-medium">
 						{title}
 					</DialogTitle>
+
 					<DialogDescription className="text-xs">
 						{description}
 					</DialogDescription>
 				</DialogHeader>
 
-				<form
-					onSubmit={handleSubmit(handleFormSubmit)}
-					className="space-y-3"
-				>
+				<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
 					<FormField
 						label={label}
 						id="name-input"
@@ -132,11 +124,13 @@ const NameDialog = ({
 						>
 							Cancel
 						</Button>
+
 						<Button
 							type="submit"
 							size="sm"
-							disabled={isPending}
-							className="cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed"
+							disabled={isPending || !isValid}
+							className="cursor-pointer disabled:pointer-events-auto disabled:cursor-not-allowed
+							disabled:hover:bg-primary"
 						>
 							{isPending ? pendingLabel : submitLabel}
 						</Button>

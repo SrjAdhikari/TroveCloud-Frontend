@@ -2,8 +2,8 @@
 
 import { Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
+import toast from "@/lib/toast";
 import { useDeleteDirectory } from "@/hooks/useDirectory";
 import { useDeleteFile } from "@/hooks/useFile";
 import {
@@ -41,8 +41,7 @@ const DeleteDialog = ({
 	const deleteDir = useDeleteDirectory();
 	const deleteFile = useDeleteFile();
 
-	const { mutate, isPending } =
-		type === "folder" ? deleteDir : deleteFile;
+	const { mutate, isPending } = type === "folder" ? deleteDir : deleteFile;
 
 	const handleDelete = () => {
 		mutate(itemId, {
@@ -51,30 +50,31 @@ const DeleteDialog = ({
 				queryClient.invalidateQueries({ queryKey: ["directory"] });
 				onOpenChange(false);
 			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to delete");
+			onError: () => {
+				toast.error("Couldn't delete. Please try again.");
 			},
 		});
 	};
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
-			<AlertDialogContent size="sm" className="min-w-xs max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)]">
+			<AlertDialogContent
+				size="sm"
+				className="min-w-xs max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background"
+			>
 				<AlertDialogHeader className="text-center">
 					{/* Trash icon */}
 					<div className="mx-auto mb-1 flex size-10 items-center justify-center rounded-lg bg-destructive/10">
-						<Trash2 className="size-5 text-destructive" />
+						<Trash2 aria-hidden="true" className="size-5 text-destructive" />
 					</div>
 
 					<AlertDialogTitle className="font-heading text-base font-medium">
 						Delete {type === "folder" ? "folder" : "file"}?
 					</AlertDialogTitle>
+
 					<AlertDialogDescription className="text-xs">
 						This will permanently delete{" "}
-						<span className="font-medium text-foreground">
-							{itemName}
-						</span>
-						.
+						<span className="font-medium text-foreground">{itemName}</span>.
 						{type === "folder" &&
 							" All files and folders inside will also be deleted."}
 					</AlertDialogDescription>
@@ -84,6 +84,7 @@ const DeleteDialog = ({
 					<AlertDialogCancel size="sm" className="cursor-pointer">
 						Cancel
 					</AlertDialogCancel>
+
 					<AlertDialogAction
 						onClick={handleDelete}
 						variant="destructive"
