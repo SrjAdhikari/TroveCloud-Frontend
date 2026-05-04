@@ -14,7 +14,7 @@ const useDirectoryContents = () => {
 	const searchQuery = searchParams.get("q")?.toLowerCase() || "";
 	const rawQuery = searchParams.get("q") || "";
 
-	const { data, isLoading } = useCurrentDirectory(dirId);
+	const { data, isLoading, error } = useCurrentDirectory(dirId);
 	const directory = data?.data;
 
 	const isRoot = !directory?.parentDirId;
@@ -34,6 +34,7 @@ const useDirectoryContents = () => {
 		dirId,
 		directory,
 		isLoading,
+		error,
 		isRoot,
 		folders,
 		files,

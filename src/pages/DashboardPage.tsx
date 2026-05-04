@@ -10,6 +10,7 @@ import FileCard from "@/components/dashboard/cards/FileCard";
 import Breadcrumbs from "@/components/dashboard/directory/Breadcrumbs";
 import DirectoryGridView from "@/components/dashboard/directory/DirectoryGridView";
 import DirectoryListView from "@/components/dashboard/directory/DirectoryListView";
+import DirectoryLoadFailed from "@/components/dashboard/directory/DirectoryLoadFailed";
 import DirectoryToolbar from "@/components/dashboard/directory/DirectoryToolbar";
 import EmptyDirectory from "@/components/dashboard/directory/EmptyDirectory";
 import NoResults from "@/components/dashboard/directory/NoResults";
@@ -27,6 +28,7 @@ const DashboardPage = () => {
 		dirId,
 		directory,
 		isLoading,
+		error,
 		isRoot,
 		folders,
 		files,
@@ -40,6 +42,10 @@ const DashboardPage = () => {
 
 	if (isLoading) {
 		return null;
+	}
+
+	if (error) {
+		return <DirectoryLoadFailed error={error} />;
 	}
 
 	const displayName = isRoot ? "My Files" : (directory?.name ?? "");
