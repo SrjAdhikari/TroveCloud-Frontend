@@ -93,6 +93,11 @@ const ItemActions = ({
 	onDownload,
 }: ItemActionsProps) => {
 	return (
+		// FileCard / FolderCard are clickable (open preview / navigate into folder).
+		// Stop click bubbling on both the Trigger (dot click) and the Content (menu
+		// item clicks) so opening or using this menu doesn't also fire the parent
+		// card's onClick. Radix onSelect only stops its own custom event — the
+		// underlying React click still bubbles up the React tree.
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
@@ -110,6 +115,7 @@ const ItemActions = ({
 				align="end"
 				side="bottom"
 				avoidCollisions={false}
+				onClick={(e) => e.stopPropagation()}
 				className="min-w-44 bg-background p-1.5"
 			>
 				<MenuItem icon={Info} disabled>Details</MenuItem>
