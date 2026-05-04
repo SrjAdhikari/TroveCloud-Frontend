@@ -13,10 +13,20 @@ interface UploadProgressProps {
 }
 
 /** Status label shown below the file name for completed/failed uploads */
-const StatusLabel = ({ status, errorMessage }: Pick<UploadItem, "status" | "errorMessage">) => {
-	if (status === "success") return <p className="text-xs text-green-500 mt-1">Uploaded</p>;
+const StatusLabel = ({
+	status,
+	errorMessage,
+}: Pick<UploadItem, "status" | "errorMessage">) => {
+	if (status === "success")
+		return <p className="text-xs text-success mt-1">Completed</p>;
+
 	if (status === "error")
-		return <p className="text-xs text-destructive mt-1">{errorMessage || "Upload failed"}</p>;
+		return (
+			<p className="text-xs text-destructive mt-1">
+				{errorMessage || "Failed to upload"}
+			</p>
+		);
+
 	return null;
 };
 
@@ -24,7 +34,11 @@ const StatusLabel = ({ status, errorMessage }: Pick<UploadItem, "status" | "erro
  * Fixed bottom-right panel showing upload progress for each file.
  * Auto-hides when there are no uploads to show.
  */
-const UploadProgress = ({ uploads, onDismiss, onCancel }: UploadProgressProps) => {
+const UploadProgress = ({
+	uploads,
+	onDismiss,
+	onCancel,
+}: UploadProgressProps) => {
 	if (uploads.length === 0) return null;
 
 	return (
@@ -35,12 +49,13 @@ const UploadProgress = ({ uploads, onDismiss, onCancel }: UploadProgressProps) =
 
 			<div className="max-h-64 overflow-y-auto px-3 pb-3 space-y-2">
 				{uploads.map((upload) => (
-					<div key={upload.id} className="rounded-lg bg-accent/50 p-3">
+					<div key={upload.id} className="rounded-lg border border-border bg-background p-3">
 						{/* File name + close button */}
 						<div className="flex items-center gap-2">
 							<p className="truncate text-sm font-medium min-w-0 flex-1">
 								{upload.fileName}
 							</p>
+
 							<Button
 								variant="ghost"
 								size="icon"
@@ -64,7 +79,7 @@ const UploadProgress = ({ uploads, onDismiss, onCancel }: UploadProgressProps) =
 							<div className="flex items-center gap-2 mt-2">
 								<Progress
 									value={upload.progress}
-									className="h-1.5 flex-1 *:data-[slot=progress-indicator]:bg-blue-500"
+									className="h-1.5 flex-1 *:data-[slot=progress-indicator]:bg-primary"
 								/>
 								<span className="text-xs text-muted-foreground w-9 text-right">
 									{upload.progress}%
@@ -72,7 +87,10 @@ const UploadProgress = ({ uploads, onDismiss, onCancel }: UploadProgressProps) =
 							</div>
 						)}
 
-						<StatusLabel status={upload.status} errorMessage={upload.errorMessage} />
+						<StatusLabel
+							status={upload.status}
+							errorMessage={upload.errorMessage}
+						/>
 					</div>
 				))}
 			</div>

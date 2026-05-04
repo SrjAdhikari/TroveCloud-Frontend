@@ -1,8 +1,9 @@
 //* src/components/dashboard/dialogs/UploadDialog.tsx
 
 import { useRef, useState } from "react";
-import { Upload, FileUp } from "lucide-react";
+import { Upload } from "lucide-react";
 
+import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_LABEL } from "@/lib/constants";
 import useFileSelection from "@/hooks/useFileSelection";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import AlertBanner from "@/components/ui/alert-banner";
 import SelectedFileList from "@/components/dashboard/dialogs/SelectedFileList";
 
 interface UploadDialogProps {
@@ -19,6 +22,19 @@ interface UploadDialogProps {
 	onOpenChange: (open: boolean) => void;
 	onUpload: (files: FileList) => void;
 }
+
+/** Splits files into ones that fit the per-file cap and ones that exceed it. */
+const splitFilesBySize = (files: File[]) => {
+	const allowed: File[] = [];
+	const oversized: File[] = [];
+
+	files.forEach((file) => {
+		if (file.size > MAX_FILE_SIZE_BYTES) oversized.push(file);
+		else allowed.push(file);
+	});
+
+	return { allowed, oversized };
+};
 
 /**
  * Custom upload dialog with drag-and-drop zone and file preview list.
@@ -28,6 +44,7 @@ interface UploadDialogProps {
 const UploadDialog = ({ open, onOpenChange, onUpload }: UploadDialogProps) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
+	const [oversizedNames, setOversizedNames] = useState<string[]>([]);
 	const { selectedFiles, addFiles, removeFile, reset, totalSize } =
 		useFileSelection();
 
@@ -36,8 +53,22 @@ const UploadDialog = ({ open, onOpenChange, onUpload }: UploadDialogProps) => {
 		if (!value) {
 			reset();
 			setIsDragging(false);
+			setOversizedNames([]);
 		}
 		onOpenChange(value);
+	};
+
+	/** Reject oversized files at add-time so the backend never sees them. */
+	const acceptFiles = (incoming: FileList | File[]) => {
+		const { allowed, oversized } = splitFilesBySize(Array.from(incoming));
+
+		if (oversized.length > 0) {
+			setOversizedNames(oversized.map((file) => file.name));
+		} else {
+			setOversizedNames([]);
+		}
+
+		if (allowed.length > 0) addFiles(allowed);
 	};
 
 	/** Converts the File[] back to a FileList-like object and triggers upload */
@@ -46,6 +77,7 @@ const UploadDialog = ({ open, onOpenChange, onUpload }: UploadDialogProps) => {
 
 		const dataTransfer = new DataTransfer();
 		selectedFiles.forEach((file) => dataTransfer.items.add(file));
+
 		onUpload(dataTransfer.files);
 		handleOpenChange(false);
 	};
@@ -53,85 +85,115 @@ const UploadDialog = ({ open, onOpenChange, onUpload }: UploadDialogProps) => {
 	const handleDrop = (e: React.DragEvent) => {
 		e.preventDefault();
 		setIsDragging(false);
+
 		if (e.dataTransfer.files.length > 0) {
-			addFiles(e.dataTransfer.files);
+			acceptFiles(e.dataTransfer.files);
 		}
 	};
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
-			addFiles(e.target.files);
+			acceptFiles(e.target.files);
 		}
 		e.target.value = "";
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogContent className="sm:max-w-lg">
-				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2">
-						<Upload className="size-5" />
-						Upload Files
-					</DialogTitle>
-
+			<DialogContent className="sm:max-w-lg bg-background gap-0 p-0 top-[50%] max-h-[90vh] flex flex-col">
+				<DialogHeader className="p-5">
+					<DialogTitle>Upload Files</DialogTitle>
 					<DialogDescription>
 						Drag and drop files or browse to select.
 					</DialogDescription>
 				</DialogHeader>
 
-				{/* Drop zone */}
-				<div
-					onDragOver={(e) => {
-						e.preventDefault();
-						setIsDragging(true);
-					}}
-					onDragLeave={(e) => {
-						e.preventDefault();
-						setIsDragging(false);
-					}}
-					onDrop={handleDrop}
-					onClick={() => fileInputRef.current?.click()}
-					className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-colors ${
-						isDragging
-							? "border-blue-500 bg-blue-500/10"
-							: "border-border hover:border-muted-foreground/40 hover:bg-accent/30"
-					}`}
-				>
-					<div className="flex size-12 items-center justify-center rounded-full bg-muted">
-						<FileUp className="size-6 text-muted-foreground" />
-					</div>
+				<Separator />
 
-					<div className="text-center">
-						<p className="text-sm font-medium">
-							{isDragging
-								? "Drop files here"
-								: "Click to browse or drag files here"}
-						</p>
+				<div className="flex-1 overflow-y-auto space-y-4 p-5">
+					{/* Drop zone */}
+					<button
+						type="button"
+						onDragOver={(e) => {
+							e.preventDefault();
+							setIsDragging(true);
+						}}
+						onDragLeave={(e) => {
+							e.preventDefault();
+							setIsDragging(false);
+						}}
+						onDrop={handleDrop}
+						onClick={() => fileInputRef.current?.click()}
+						className={`flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+							isDragging
+								? "bg-muted/20"
+								: "border-border hover:border-muted-foreground/40"
+						}`}
+					>
+						<div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+							<Upload aria-hidden="true" className="size-6 text-primary" />
+						</div>
 
-						<p className="mt-1 text-xs text-muted-foreground">
-							Upload multiple files at once
-						</p>
-					</div>
+						<div className="text-center">
+							<p className="text-sm font-medium">
+								{isDragging
+									? "Drop files here"
+									: "Click to browse or drag files here"}
+							</p>
+
+							<p className="mt-1 text-xs text-muted-foreground">
+								Max file size: {MAX_FILE_SIZE_LABEL}
+							</p>
+						</div>
+					</button>
+
+					{/* Hidden file input */}
+					<input
+						ref={fileInputRef}
+						type="file"
+						multiple
+						onChange={handleFileChange}
+						className="hidden"
+					/>
+
+					{/* Oversized rejection notice */}
+					{oversizedNames.length > 0 && (
+						<AlertBanner variant="error">
+							{oversizedNames.length === 1 ? (
+								<p>
+									<span className="font-medium">{oversizedNames[0]}</span>{" "}
+									exceeds the {MAX_FILE_SIZE_LABEL} size limit.
+								</p>
+							) : (
+								<>
+									<p className="font-medium">
+										{oversizedNames.length} files exceed the{" "}
+										{MAX_FILE_SIZE_LABEL} size limit:
+									</p>
+
+									<ul className="mt-1 space-y-0.5 text-xs">
+										{oversizedNames.map((name, index) => (
+											<li key={`${name}-${index}`} className="truncate">
+												{name}
+											</li>
+										))}
+									</ul>
+								</>
+							)}
+						</AlertBanner>
+					)}
+
+					{/* Selected files list */}
+					<SelectedFileList
+						files={selectedFiles}
+						totalSize={totalSize}
+						onRemove={removeFile}
+					/>
 				</div>
 
-				{/* Hidden file input */}
-				<input
-					ref={fileInputRef}
-					type="file"
-					multiple
-					onChange={handleFileChange}
-					className="hidden"
-				/>
+				<Separator />
 
-				{/* Selected files list */}
-				<SelectedFileList
-					files={selectedFiles}
-					totalSize={totalSize}
-					onRemove={removeFile}
-				/>
-
-				{/* Actions */}
-				<div className="flex justify-end gap-2 pt-2">
+				<div className="flex justify-end gap-2 p-5">
 					<Button
 						variant="outline"
 						onClick={() => handleOpenChange(false)}

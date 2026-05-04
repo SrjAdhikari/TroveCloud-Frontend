@@ -2,9 +2,18 @@
 
 import { useRef, useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
+import toast from "@/lib/toast";
 import { uploadFile } from "@/api/file.api";
+import { MAX_FILE_SIZE_LABEL } from "@/lib/constants";
+
+/** Backend error codes mapped to user-facing copy shown in the upload progress panel. */
+const UPLOAD_ERROR_MESSAGES: Record<string, string> = {
+	FILE_TOO_LARGE: `File is too large. Please upload a file smaller than ${MAX_FILE_SIZE_LABEL}.`,
+	DIRECTORY_NOT_FOUND: "We couldn't find the destination folder. Please try again or choose a different location.",
+	INVALID_INPUT: "Something went wrong while uploading your file. Please check the file and try again.",
+	INVALID_ID: "We couldn't process your upload due to a system issue. Please try again in a moment.",
+};
 
 interface UploadItem {
 	id: string;
@@ -109,13 +118,15 @@ const useFileUpload = (dirId?: string) => {
 
 					/**
 					 * If the user cancelled the upload, the abort throws an error —
-					 * we don't want to show an error toast for a user-initiated action
+					 * we don't want to show an error for a user-initiated action
 					 */
 					if (controller.signal.aborted) return;
 
-					const message =
-						(error as { message?: string })?.message ||
-						`Failed to upload ${file.name}`;
+					const code = (error as { code?: string })?.code;
+					const isClientError = code !== undefined && code in UPLOAD_ERROR_MESSAGES;
+					const message = isClientError
+						? UPLOAD_ERROR_MESSAGES[code]
+						: "Upload failed. Please try again.";
 
 					setUploads((prev) =>
 						prev.map((item) =>
@@ -124,7 +135,10 @@ const useFileUpload = (dirId?: string) => {
 								: item,
 						),
 					);
-					toast.error(message);
+
+					// Per feedback patterns: 4xx client errors stay inline (panel row);
+					// 5xx / network failures get an additional toast for visibility.
+					if (!isClientError) toast.error(message);
 				}
 			});
 		},
