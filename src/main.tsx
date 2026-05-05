@@ -8,12 +8,12 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import Toaster from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
 import queryClient from "@/config/queryClient";
+import { GOOGLE_CLIENT_ID, GITHUB_CLIENT_ID } from "@/lib/constants";
+
 import App from "@/App";
 import "./index.css";
-
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
 
 if (!GOOGLE_CLIENT_ID || !GITHUB_CLIENT_ID) {
 	throw new Error(
