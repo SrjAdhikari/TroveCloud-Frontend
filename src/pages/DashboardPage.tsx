@@ -15,8 +15,8 @@ import DirectoryToolbar from "@/components/dashboard/directory/DirectoryToolbar"
 import EmptyDirectory from "@/components/dashboard/directory/EmptyDirectory";
 import NoResults from "@/components/dashboard/directory/NoResults";
 import CreateFolderDialog from "@/components/dashboard/dialogs/CreateFolderDialog";
-import UploadDialog from "@/components/dashboard/dialogs/UploadDialog";
-import UploadProgress from "@/components/dashboard/UploadProgress";
+import FileUploadDialog from "@/components/dashboard/dialogs/FileUploadDialog";
+import FileUploadProgress from "@/components/dashboard/upload/FileUploadProgress";
 
 /**
  * Main dashboard page — fetches and displays the contents of the current directory.
@@ -116,14 +116,14 @@ const DashboardPage = () => {
 			/>
 
 			{/* Upload dialog */}
-			<UploadDialog
+			<FileUploadDialog
 				open={showUpload}
 				onOpenChange={setShowUpload}
 				onUpload={upload}
 			/>
 
 			{/* Upload progress panel — fixed bottom-right */}
-			<UploadProgress uploads={uploads} onDismiss={dismiss} onCancel={cancel} />
+			<FileUploadProgress uploads={uploads} onDismiss={dismiss} onCancel={cancel} />
 		</div>
 	);
 };

@@ -1,4 +1,4 @@
-//* src/components/dashboard/dialogs/SelectedFileList.tsx
+//* src/components/dashboard/upload/SelectedFileList.tsx
 
 import { File, X } from "lucide-react";
 import { formatFileSize } from "@/lib/formatters";
@@ -51,9 +51,10 @@ const SelectedFileList = ({
 							<button
 								type="button"
 								onClick={() => onRemove(index)}
+								aria-label={`Remove ${file.name}`}
 								className="rounded-md p-0.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
 							>
-								<X className="size-3.5" />
+								<X aria-hidden="true" className="size-3.5" />
 							</button>
 						</div>
 					</div>

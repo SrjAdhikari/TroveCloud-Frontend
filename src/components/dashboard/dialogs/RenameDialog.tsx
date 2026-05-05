@@ -2,9 +2,9 @@
 
 import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { Pencil } from "lucide-react";
 
+import toast from "@/lib/toast";
 import { useRenameDirectory } from "@/hooks/useDirectory";
 import { useRenameFile } from "@/hooks/useFile";
 import { folderNameSchema, fileNameSchema } from "@/schemas/itemName.schema";
@@ -79,12 +79,13 @@ const RenameDialog = ({
 
 		mutate(params as never, {
 			onSuccess: () => {
-				toast.success(`${type === "folder" ? "Folder" : "File"} renamed`);
 				queryClient.invalidateQueries({ queryKey: ["directory"] });
 				onOpenChange(false);
 			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to rename");
+			onError: () => {
+				toast.error(
+					`Couldn't rename ${type}. Please try again.`,
+				);
 			},
 		});
 	};

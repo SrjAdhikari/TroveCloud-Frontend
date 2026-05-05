@@ -1,4 +1,4 @@
-//* src/components/dashboard/UploadProgress.tsx
+//* src/components/dashboard/upload/FileUploadProgress.tsx
 
 import { X } from "lucide-react";
 
@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import type { UploadItem } from "@/hooks/useFileUpload";
 
-interface UploadProgressProps {
+interface FileUploadProgressProps {
 	uploads: UploadItem[];
 	onDismiss: (id: string) => void;
 	onCancel: (id: string) => void;
@@ -34,11 +34,11 @@ const StatusLabel = ({
  * Fixed bottom-right panel showing upload progress for each file.
  * Auto-hides when there are no uploads to show.
  */
-const UploadProgress = ({
+const FileUploadProgress = ({
 	uploads,
 	onDismiss,
 	onCancel,
-}: UploadProgressProps) => {
+}: FileUploadProgressProps) => {
 	if (uploads.length === 0) return null;
 
 	return (
@@ -64,13 +64,18 @@ const UploadProgress = ({
 										? onCancel(upload.id)
 										: onDismiss(upload.id)
 								}
+								aria-label={
+									upload.status === "uploading"
+										? `Cancel upload of ${upload.fileName}`
+										: `Dismiss ${upload.fileName}`
+								}
 								className={`size-5 shrink-0 cursor-pointer ${
 									upload.status === "uploading"
 										? "text-destructive hover:text-destructive"
 										: ""
 								}`}
 							>
-								<X className="size-3.5" />
+								<X aria-hidden="true" className="size-3.5" />
 							</Button>
 						</div>
 
@@ -98,4 +103,4 @@ const UploadProgress = ({
 	);
 };
 
-export default UploadProgress;
+export default FileUploadProgress;
