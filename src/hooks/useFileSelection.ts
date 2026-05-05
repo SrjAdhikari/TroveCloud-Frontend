@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 
 /**
  * Manages a list of selected files with add, remove, reset, and
- * duplicate-prevention logic. Used by the UploadDialog.
+ * duplicate-prevention logic. Used by the FileUploadDialog.
  */
 const useFileSelection = () => {
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);

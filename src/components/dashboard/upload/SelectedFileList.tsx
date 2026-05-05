@@ -1,6 +1,6 @@
-//* src/components/dashboard/dialogs/SelectedFileList.tsx
+//* src/components/dashboard/upload/SelectedFileList.tsx
 
-import { File, X } from "lucide-react";
+import { File as FileIcon, X } from "lucide-react";
 import { formatFileSize } from "@/lib/formatters";
 
 interface SelectedFileListProps {
@@ -39,7 +39,7 @@ const SelectedFileList = ({
 						className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-accent/50"
 					>
 						<div className="flex items-center gap-2 min-w-0 flex-1">
-							<File className="size-4 shrink-0 text-muted-foreground" />
+							<FileIcon className="size-4 shrink-0 text-muted-foreground" />
 							<span className="truncate text-sm">{file.name}</span>
 						</div>
 
@@ -51,9 +51,10 @@ const SelectedFileList = ({
 							<button
 								type="button"
 								onClick={() => onRemove(index)}
+								aria-label={`Remove ${file.name}`}
 								className="rounded-md p-0.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
 							>
-								<X className="size-3.5" />
+								<X aria-hidden="true" className="size-3.5" />
 							</button>
 						</div>
 					</div>
