@@ -77,6 +77,7 @@ const FileDropZone = ({ onFiles }: FileDropZoneProps) => {
 				multiple
 				onChange={handleFileChange}
 				className="hidden"
+				aria-label="Select files to upload"
 			/>
 		</>
 	);
