@@ -41,7 +41,7 @@ const FilePreviewDialog = ({
 			<DialogContent
 				showCloseButton={false}
 				className={cn(
-					"gap-4 p-5",
+					"gap-4 bg-background p-5",
 					isUnsupported
 						? "top-[40%] min-w-sm max-w-sm sm:max-w-sm max-sm:min-w-[calc(100%-2rem)]"
 						: "top-1/2 max-w-[90vw] sm:max-w-xl lg:max-w-3xl xl:max-w-4xl",
