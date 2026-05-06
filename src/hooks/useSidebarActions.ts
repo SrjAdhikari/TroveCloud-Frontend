@@ -4,17 +4,21 @@ import { useState, useEffect } from "react";
 
 /**
  * Listens for custom DOM events dispatched by the sidebar "New" button
- * and manages the dialog open states for creating folders and uploading files.
+ * and manages the dialog open states for creating folders, uploading files,
+ * and importing from Google Drive.
  */
 const useSidebarActions = () => {
 	const [showCreateFolder, setShowCreateFolder] = useState(false);
 	const [showUpload, setShowUpload] = useState(false);
+	const [showDriveImport, setShowDriveImport] = useState(false);
 
 	useEffect(() => {
 		const handleAction = (e: Event) => {
 			const action = (e as CustomEvent).detail;
+
 			if (action === "new-folder") setShowCreateFolder(true);
 			if (action === "upload-files") setShowUpload(true);
+			if (action === "import-from-drive") setShowDriveImport(true);
 		};
 
 		window.addEventListener("dashboard:action", handleAction);
@@ -26,6 +30,8 @@ const useSidebarActions = () => {
 		setShowCreateFolder,
 		showUpload,
 		setShowUpload,
+		showDriveImport,
+		setShowDriveImport,
 	};
 };
 

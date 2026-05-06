@@ -40,4 +40,11 @@ const formatDateTime = (dateStr: string) => {
 	});
 };
 
-export { formatDate, formatFileSize, formatDateTime };
+/**
+ * Returns "<count> <word>" with the word pluralized when count is not 1.
+ * e.g., pluralize(1, "file") → "1 file", pluralize(3, "file") → "3 files"
+ */
+const pluralize = (count: number, word: string) =>
+	`${count} ${count === 1 ? word : `${word}s`}`;
+
+export { formatDate, formatFileSize, formatDateTime, pluralize };

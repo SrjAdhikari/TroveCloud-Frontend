@@ -8,23 +8,26 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import DriveIcon from "@/components/icons/DriveIcon";
 
 interface DirectoryToolbarProps {
 	view: "grid" | "list";
 	onNewFolder: () => void;
 	onUploadFiles: () => void;
+	onImportFromDrive: () => void;
 	onToggleView: () => void;
 }
 
 /**
  * Toolbar with icon buttons for directory actions —
  * new folder, upload files, upload folder (placeholder),
- * import from drive (placeholder), and grid/list view toggle.
+ * import from drive, and grid/list view toggle.
  */
 const DirectoryToolbar = ({
 	view,
 	onNewFolder,
 	onUploadFiles,
+	onImportFromDrive,
 	onToggleView,
 }: DirectoryToolbarProps) => {
 	return (
@@ -40,6 +43,7 @@ const DirectoryToolbar = ({
 						<FolderPlus className="size-4" />
 					</Button>
 				</TooltipTrigger>
+
 				<TooltipContent>New Folder</TooltipContent>
 			</Tooltip>
 
@@ -54,6 +58,7 @@ const DirectoryToolbar = ({
 						<Upload className="size-4" />
 					</Button>
 				</TooltipTrigger>
+
 				<TooltipContent>Upload Files</TooltipContent>
 			</Tooltip>
 
@@ -67,6 +72,7 @@ const DirectoryToolbar = ({
 						<FolderUp className="size-4" />
 					</Button>
 				</TooltipTrigger>
+
 				<TooltipContent>Upload Folder — Coming soon</TooltipContent>
 			</Tooltip>
 
@@ -75,25 +81,14 @@ const DirectoryToolbar = ({
 					<Button
 						variant="outline"
 						size="icon"
+						onClick={onImportFromDrive}
 						className="size-8 cursor-pointer"
 					>
-						<svg
-							viewBox="0 0 48 48"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="3"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							className="size-4"
-						>
-							<path d="M18.15,7.11,4.5,30.75l5.85,10.14h27.3L43.5,30.75,29.85,7.11Z" />
-							<line x1="4.5" y1="30.75" x2="31.79" y2="30.75" />
-							<line x1="37.65" y1="40.89" x2="24" y2="17.25" />
-							<line x1="29.85" y1="7.11" x2="16.21" y2="30.75" />
-						</svg>
+						<DriveIcon className="size-4" aria-hidden="true" />
 					</Button>
 				</TooltipTrigger>
-				<TooltipContent>Import from Drive — Coming soon</TooltipContent>
+
+				<TooltipContent>Import from Drive</TooltipContent>
 			</Tooltip>
 
 			<Tooltip>
@@ -111,6 +106,7 @@ const DirectoryToolbar = ({
 						)}
 					</Button>
 				</TooltipTrigger>
+
 				<TooltipContent>
 					{view === "grid" ? "List view" : "Grid view"}
 				</TooltipContent>

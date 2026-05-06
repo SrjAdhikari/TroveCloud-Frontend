@@ -42,6 +42,7 @@ interface PickerBuilder {
 	setOAuthToken: (token: string) => PickerBuilder;
 	setDeveloperKey: (key: string) => PickerBuilder;
 	setAppId: (appId: string) => PickerBuilder;
+	setSize: (width: number, height: number) => PickerBuilder;
 	setCallback: (cb: (response: PickerResponse) => void) => PickerBuilder;
 	enableFeature: (feature: string) => PickerBuilder;
 	build: () => Picker;
@@ -58,7 +59,7 @@ interface Picker {
 
 interface PickerResponse {
 	action: string;
-	docs?: Array<{ id: string; mimeType: string }>;
+	docs?: Array<{ id: string; mimeType: string; name: string }>;
 }
 
 const PICKER_SCRIPT_URL = "https://apis.google.com/js/api.js";
@@ -119,7 +120,12 @@ const loadPickerApi = (): Promise<void> => {
 
 interface OpenPickerOptions {
 	accessToken: string;
-	onPicked: (items: DrivePickedItem[]) => void;
+	/**
+	 * `names` is a {driveId → name} map captured from the Picker — backend
+	 * sometimes returns `failed[].name = null`, so callers can fall back to
+	 * this map to identify failed items by their original Drive name.
+	 */
+	onPicked: (items: DrivePickedItem[], names: Record<string, string>) => void;
 	onCancel?: () => void;
 }
 
@@ -143,6 +149,10 @@ const openPicker = async ({
 	// the backend tries to fetch them with the access token.
 	const appId = GOOGLE_CLIENT_ID.split("-")[0];
 
+	// Cap Picker dimensions so it doesn't overflow on large monitors
+	const width = Math.min(window.innerWidth - 64, 1051);
+	const height = Math.min(window.innerHeight - 64, 650);
+
 	const view = new window.google!.picker.DocsView()
 		.setIncludeFolders(true)
 		.setSelectFolderEnabled(true);
@@ -152,14 +162,21 @@ const openPicker = async ({
 		.setOAuthToken(accessToken)
 		.setDeveloperKey(GOOGLE_API_KEY!)
 		.setAppId(appId)
+		.setSize(width, height)
 		.enableFeature(window.google!.picker.Feature.MULTISELECT_ENABLED)
 		.setCallback((response) => {
 			if (response.action === window.google!.picker.Action.PICKED) {
-				const items = (response.docs ?? []).map((doc) => ({
+				const docs = response.docs ?? [];
+				const items = docs.map((doc) => ({
 					id: doc.id,
 					mimeType: doc.mimeType,
 				}));
-				onPicked(items);
+
+				const names: Record<string, string> = Object.fromEntries(
+					docs.map((doc) => [doc.id, doc.name]),
+				);
+
+				onPicked(items, names);
 			} else if (response.action === window.google!.picker.Action.CANCEL) {
 				onCancel?.();
 			}
