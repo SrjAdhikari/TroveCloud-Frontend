@@ -1,9 +1,12 @@
 //* src/pages/DashboardPage.tsx
 
+import { useCallback } from "react";
+
 import useViewToggle from "@/hooks/useViewToggle";
 import useDirectoryContents from "@/hooks/useDirectoryContents";
 import useSidebarActions from "@/hooks/useSidebarActions";
 import useFileUpload from "@/hooks/useFileUpload";
+import useDriveImportFlow from "@/hooks/useDriveImportFlow";
 
 import FolderCard from "@/components/dashboard/cards/FolderCard";
 import FileCard from "@/components/dashboard/cards/FileCard";
@@ -16,6 +19,7 @@ import EmptyDirectory from "@/components/dashboard/directory/EmptyDirectory";
 import NoResults from "@/components/dashboard/directory/NoResults";
 import CreateFolderDialog from "@/components/dashboard/dialogs/CreateFolderDialog";
 import FileUploadDialog from "@/components/dashboard/dialogs/FileUploadDialog";
+import DriveImportDialog from "@/components/dashboard/dialogs/DriveImportDialog";
 import FileUploadProgress from "@/components/dashboard/upload/FileUploadProgress";
 
 /**
@@ -36,9 +40,23 @@ const DashboardPage = () => {
 		searchQuery,
 		rawQuery,
 	} = useDirectoryContents();
-	const { showCreateFolder, setShowCreateFolder, showUpload, setShowUpload } =
-		useSidebarActions();
+	const {
+		showCreateFolder,
+		setShowCreateFolder,
+		showUpload,
+		setShowUpload,
+		showDriveImport,
+		setShowDriveImport,
+	} = useSidebarActions();
 	const { uploads, upload, dismiss, cancel } = useFileUpload(dirId);
+	const driveImportFlow = useDriveImportFlow({ parentDirId: dirId });
+
+	// Stable reference so DriveImportDialog's auto-close effect doesn't re-fire
+	// on every parent render.
+	const handleCloseDriveImport = useCallback(
+		() => setShowDriveImport(false),
+		[setShowDriveImport],
+	);
 
 	if (isLoading) {
 		return null;
@@ -69,6 +87,7 @@ const DashboardPage = () => {
 						view={view}
 						onNewFolder={() => setShowCreateFolder(true)}
 						onUploadFiles={() => setShowUpload(true)}
+						onImportFromDrive={() => setShowDriveImport(true)}
 						onToggleView={toggleView}
 					/>
 				</div>
@@ -122,8 +141,20 @@ const DashboardPage = () => {
 				onUpload={upload}
 			/>
 
+			{/* Drive Import dialog */}
+			{showDriveImport && driveImportFlow.status !== "picking" && (
+				<DriveImportDialog
+					flow={driveImportFlow}
+					onClose={handleCloseDriveImport}
+				/>
+			)}
+
 			{/* Upload progress panel — fixed bottom-right */}
-			<FileUploadProgress uploads={uploads} onDismiss={dismiss} onCancel={cancel} />
+			<FileUploadProgress
+				uploads={uploads}
+				onDismiss={dismiss}
+				onCancel={cancel}
+			/>
 		</div>
 	);
 };
