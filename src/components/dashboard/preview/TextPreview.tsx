@@ -44,13 +44,13 @@ const TextPreview = ({ url }: TextPreviewProps) => {
 	}
 
 	return (
-		<div className="max-h-[55vh] sm:max-h-[65vh] lg:max-h-[75vh] overflow-auto rounded-xl bg-[#1e1e1e]">
+		<div className="max-h-[55vh] sm:max-h-[65vh] lg:max-h-[75vh] overflow-auto rounded-xl bg-card">
 			{/* Header: traffic light dots + copy button */}
-			<div className="sticky top-0 flex items-center justify-between bg-[#1e1e1e] px-5 pt-4 pb-2">
+			<div className="sticky top-0 flex items-center justify-between bg-muted px-5 pt-4 pb-2">
 				<div className="flex gap-2">
-					<span className="size-3 rounded-full bg-[#ff5f57]" />
-					<span className="size-3 rounded-full bg-[#febc2e]" />
-					<span className="size-3 rounded-full bg-[#28c840]" />
+					<span className="size-3 rounded-full bg-destructive" />
+					<span className="size-3 rounded-full bg-chart-3" />
+					<span className="size-3 rounded-full bg-chart-2" />
 				</div>
 
 				<button
@@ -59,11 +59,11 @@ const TextPreview = ({ url }: TextPreviewProps) => {
 						setCopied(true);
 						setTimeout(() => setCopied(false), 2000);
 					}}
-					className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-[#858585] transition-colors hover:bg-white/10 hover:text-[#d4d4d4] cursor-pointer"
+					className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors hover:bg-foreground/10 cursor-pointer"
 				>
 					{copied ? (
 						<>
-							<Check className="size-3.5 text-green-500" />
+							<Check className="size-3.5 text-success" />
 							Copied
 						</>
 					) : (
@@ -75,7 +75,7 @@ const TextPreview = ({ url }: TextPreviewProps) => {
 				</button>
 			</div>
 
-			<pre className="px-5 pb-5 font-mono text-sm leading-relaxed text-[#d4d4d4]">
+			<pre className="px-5 pb-5 font-mono text-sm leading-relaxed text-secondary-foreground">
 				<code>{content}</code>
 			</pre>
 		</div>
