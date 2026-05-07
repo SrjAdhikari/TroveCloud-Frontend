@@ -15,7 +15,7 @@ import type { DriveImportResult, DrivePickedItem } from "@/types/drive.types";
 
 type DriveImportStatus = "idle" | "picking" | "importing" | "done" | "error";
 
-const DRIVE_FILE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
 // Backend 4xx codes → inline friendly copy.
 // Anything outside this map falls back to GENERIC_ERROR
@@ -83,7 +83,7 @@ interface DriveImportFlow {
 
 /**
  * Drive Import Flow hook.
- * Orchestrates: GIS token (drive.file) → Picker → POST /api/drive/import → invalidate ["directory"].
+ * Orchestrates: GIS token (drive.readonly) → Picker → POST /api/drive/import → invalidate ["directory"].
  * State machine: idle → picking → importing → done | error.
  */
 const useDriveImportFlow = ({
@@ -191,7 +191,7 @@ const useDriveImportFlow = ({
 
 	const requestAccessToken = useGoogleLogin({
 		flow: "implicit",
-		scope: DRIVE_FILE_SCOPE,
+		scope: DRIVE_SCOPE,
 		onSuccess: onTokenSuccess,
 		onError: onTokenError,
 		onNonOAuthError: onTokenNonOAuthError,
