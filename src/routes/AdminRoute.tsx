@@ -1,22 +1,26 @@
-//* src/routes/ProtectedRoute.tsx
+//* src/routes/AdminRoute.tsx
 
 import { Navigate, Outlet } from "react-router";
 import { useCurrentUser } from "@/hooks/useAuth";
 import ROUTES from "@/routes/paths";
+import isAdminRole from "@/lib/role";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
- * Route guard for authenticated users.
- * Renders child routes if authenticated, redirects to / (sign in) otherwise.
- * Shows a full-screen spinner while the auth check is in progress.
+ * Route guard for admin-only pages.
+ * Redirects unauthenticated visitors to the sign-in page and plain users to /my-files.
  */
-const ProtectedRoute = () => {
+const AdminRoute = () => {
 	const { data, isLoading, isError } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
 	if (isError || !data?.data) return <Navigate to={ROUTES.ROOT} replace />;
 
+	if (!isAdminRole(data.data.role)) {
+		return <Navigate to={ROUTES.MY_FILES} replace />;
+	}
+
 	return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default AdminRoute;

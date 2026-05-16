@@ -6,11 +6,14 @@
  * these types define structure only.
  */
 
+export type UserRole = "user" | "admin" | "superadmin";
+
 // GET /api/auth/me — authenticated user shape
 export interface UserPayload {
 	_id: string;
 	name: string;
 	email: string;
+	role: UserRole;
 	rootDirId: string;
 	profilePicture: string;
 	isVerified: boolean;
