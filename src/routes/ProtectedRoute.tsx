@@ -14,7 +14,7 @@ const ProtectedRoute = () => {
 	const { data, isLoading, isError } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	if (isError || !data?.data) return <Navigate to={ROUTES.ROOT} replace />;
+	if (isError || !data) return <Navigate to={ROUTES.ROOT} replace />;
 
 	return <Outlet />;
 };

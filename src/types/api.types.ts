@@ -9,7 +9,7 @@
 export interface ApiSuccessResponse<T = undefined> {
 	success: true;
 	message: string;
-	data?: T;
+	data: T;
 }
 
 // Shape of error responses from the global error middleware
