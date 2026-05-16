@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Ellipsis, LogOut, Settings } from "lucide-react";
+import { Ellipsis, LogOut, Settings, ShieldUser } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useAuth";
+import ROUTES from "@/routes/paths";
+import isAdminRole from "@/lib/role";
 import LogoutDialog from "@/components/dashboard/dialogs/LogoutDialog";
 
 import {
@@ -45,6 +47,7 @@ const SidebarUserMenu = () => {
 	const [logoutOpen, setLogoutOpen] = useState(false);
 
 	const user = userResponse?.data;
+	const isAdmin = isAdminRole(user?.role);
 
 	return (
 		<>
@@ -53,15 +56,9 @@ const SidebarUserMenu = () => {
 					<SidebarMenuItem>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton
-									size="lg"
-									tooltip={user?.name}
-								>
+								<SidebarMenuButton size="lg" tooltip={user?.name}>
 									<Avatar className="size-8">
-										<AvatarImage
-											src={user?.profilePicture}
-											alt={user?.name}
-										/>
+										<AvatarImage src={user?.profilePicture} alt={user?.name} />
 
 										<AvatarFallback className="text-xs font-medium">
 											{user?.name ? getInitials(user.name) : "?"}
@@ -69,9 +66,7 @@ const SidebarUserMenu = () => {
 									</Avatar>
 
 									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium">
-											{user?.name}
-										</p>
+										<p className="truncate text-sm font-medium">{user?.name}</p>
 
 										<p className="truncate text-xs text-muted-foreground">
 											{user?.email}
@@ -137,12 +132,29 @@ const SidebarUserMenu = () => {
 								<DropdownMenuGroup>
 									<DropdownMenuItem
 										className="cursor-pointer"
-										onSelect={() => navigate("/settings")}
+										onSelect={() => navigate(ROUTES.SETTINGS)}
 									>
 										<Settings className="mr-2 size-4" />
 										Settings
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
+
+								{/* Admin console — only visible to admin / superadmin */}
+								{isAdmin && (
+									<>
+										<DropdownMenuSeparator />
+
+										<DropdownMenuGroup>
+											<DropdownMenuItem
+												className="cursor-pointer"
+												onSelect={() => navigate(ROUTES.ADMIN_OVERVIEW)}
+											>
+												<ShieldUser className="mr-2 size-4" />
+												Admin Console
+											</DropdownMenuItem>
+										</DropdownMenuGroup>
+									</>
+								)}
 
 								<DropdownMenuSeparator />
 

@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router";
 
 import GuestRoute from "@/routes/GuestRoute";
 import ProtectedRoute from "@/routes/ProtectedRoute";
+import AdminRoute from "@/routes/AdminRoute";
 import ROUTES from "@/routes/paths";
 import AuthLayout from "@/components/layout/AuthLayout";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -14,6 +15,9 @@ import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import GitHubCallbackPage from "@/pages/GitHubCallbackPage";
 import DashboardPage from "@/pages/DashboardPage";
 import SettingsPage from "@/pages/SettingsPage";
+import AdminOverviewPage from "@/pages/AdminOverviewPage";
+import AdminUsersPage from "@/pages/AdminUsersPage";
+import AdminUserDetailPage from "@/pages/AdminUserDetailPage";
 
 /**
  * Central route definitions for the app.
@@ -44,6 +48,22 @@ const AppRoutes = () => {
 				<Route element={<DashboardLayout />}>
 					<Route path={ROUTES.MY_FILES} element={<DashboardPage />} />
 					<Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+
+					{/* Admin routes — additionally gated by role (admin or superadmin) */}
+					<Route element={<AdminRoute />}>
+						<Route
+							path={ROUTES.ADMIN_OVERVIEW}
+							element={<AdminOverviewPage />}
+						/>
+						<Route
+							path={ROUTES.ADMIN_USERS}
+							element={<AdminUsersPage />}
+						/>
+						<Route
+							path={ROUTES.ADMIN_USER_DETAIL}
+							element={<AdminUserDetailPage />}
+						/>
+					</Route>
 				</Route>
 			</Route>
 		</Routes>
