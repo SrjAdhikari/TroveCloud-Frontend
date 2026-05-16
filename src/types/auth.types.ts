@@ -15,7 +15,7 @@ export interface UserPayload {
 	email: string;
 	role: UserRole;
 	rootDirId: string;
-	profilePicture: string;
+	profilePicture: string | null;
 	isVerified: boolean;
 	createdAt: string;
 	updatedAt: string;
