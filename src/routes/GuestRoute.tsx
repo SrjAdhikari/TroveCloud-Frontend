@@ -14,7 +14,7 @@ const GuestRoute = () => {
 	const { data, isLoading } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	if (data?.data) return <Navigate to={ROUTES.MY_FILES} replace />;
+	if (data) return <Navigate to={ROUTES.MY_FILES} replace />;
 
 	return <Outlet />;
 };

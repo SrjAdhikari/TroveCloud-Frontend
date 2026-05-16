@@ -14,7 +14,7 @@ const AdminRoute = () => {
 	const { data, isLoading, isError } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	if (isError || !data?.data) return <Navigate to={ROUTES.ROOT} replace />;
+	if (isError || !data) return <Navigate to={ROUTES.ROOT} replace />;
 
 	if (!isAdminRole(data.data.role)) {
 		return <Navigate to={ROUTES.MY_FILES} replace />;
