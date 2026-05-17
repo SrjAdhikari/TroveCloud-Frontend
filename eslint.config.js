@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -18,6 +18,22 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['tests/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeAll: 'readonly',
+        beforeEach: 'readonly',
+        afterAll: 'readonly',
+        afterEach: 'readonly',
+        vi: 'readonly',
+      },
     },
   },
 ])

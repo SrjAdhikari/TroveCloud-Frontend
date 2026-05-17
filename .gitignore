@@ -13,6 +13,9 @@ dist
 dist-ssr
 *.local
 
+# Test coverage output
+coverage
+
 # Environment variables
 .env
 .env.local
@@ -38,3 +41,5 @@ CLAUDE.md
 
 tasks/
 design/
+
+bash.exe.stackdump
