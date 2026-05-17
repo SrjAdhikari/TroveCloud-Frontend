@@ -26,7 +26,7 @@ const ERROR_COPY: Record<string, ErrorCopy> = {
 };
 
 const FALLBACK_COPY: ErrorCopy = {
-	title: "Unable to load the this page",
+	title: "Unable to load this page",
 	description: "Check your connection and please try again later.",
 };
 

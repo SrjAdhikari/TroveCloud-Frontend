@@ -32,8 +32,11 @@ const StatCard = ({ label, icon: Icon, breakdown }: StatCardProps) => {
 
 			<CardContent>
 				<dl className="flex flex-col gap-1 text-sm">
-					{breakdown.map((row) => (
-						<div key={row.label} className="flex justify-between gap-2">
+					{breakdown.map((row, index) => (
+						<div
+							key={`${row.label}-${index}`}
+							className="flex justify-between gap-2"
+						>
 							<dt className="text-muted-foreground">{row.label}</dt>
 							<dd className="font-medium text-foreground">{row.value}</dd>
 						</div>
