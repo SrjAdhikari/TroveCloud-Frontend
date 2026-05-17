@@ -21,6 +21,7 @@ import CreateFolderDialog from "@/components/dashboard/dialogs/CreateFolderDialo
 import FileUploadDialog from "@/components/dashboard/dialogs/FileUploadDialog";
 import DriveImportDialog from "@/components/dashboard/dialogs/DriveImportDialog";
 import FileUploadProgress from "@/components/dashboard/upload/FileUploadProgress";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
  * Main dashboard page — fetches and displays the contents of the current directory.
@@ -59,7 +60,7 @@ const DashboardPage = () => {
 	);
 
 	if (isLoading) {
-		return null;
+		return <LoadingSpinner fullScreen />;
 	}
 
 	if (error) {

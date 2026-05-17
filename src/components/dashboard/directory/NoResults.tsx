@@ -2,7 +2,7 @@
 
 import { SearchX } from "lucide-react";
 
-import DirectoryPlaceholder from "@/components/dashboard/directory/DirectoryPlaceholder";
+import EmptyStatePlaceholder from "@/components/ui/empty-state-placeholder";
 
 interface NoResultsProps {
 	query: string;
@@ -13,7 +13,7 @@ interface NoResultsProps {
  */
 const NoResults = ({ query }: NoResultsProps) => {
 	return (
-		<DirectoryPlaceholder
+		<EmptyStatePlaceholder
 			icon={SearchX}
 			title="No results found"
 			description={<>No files or folders match your search for &ldquo;{query}&rdquo;</>}

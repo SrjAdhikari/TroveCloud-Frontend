@@ -3,7 +3,7 @@
 import { FolderOpen, FolderPlus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import DirectoryPlaceholder from "@/components/dashboard/directory/DirectoryPlaceholder";
+import EmptyStatePlaceholder from "@/components/ui/empty-state-placeholder";
 
 interface EmptyDirectoryProps {
 	onUploadFiles: () => void;
@@ -16,7 +16,7 @@ interface EmptyDirectoryProps {
  */
 const EmptyDirectory = ({ onUploadFiles, onNewFolder }: EmptyDirectoryProps) => {
 	return (
-		<DirectoryPlaceholder
+		<EmptyStatePlaceholder
 			icon={FolderOpen}
 			title="No files or folders yet"
 			description="Upload files or create a folder to get started"
@@ -36,7 +36,7 @@ const EmptyDirectory = ({ onUploadFiles, onNewFolder }: EmptyDirectoryProps) => 
 					Create Folder
 				</Button>
 			</div>
-		</DirectoryPlaceholder>
+		</EmptyStatePlaceholder>
 	);
 };
 

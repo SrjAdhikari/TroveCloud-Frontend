@@ -1,9 +1,9 @@
-//* src/components/dashboard/directory/DirectoryPlaceholder.tsx
+//* src/components/ui/empty-state-placeholder.tsx
 
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
-interface DirectoryPlaceholderProps {
+interface EmptyStatePlaceholderProps {
 	icon: LucideIcon;
 	title: string;
 	description: ReactNode;
@@ -11,16 +11,16 @@ interface DirectoryPlaceholderProps {
 }
 
 /**
- * Shared layout for full-page directory placeholders (empty state, no
- * search results, load-error). Renders an icon-in-frame visual with a
- * heading + description, and an optional CTA slot below.
+ * Shared layout for full-page empty-state placeholders (no-data, no-search-
+ * results, load-error, access-denied, etc.). Renders an icon-in-frame visual
+ * with a heading + description, and an optional CTA slot below.
  */
-const DirectoryPlaceholder = ({
+const EmptyStatePlaceholder = ({
 	icon: Icon,
 	title,
 	description,
 	children,
-}: DirectoryPlaceholderProps) => {
+}: EmptyStatePlaceholderProps) => {
 	return (
 		<div className="flex min-h-[calc(100svh-11rem)] items-center justify-center text-muted-foreground py-10">
 			<div className="flex flex-col items-center gap-6">
@@ -45,4 +45,4 @@ const DirectoryPlaceholder = ({
 	);
 };
 
-export default DirectoryPlaceholder;
+export default EmptyStatePlaceholder;

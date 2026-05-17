@@ -5,7 +5,7 @@ import { Link } from "react-router";
 
 import ROUTES from "@/routes/paths";
 import { Button } from "@/components/ui/button";
-import DirectoryPlaceholder from "@/components/dashboard/directory/DirectoryPlaceholder";
+import EmptyStatePlaceholder from "@/components/ui/empty-state-placeholder";
 import type { ApiError } from "@/types/api.types";
 
 interface DirectoryLoadFailedProps {
@@ -50,7 +50,7 @@ const DirectoryLoadFailed = ({ error }: DirectoryLoadFailedProps) => {
 
 	return (
 		<div role="alert">
-			<DirectoryPlaceholder
+			<EmptyStatePlaceholder
 				icon={FolderX}
 				title={title}
 				description={description}
@@ -61,7 +61,7 @@ const DirectoryLoadFailed = ({ error }: DirectoryLoadFailedProps) => {
 						Back to My Files
 					</Link>
 				</Button>
-			</DirectoryPlaceholder>
+			</EmptyStatePlaceholder>
 		</div>
 	);
 };
