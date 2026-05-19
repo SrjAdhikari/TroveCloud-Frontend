@@ -13,7 +13,7 @@ import SearchInput from "@/components/ui/search-input";
 const SearchBar = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [query, setQuery] = useState(searchParams.get("q") || "");
-	const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const syncQueryParam = useCallback(
 		(value: string) => {

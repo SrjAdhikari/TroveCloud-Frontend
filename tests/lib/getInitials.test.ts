@@ -23,4 +23,8 @@ describe("getInitials", () => {
 	it("trims surrounding whitespace before splitting", () => {
 		expect(getInitials("  Suraj Adhikari  ")).toBe("SA");
 	});
+
+	it("trims whitespace before slicing in the single-name fallback", () => {
+		expect(getInitials("  suraj  ")).toBe("SU");
+	});
 });
