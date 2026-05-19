@@ -15,6 +15,14 @@ const SearchBar = () => {
 	const [query, setQuery] = useState(searchParams.get("q") || "");
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+	// Reconcile the input value when the URL `q` changes externally
+	// (back/forward nav, programmatic setSearchParams from elsewhere).
+	useEffect(() => {
+		const urlQuery = searchParams.get("q") ?? "";
+		// eslint-disable-next-line react-hooks/set-state-in-effect
+		setQuery((prev) => (prev === urlQuery ? prev : urlQuery));
+	}, [searchParams]);
+
 	const syncQueryParam = useCallback(
 		(value: string) => {
 			setSearchParams(

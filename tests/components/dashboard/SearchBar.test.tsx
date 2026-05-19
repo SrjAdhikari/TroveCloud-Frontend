@@ -13,6 +13,15 @@ const QueryParamProbe = () => {
 	return <div data-testid="q">{params.get("q") ?? ""}</div>;
 };
 
+const UrlSetter = ({ next }: { next: string }) => {
+	const [, setParams] = useSearchParams();
+	return (
+		<button data-testid="set-url" onClick={() => setParams({ q: next })}>
+			Set URL
+		</button>
+	);
+};
+
 describe("SearchBar", () => {
 	it("hydrates the input value from the URL `q` param on mount", () => {
 		renderWithRouter(
@@ -48,6 +57,24 @@ describe("SearchBar", () => {
 			},
 			{ timeout: 1000 },
 		);
+	});
+
+	it("re-syncs the input when the URL `q` param changes after mount", async () => {
+		const user = userEvent.setup();
+		renderWithRouter(
+			<>
+				<SearchBar />
+				<UrlSetter next="other" />
+			</>,
+			{ initialEntries: ["/?q=initial"] },
+		);
+
+		const input = screen.getByPlaceholderText(/search files/i);
+		expect(input).toHaveValue("initial");
+
+		await user.click(screen.getByTestId("set-url"));
+
+		expect(input).toHaveValue("other");
 	});
 
 	it("clears the URL `q` param immediately when the X button is clicked", async () => {
