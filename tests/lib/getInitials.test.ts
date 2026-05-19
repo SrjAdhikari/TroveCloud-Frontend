@@ -27,4 +27,9 @@ describe("getInitials", () => {
 	it("trims whitespace before slicing in the single-name fallback", () => {
 		expect(getInitials("  suraj  ")).toBe("SU");
 	});
+
+	it("returns an empty string for empty or whitespace-only names", () => {
+		expect(getInitials("")).toBe("");
+		expect(getInitials("   ")).toBe("");
+	});
 });

@@ -38,8 +38,8 @@ const ProviderIcon = ({ provider, className }: ProviderIconProps) => {
 			)}
 		>
 			<span className="sr-only">{label}</span>
-			{provider === "google" && <GoogleIcon className="size-4" />}
-			{provider === "github" && <GitHubIcon className="size-4" />}
+			{provider === "google" && <GoogleIcon className="size-4" aria-hidden="true" />}
+			{provider === "github" && <GitHubIcon className="size-4" aria-hidden="true" />}
 			{provider === "email" && <Mail className="size-4" aria-hidden="true" />}
 		</span>
 	);
