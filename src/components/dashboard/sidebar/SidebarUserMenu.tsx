@@ -6,6 +6,7 @@ import { Ellipsis, LogOut, Settings, ShieldUser } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useAuth";
 import ROUTES from "@/routes/paths";
 import isAdminRole from "@/lib/role";
+import getInitials from "@/lib/getInitials";
 import LogoutDialog from "@/components/dashboard/dialogs/LogoutDialog";
 
 import {
@@ -24,18 +25,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-/**
- * Extracts up to two initials from a user's name for the avatar fallback.
- * e.g., "Suraj Adhikari" → "SA", "suraj" → "SU"
- */
-const getInitials = (name: string) => {
-	const parts = name.trim().split(/\s+/);
-	if (parts.length >= 2) {
-		return (parts[0][0] + parts[1][0]).toUpperCase();
-	}
-	return name.slice(0, 2).toUpperCase();
-};
 
 /**
  * Sidebar footer with user avatar, info, and a dropdown menu

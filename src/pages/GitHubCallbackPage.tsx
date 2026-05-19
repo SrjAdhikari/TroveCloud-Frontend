@@ -5,7 +5,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import GitHubIcon from "@/components/auth/GitHubIcon";
+import GitHubIcon from "@/components/icons/GitHubIcon";
 import ROUTES from "@/routes/paths";
 import useGitHubAuth from "@/hooks/useGitHubAuth";
 import { consumeState } from "@/lib/githubOAuth";

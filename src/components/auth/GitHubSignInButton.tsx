@@ -1,6 +1,6 @@
 //* src/components/auth/GitHubSignInButton.tsx
 
-import GitHubIcon from "@/components/auth/GitHubIcon";
+import GitHubIcon from "@/components/icons/GitHubIcon";
 import { buildAuthorizeUrl, generateState } from "@/lib/githubOAuth";
 
 interface GitHubSignInButtonProps {
