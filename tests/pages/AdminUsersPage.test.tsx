@@ -90,13 +90,14 @@ describe("AdminUsersPage", () => {
 		await user.type(screen.getByPlaceholderText(/search/i), "alice");
 		await waitFor(
 			() => {
-				expect(requests.length).toBeGreaterThan(initialRequestCount);
+				const qRequests = requests
+					.slice(initialRequestCount)
+					.filter((search) => new URLSearchParams(search).has("q"));
+				expect(qRequests).toHaveLength(1);
+				expect(qRequests[0]).toContain("q=alice");
 			},
 			{ timeout: 1500 },
 		);
-
-		const lastRequest = requests[requests.length - 1];
-		expect(lastRequest).toContain("q=alice");
 	});
 
 	it("transitions to UsersLoadFailed when a refetch errors", async () => {
