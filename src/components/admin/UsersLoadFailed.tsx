@@ -1,14 +1,12 @@
 //* src/components/admin/UsersLoadFailed.tsx
 
-import { RefreshCw, ShieldX } from "lucide-react";
+import { ShieldX } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import EmptyStatePlaceholder from "@/components/ui/empty-state-placeholder";
 import type { ApiError } from "@/types/api.types";
 
 interface UsersLoadFailedProps {
 	error: ApiError;
-	onRetry: () => void;
 }
 
 interface ErrorCopy {
@@ -29,11 +27,10 @@ const FALLBACK_COPY: ErrorCopy = {
 };
 
 /**
- * Placeholder shown when the users list query fails - maps known error codes
- * to friendly copy, falling back to generic connection-failure text. The
- * Try again button re-runs the query via the caller-supplied `onRetry`.
+ * Placeholder shown when the users list query fails — maps known error codes
+ * to friendly copy, falling back to generic connection-failure text.
  */
-const UsersLoadFailed = ({ error, onRetry }: UsersLoadFailedProps) => {
+const UsersLoadFailed = ({ error }: UsersLoadFailedProps) => {
 	const { title, description } = ERROR_COPY[error.code] ?? FALLBACK_COPY;
 
 	return (
@@ -42,12 +39,7 @@ const UsersLoadFailed = ({ error, onRetry }: UsersLoadFailedProps) => {
 				icon={ShieldX}
 				title={title}
 				description={description}
-			>
-				<Button variant="outline" onClick={onRetry}>
-					<RefreshCw aria-hidden="true" className="size-4" />
-					Try again
-				</Button>
-			</EmptyStatePlaceholder>
+			/>
 		</div>
 	);
 };

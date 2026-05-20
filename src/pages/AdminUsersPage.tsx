@@ -77,14 +77,14 @@ const AdminUsersPage = () => {
 		);
 	}, [debouncedQuery, setSearchParams]);
 
-	const { data, isLoading, isFetching, error, refetch } = useUsersList(params);
+	const { data, isLoading, isFetching, error } = useUsersList(params);
 
 	if (isLoading) {
 		return <LoadingSpinner fullScreen />;
 	}
 
 	if (error) {
-		return <UsersLoadFailed error={error} onRetry={refetch} />;
+		return <UsersLoadFailed error={error} />;
 	}
 
 	const list = data?.data;
