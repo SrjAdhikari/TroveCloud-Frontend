@@ -1,20 +1,13 @@
 //* src/components/admin/UserDetailLoadFailed.tsx
 
-import { ShieldX } from "lucide-react";
-
-import EmptyStatePlaceholder from "@/components/ui/empty-state-placeholder";
+import LoadFailed from "@/components/admin/LoadFailed";
 import type { ApiError } from "@/types/api.types";
 
 interface UserDetailLoadFailedProps {
 	error: ApiError;
 }
 
-interface ErrorCopy {
-	title: string;
-	description: string;
-}
-
-const ERROR_COPY: Record<string, ErrorCopy> = {
+const ERROR_COPY = {
 	INVALID_ID: {
 		title: "That user link looks broken",
 		description: "Double-check the URL or head back to the users list.",
@@ -30,27 +23,13 @@ const ERROR_COPY: Record<string, ErrorCopy> = {
 	},
 };
 
-const FALLBACK_COPY: ErrorCopy = {
+const FALLBACK_COPY = {
 	title: "Unable to load this user",
 	description: "Check your connection and please try again later.",
 };
 
-/**
- * Placeholder shown when the user-detail query fails. Maps known 
- * error codes to friendly copy, falling back to a generic message.
- */
-const UserDetailLoadFailed = ({ error }: UserDetailLoadFailedProps) => {
-	const { title, description } = ERROR_COPY[error.code] ?? FALLBACK_COPY;
-
-	return (
-		<div role="alert">
-			<EmptyStatePlaceholder
-				icon={ShieldX}
-				title={title}
-				description={description}
-			/>
-		</div>
-	);
-};
+const UserDetailLoadFailed = ({ error }: UserDetailLoadFailedProps) => (
+	<LoadFailed error={error} errorCopy={ERROR_COPY} fallback={FALLBACK_COPY} />
+);
 
 export default UserDetailLoadFailed;

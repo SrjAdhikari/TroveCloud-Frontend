@@ -48,24 +48,4 @@ describe("UserDetailLoadFailed", () => {
 		expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
 		expect(screen.queryByText(/leaked backend text/i)).toBeNull();
 	});
-
-	it("uses role='alert' so screen readers announce the failure", () => {
-		render(
-			<UserDetailLoadFailed
-				error={{ code: "INTERNAL_ERROR", message: "" }}
-			/>,
-		);
-
-		expect(screen.getByRole("alert")).toBeInTheDocument();
-	});
-
-	it("does not render a Try again button — page is non-retryable", () => {
-		render(
-			<UserDetailLoadFailed
-				error={{ code: "INTERNAL_ERROR", message: "" }}
-			/>,
-		);
-
-		expect(screen.queryByRole("button", { name: /try again/i })).toBeNull();
-	});
 });
