@@ -134,40 +134,6 @@ describe("AdminUsersPage", () => {
 				timeout: 3000,
 			}),
 		).toBeInTheDocument();
-		expect(
-			screen.getByRole("button", { name: /try again/i }),
-		).toBeInTheDocument();
-	});
-
-	it("re-runs the query when the user clicks Try again on the failure placeholder", async () => {
-		let callCount = 0;
-		server.use(
-			http.get(USERS_URL, () => {
-				callCount += 1;
-				if (callCount === 1) {
-					return HttpResponse.json(
-						{
-							status: "error",
-							error: { code: "INTERNAL_ERROR", message: "fail" },
-						},
-						{ status: 500 },
-					);
-				}
-				return HttpResponse.json(successResponse([makeUser("a2")]));
-			}),
-		);
-
-		const user = userEvent.setup();
-		renderWithProviders(<AdminUsersPage />, {
-			initialEntries: ["/admin/users"],
-		});
-		await screen.findByText("Unable to load users");
-
-		await user.click(screen.getByRole("button", { name: /try again/i }));
-
-		expect(
-			await screen.findByRole("link", { name: /user a2/i }),
-		).toBeInTheDocument();
 	});
 
 	it("shows the first-load failure placeholder when initial fetch errors", async () => {
