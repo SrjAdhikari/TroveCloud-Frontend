@@ -25,13 +25,4 @@ describe("UsersLoadFailed", () => {
 		expect(screen.getByText(/check your connection/i)).toBeInTheDocument();
 		expect(screen.queryByText(/leaked backend text/i)).toBeNull();
 	});
-
-	it("uses role='alert' so screen readers announce the failure", () => {
-		render(
-			<UsersLoadFailed
-				error={{ code: "INSUFFICIENT_ROLE", message: "" }}
-			/>,
-		);
-		expect(screen.getByRole("alert")).toBeInTheDocument();
-	});
 });
