@@ -53,6 +53,11 @@ export interface UsersListParams {
 	includeDeleted?: boolean;
 }
 
+// Payload for PATCH /api/admin/users/:id/role
+export interface ChangeRolePayload {
+	role: UserRole;
+}
+
 // Point-in-time system aggregates returned by GET /api/admin/overview
 export interface SystemOverviewPayload {
 	users: {
