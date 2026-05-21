@@ -58,6 +58,18 @@ export interface ChangeRolePayload {
 	role: UserRole;
 }
 
+// Response shape for POST /api/admin/users/:id/logout (force-logout)
+export interface ForceLogoutPayload {
+	sessionsRevoked: number;
+}
+
+// Response shape for DELETE /api/admin/users/:id/hard-delete
+export interface HardDeletePayload {
+	filesDeleted: number;
+	directoriesDeleted: number;
+	bytesFreed: number;
+}
+
 // Point-in-time system aggregates returned by GET /api/admin/overview
 export interface SystemOverviewPayload {
 	users: {
