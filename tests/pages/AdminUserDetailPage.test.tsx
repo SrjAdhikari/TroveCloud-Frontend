@@ -9,8 +9,22 @@ import { renderWithProviders } from "../lib/render";
 import server from "../server";
 import AdminUserDetailPage from "@/pages/AdminUserDetailPage";
 import type { UserDetailPayload } from "@/types/admin.types";
+import type { UserPayload } from "@/types/auth.types";
 
 const USER_DETAIL_URL = "http://localhost:5001/api/admin/users/:userId";
+const ME_URL = "http://localhost:5001/api/auth/me";
+
+const SUPERADMIN_CALLER: UserPayload = {
+	_id: "caller-1",
+	name: "Caller",
+	email: "caller@example.com",
+	role: "superadmin",
+	rootDirId: "root-c1",
+	profilePicture: null,
+	isVerified: true,
+	createdAt: "2026-01-01T00:00:00Z",
+	updatedAt: "2026-01-01T00:00:00Z",
+};
 
 const makeUserDetail = (
 	overrides: Partial<UserDetailPayload> = {},
@@ -58,6 +72,13 @@ describe("AdminUserDetailPage", () => {
 		server.use(
 			http.get(USER_DETAIL_URL, () =>
 				HttpResponse.json(successResponse(makeUserDetail())),
+			),
+			http.get(ME_URL, () =>
+				HttpResponse.json({
+					success: true,
+					message: "ok",
+					data: SUPERADMIN_CALLER,
+				}),
 			),
 		);
 	});
@@ -122,6 +143,18 @@ describe("AdminUserDetailPage", () => {
 
 		expect(
 			await screen.findByText("Unable to load this user"),
+		).toBeInTheDocument();
+	});
+
+	it("slots UserActions into the header so the primary CTA appears for an active target", async () => {
+		renderRoute();
+
+		expect(
+			await screen.findByRole("heading", { level: 1, name: "Ada Lovelace" }),
+		).toBeInTheDocument();
+		// Hero's primary CTA wires through the page's user payload.
+		expect(
+			await screen.findByRole("button", { name: "Suspend" }),
 		).toBeInTheDocument();
 	});
 

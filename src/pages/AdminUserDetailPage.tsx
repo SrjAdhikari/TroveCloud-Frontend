@@ -5,6 +5,7 @@ import { Calendar } from "lucide-react";
 
 import RoleBadge from "@/components/admin/RoleBadge";
 import StatusBadge from "@/components/admin/StatusBadge";
+import UserActions from "@/components/admin/UserActions";
 import UserActivityCard from "@/components/admin/UserActivityCard";
 import UserDetailLoadFailed from "@/components/admin/UserDetailLoadFailed";
 import UserProfileCard from "@/components/admin/UserProfileCard";
@@ -32,24 +33,28 @@ const AdminUserDetailPage = () => {
 
 	return (
 		<div className="space-y-6">
-			<header className="border-b border-border pb-6">
-				<div className="mb-2 flex items-center gap-3">
-					<h1 className="text-2xl font-semibold tracking-tight text-foreground">
-						{user.name}
-					</h1>
-					<StatusBadge status={user.status} />
+			<header className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-start md:justify-between">
+				<div>
+					<div className="mb-2 flex items-center gap-3">
+						<h1 className="text-2xl font-semibold tracking-tight text-foreground">
+							{user.name}
+						</h1>
+						<StatusBadge status={user.status} />
+					</div>
+
+					<div className="flex items-center gap-4 text-sm text-muted-foreground">
+						<RoleBadge role={user.role} />
+						<span className="flex items-center gap-1.5">
+							<Calendar
+								aria-hidden="true"
+								className="size-4 text-foreground/70"
+							/>
+							Joined {formatDate(user.createdAt)}
+						</span>
+					</div>
 				</div>
 
-				<div className="flex items-center gap-4 text-sm text-muted-foreground">
-					<RoleBadge role={user.role} />
-					<span className="flex items-center gap-1.5">
-						<Calendar
-							aria-hidden="true"
-							className="size-4 text-foreground/70"
-						/>
-						Joined {formatDate(user.createdAt)}
-					</span>
-				</div>
+				<UserActions user={user} />
 			</header>
 
 			<div className="grid gap-6 lg:grid-cols-2">

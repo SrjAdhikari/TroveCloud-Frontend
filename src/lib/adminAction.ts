@@ -1,5 +1,16 @@
 //* src/lib/adminAction.ts
 
+import {
+	CircleAlert,
+	Ban,
+	LogOut,
+	RotateCcw,
+	Trash2,
+	UserRoundCheck,
+	UserRoundKey,
+	type LucideIcon,
+} from "lucide-react";
+
 import type { UserPayload, UserRole } from "@/types/auth.types";
 import type { UserDetailPayload, UserItemPayload, UserStatus } from "@/types/admin.types";
 
@@ -36,9 +47,8 @@ const statePreconditionMet = (action: AdminAction, status: UserStatus): boolean 
 };
 
 /**
- * Returns true when the caller is permitted to perform the given action on the
- * target user, mirroring the backend's role + state + self/peer gates. Backend
- * remains the source of truth; this is a defense-in-depth helper for UI gating.
+ * True when the caller may perform `action` on `target`. Mirrors the backend's
+ * role + state + self/peer gates — defense in depth for UI gating only.
  */
 const canPerformAdminAction = (
 	caller: UserPayload,
@@ -53,5 +63,44 @@ const canPerformAdminAction = (
 	return caller.role === "superadmin";
 };
 
-export default canPerformAdminAction;
-export type { AdminAction };
+interface ActionMeta {
+	label: string;
+	variant: "default" | "destructive";
+	icon: LucideIcon;
+}
+
+const ACTION_META: Record<AdminAction, ActionMeta> = {
+	suspend: { label: "Suspend", variant: "destructive", icon: Ban },
+	unsuspend: { label: "Unsuspend", variant: "default", icon: UserRoundCheck },
+	restore: { label: "Restore", variant: "default", icon: RotateCcw },
+	changeRole: { label: "Change Role", variant: "default", icon: UserRoundKey },
+	forceLogout: { label: "Force Logout", variant: "destructive", icon: LogOut },
+	softDelete: { label: "Move to Trash", variant: "destructive", icon: Trash2  },
+	hardDelete: {
+		label: "Delete Permanently",
+		variant: "destructive",
+		icon: CircleAlert,
+	},
+};
+
+const PRIMARY_BY_STATUS: Record<UserStatus, AdminAction> = {
+	active: "suspend",
+	suspended: "unsuspend",
+	deleted: "restore",
+};
+
+// Order matters — these render top-to-bottom in any "More" / row dropdown.
+const MORE_ACTIONS: AdminAction[] = [
+	"changeRole",
+	"forceLogout",
+	"softDelete",
+	"hardDelete",
+];
+
+export {
+	canPerformAdminAction,
+	ACTION_META,
+	PRIMARY_BY_STATUS,
+	MORE_ACTIONS,
+};
+export type { AdminAction, ActionMeta };

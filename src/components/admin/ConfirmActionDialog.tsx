@@ -1,6 +1,7 @@
 //* src/components/admin/ConfirmActionDialog.tsx
 
 import { useState, type ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 import {
 	Dialog,
@@ -12,12 +13,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import AlertBanner from "@/components/ui/alert-banner";
+import cn from "@/lib/utils";
 import type { ApiError } from "@/types/api.types";
 
 const GENERIC_ERROR_COPY = "Something went wrong. Please try again.";
 
 interface ConfirmActionDialogProps {
 	onClose: () => void;
+	icon: LucideIcon;
 	title: string;
 	description: string;
 	confirmLabel: string;
@@ -35,6 +38,7 @@ interface ConfirmActionDialogProps {
  */
 const ConfirmActionDialog = ({
 	onClose,
+	icon: Icon,
 	title,
 	description,
 	confirmLabel,
@@ -62,11 +66,33 @@ const ConfirmActionDialog = ({
 	};
 
 	return (
-		<Dialog open onOpenChange={(next) => !next && onClose()}>
-			<DialogContent className="sm:max-w-md">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-					<DialogDescription>{description}</DialogDescription>
+		<Dialog
+			open
+			onOpenChange={(next) => !next && !isPending && onClose()}
+		>
+			<DialogContent className="min-w-xs max-w-xs sm:max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background">
+				<DialogHeader className="text-center gap-1">
+					<div
+						className={cn(
+							"mx-auto mb-1 flex size-10 items-center justify-center rounded-lg",
+							variant === "destructive" ? "bg-destructive/10" : "bg-primary/10",
+						)}
+					>
+						<Icon
+							aria-hidden="true"
+							className={cn(
+								"size-5",
+								variant === "destructive" ? "text-destructive" : "text-primary",
+							)}
+						/>
+					</div>
+
+					<DialogTitle className="font-heading text-base font-medium">
+						{title}
+					</DialogTitle>
+					<DialogDescription className="text-xs">
+						{description}
+					</DialogDescription>
 				</DialogHeader>
 
 				{children}
@@ -75,22 +101,27 @@ const ConfirmActionDialog = ({
 					<AlertBanner variant="error">{errorMessage}</AlertBanner>
 				)}
 
-				<DialogFooter>
+				<DialogFooter className="grid grid-cols-2 sm:grid sm:grid-cols-2 sm:justify-stretch">
 					<Button
 						type="button"
 						variant="outline"
+						size="sm"
 						onClick={onClose}
 						disabled={isPending}
+						className="cursor-pointer"
 					>
 						Cancel
 					</Button>
+
 					<Button
 						type="button"
 						variant={variant}
+						size="sm"
 						onClick={handleConfirm}
 						disabled={isPending || confirmDisabled}
+						className="cursor-pointer"
 					>
-						{isPending ? "Working..." : confirmLabel}
+						{isPending ? "Processing..." : confirmLabel}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

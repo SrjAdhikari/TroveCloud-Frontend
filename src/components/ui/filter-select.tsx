@@ -14,22 +14,32 @@ interface FilterSelectOption<T extends string> {
 	label: string;
 }
 
-interface FilterSelectProps<T extends string> {
-	value: T | undefined;
-	onChange: (value: T | undefined) => void;
-	allLabel: string;
+interface FilterSelectBase<T extends string> {
 	options: ReadonlyArray<FilterSelectOption<T>>;
 	className?: string;
 }
+
+// Discriminated union on `allLabel`: when present, undefined is a valid value
+// (mapped to the "All" row); when absent, the pick is required.
+type FilterSelectProps<T extends string> =
+	| (FilterSelectBase<T> & {
+			value: T | undefined;
+			onChange: (value: T | undefined) => void;
+			allLabel: string;
+	  })
+	| (FilterSelectBase<T> & {
+			value: T;
+			onChange: (value: T) => void;
+			allLabel?: undefined;
+	  });
 
 // Radix Select rejects an empty-string value, so we map the unfiltered state
 // (`undefined`) to a unique sentinel for the "All" item.
 const ALL = "__all__";
 
 /**
- * Generic select dropdown for filtering by a single value from a list. 
- * The "All" option is represented by `value` being `undefined`, and is 
- * always present as the first item in the list with the label from `allLabel`.
+ * Select over `{ value, label }` options. Pass `allLabel` for filter UX (adds
+ * an "All" row that emits `undefined`); omit it for required-pick UX.
  */
 const FilterSelect = <T extends string>({
 	value,
@@ -37,24 +47,36 @@ const FilterSelect = <T extends string>({
 	allLabel,
 	options,
 	className,
-}: FilterSelectProps<T>) => (
-	<Select
-		value={value ?? ALL}
-		onValueChange={(v) => onChange(v === ALL ? undefined : (v as T))}
-	>
-		<SelectTrigger className={cn("w-full", className)}>
-			<SelectValue />
-		</SelectTrigger>
+}: FilterSelectProps<T>) => {
+	// Explicit undefined check — `""` is a valid allLabel string and must
+	// route through the filter branch, not the required-pick branch.
+	const hasAllLabel = allLabel !== undefined;
 
-		<SelectContent>
-			<SelectItem value={ALL}>{allLabel}</SelectItem>
-			{options.map((opt) => (
-				<SelectItem key={opt.value} value={opt.value}>
-					{opt.label}
-				</SelectItem>
-			))}
-		</SelectContent>
-	</Select>
-);
+	return (
+		<Select
+			value={hasAllLabel ? (value ?? ALL) : value}
+			onValueChange={(v) => {
+				if (hasAllLabel) {
+					onChange(v === ALL ? undefined : (v as T));
+				} else {
+					onChange(v as T);
+				}
+			}}
+		>
+			<SelectTrigger className={cn("w-full", className)}>
+				<SelectValue />
+			</SelectTrigger>
+
+			<SelectContent>
+				{hasAllLabel && <SelectItem value={ALL}>{allLabel}</SelectItem>}
+				{options.map((opt) => (
+					<SelectItem key={opt.value} value={opt.value}>
+						{opt.label}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	);
+};
 
 export default FilterSelect;

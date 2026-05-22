@@ -22,7 +22,7 @@ describe("HardDeleteDialog", () => {
 			/>,
 		);
 
-		const confirm = screen.getByRole("button", { name: /permanently delete/i });
+		const confirm = screen.getByRole("button", { name: "Delete" });
 		expect(confirm).toBeDisabled();
 
 		const input = screen.getByLabelText(/type the user's email/i);
@@ -43,7 +43,7 @@ describe("HardDeleteDialog", () => {
 			/>,
 		);
 
-		const confirm = screen.getByRole("button", { name: /permanently delete/i });
+		const confirm = screen.getByRole("button", { name: "Delete" });
 		const input = screen.getByLabelText(/type the user's email/i);
 
 		await user.type(input, "  VICTIM@Example.COM  ");
@@ -63,7 +63,7 @@ describe("HardDeleteDialog", () => {
 			/>,
 		);
 
-		const confirm = screen.getByRole("button", { name: /permanently delete/i });
+		const confirm = screen.getByRole("button", { name: "Delete" });
 		const input = screen.getByLabelText(/type the user's email/i);
 
 		await user.type(input, TARGET_EMAIL);
@@ -83,7 +83,7 @@ describe("HardDeleteDialog", () => {
 			/>,
 		);
 
-		const confirm = screen.getByRole("button", { name: /permanently delete/i });
+		const confirm = screen.getByRole("button", { name: "Delete" });
 		const input = screen.getByLabelText(/type the user's email/i);
 
 		await user.type(input, TARGET_EMAIL);
@@ -113,7 +113,7 @@ describe("HardDeleteDialog", () => {
 		await user.type(input, TARGET_EMAIL);
 
 		await user.click(
-			screen.getByRole("button", { name: /permanently delete/i }),
+			screen.getByRole("button", { name: "Delete" }),
 		);
 
 		expect(onConfirm).toHaveBeenCalledTimes(1);

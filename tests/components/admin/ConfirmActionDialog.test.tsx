@@ -3,6 +3,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Ban } from "lucide-react";
 
 import ConfirmActionDialog from "@/components/admin/ConfirmActionDialog";
 
@@ -10,6 +11,7 @@ describe("ConfirmActionDialog", () => {
 	it("renders the title, description, and confirm label", () => {
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={vi.fn()}
 				title="Suspend user"
 				description="They will lose access immediately."
@@ -35,6 +37,7 @@ describe("ConfirmActionDialog", () => {
 
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={onClose}
 				title="Suspend user"
 				description="They will lose access."
@@ -64,6 +67,7 @@ describe("ConfirmActionDialog", () => {
 
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={vi.fn()}
 				title="Suspend user"
 				description="They will lose access."
@@ -75,7 +79,7 @@ describe("ConfirmActionDialog", () => {
 
 		await user.click(screen.getByRole("button", { name: "Suspend" }));
 
-		const confirmButton = screen.getByRole("button", { name: /working/i });
+		const confirmButton = screen.getByRole("button", { name: /processing/i });
 		expect(confirmButton).toBeDisabled();
 		expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
 
@@ -94,6 +98,7 @@ describe("ConfirmActionDialog", () => {
 
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={onClose}
 				title="Suspend user"
 				description="They will lose access."
@@ -133,6 +138,7 @@ describe("ConfirmActionDialog", () => {
 
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={vi.fn()}
 				title="Suspend user"
 				description="They will lose access."
@@ -155,6 +161,7 @@ describe("ConfirmActionDialog", () => {
 	it("disables the confirm button when confirmDisabled is true but leaves cancel enabled", () => {
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={vi.fn()}
 				title="Change role"
 				description="Pick a role."
@@ -174,6 +181,7 @@ describe("ConfirmActionDialog", () => {
 	it("renders content passed through the children slot", () => {
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={vi.fn()}
 				title="Change role"
 				description="Pick a role."
@@ -194,6 +202,7 @@ describe("ConfirmActionDialog", () => {
 
 		render(
 			<ConfirmActionDialog
+				icon={Ban}
 				onClose={onClose}
 				title="Suspend user"
 				description="They will lose access."

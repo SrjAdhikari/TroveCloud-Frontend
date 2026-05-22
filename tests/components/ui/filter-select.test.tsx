@@ -73,4 +73,39 @@ describe("FilterSelect", () => {
 
 		expect(onChange).toHaveBeenCalledWith(undefined);
 	});
+
+	describe("without allLabel — required pick", () => {
+		it("does not render an 'All' sentinel option", async () => {
+			const user = userEvent.setup();
+			render(
+				<FilterSelect<Fruit>
+					value="apple"
+					onChange={vi.fn()}
+					options={OPTIONS}
+				/>,
+			);
+
+			await user.click(screen.getByRole("combobox"));
+
+			expect(screen.queryByRole("option", { name: /all/i })).toBeNull();
+			expect(screen.getAllByRole("option")).toHaveLength(OPTIONS.length);
+		});
+
+		it("emits the picked value (never undefined)", async () => {
+			const user = userEvent.setup();
+			const onChange = vi.fn();
+			render(
+				<FilterSelect<Fruit>
+					value="apple"
+					onChange={onChange}
+					options={OPTIONS}
+				/>,
+			);
+
+			await user.click(screen.getByRole("combobox"));
+			await user.click(screen.getByRole("option", { name: "Cherry" }));
+
+			expect(onChange).toHaveBeenCalledWith("cherry");
+		});
+	});
 });
