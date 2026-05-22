@@ -47,30 +47,36 @@ const FilterSelect = <T extends string>({
 	allLabel,
 	options,
 	className,
-}: FilterSelectProps<T>) => (
-	<Select
-		value={allLabel ? (value ?? ALL) : value}
-		onValueChange={(v) => {
-			if (allLabel) {
-				onChange(v === ALL ? undefined : (v as T));
-			} else {
-				onChange(v as T);
-			}
-		}}
-	>
-		<SelectTrigger className={cn("w-full", className)}>
-			<SelectValue />
-		</SelectTrigger>
+}: FilterSelectProps<T>) => {
+	// Explicit undefined check — `""` is a valid allLabel string and must
+	// route through the filter branch, not the required-pick branch.
+	const hasAllLabel = allLabel !== undefined;
 
-		<SelectContent>
-			{allLabel && <SelectItem value={ALL}>{allLabel}</SelectItem>}
-			{options.map((opt) => (
-				<SelectItem key={opt.value} value={opt.value}>
-					{opt.label}
-				</SelectItem>
-			))}
-		</SelectContent>
-	</Select>
-);
+	return (
+		<Select
+			value={hasAllLabel ? (value ?? ALL) : value}
+			onValueChange={(v) => {
+				if (hasAllLabel) {
+					onChange(v === ALL ? undefined : (v as T));
+				} else {
+					onChange(v as T);
+				}
+			}}
+		>
+			<SelectTrigger className={cn("w-full", className)}>
+				<SelectValue />
+			</SelectTrigger>
+
+			<SelectContent>
+				{hasAllLabel && <SelectItem value={ALL}>{allLabel}</SelectItem>}
+				{options.map((opt) => (
+					<SelectItem key={opt.value} value={opt.value}>
+						{opt.label}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	);
+};
 
 export default FilterSelect;

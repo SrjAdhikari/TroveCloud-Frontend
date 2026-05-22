@@ -66,7 +66,10 @@ const ConfirmActionDialog = ({
 	};
 
 	return (
-		<Dialog open onOpenChange={(next) => !next && onClose()}>
+		<Dialog
+			open
+			onOpenChange={(next) => !next && !isPending && onClose()}
+		>
 			<DialogContent className="min-w-xs max-w-xs sm:max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background">
 				<DialogHeader className="text-center gap-1">
 					<div
