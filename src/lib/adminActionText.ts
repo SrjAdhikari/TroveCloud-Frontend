@@ -98,10 +98,10 @@ const ADMIN_ACTION_TEXT: Record<AdminAction, AdminActionText> = {
 		},
 	},
 	hardDelete: {
-		title: "Permanently delete user",
+		title: "Delete user permanently",
 		description: (name) =>
 			`${name} and all of their data will be permanently deleted. This cannot be undone.`,
-		confirmLabel: "Permanently delete",
+		confirmLabel: "Delete",
 		variant: "destructive",
 		errorCopy: {
 			...COMMON_ERROR_COPY,

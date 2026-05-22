@@ -5,6 +5,7 @@ import { useState } from "react";
 import ConfirmActionDialog from "@/components/admin/ConfirmActionDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ACTION_META } from "@/lib/adminAction";
 import ADMIN_ACTION_TEXT from "@/lib/adminActionText";
 
 interface HardDeleteDialogProps {
@@ -35,6 +36,7 @@ const HardDeleteDialog = ({
 	return (
 		<ConfirmActionDialog
 			onClose={onClose}
+			icon={ACTION_META.hardDelete.icon}
 			title={TEXT.title}
 			description={TEXT.description(userName)}
 			confirmLabel={TEXT.confirmLabel}
@@ -44,7 +46,7 @@ const HardDeleteDialog = ({
 			confirmDisabled={!isMatch}
 		>
 			<div className="space-y-2">
-				<Label htmlFor="hard-delete-confirm">
+				<Label htmlFor="hard-delete-confirm" className="text-sm text-destructive">
 					Type the user&apos;s email to confirm
 				</Label>
 

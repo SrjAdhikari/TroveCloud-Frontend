@@ -1,7 +1,7 @@
 //* tests/lib/adminAction.test.ts
 
 import { describe, it, expect } from "vitest";
-import canPerformAdminAction, { type AdminAction } from "@/lib/adminAction";
+import { canPerformAdminAction, type AdminAction } from "@/lib/adminAction";
 import type { UserPayload, UserRole } from "@/types/auth.types";
 import type { UserItemPayload, UserStatus } from "@/types/admin.types";
 
