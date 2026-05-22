@@ -20,6 +20,34 @@ import { loginSchema, type LoginFormData } from "@/schemas/auth.schema";
 import { useLogin } from "@/hooks/useAuth";
 import useGoogleAuth from "@/hooks/useGoogleAuth";
 
+type LoginErrorEntry = { variant: "error" | "warning"; message: string };
+
+const LOGIN_ERROR_COPY: Record<string, LoginErrorEntry> = {
+	INVALID_CREDENTIALS: {
+		variant: "error",
+		message: "Invalid email or password. Please try again.",
+	},
+	ACCOUNT_SUSPENDED: {
+		variant: "error",
+		message:
+			"This account has been suspended. Contact support if you believe this is a mistake.",
+	},
+	UNAUTHORIZED_ACCESS: {
+		variant: "error",
+		message: "This account is no longer available.",
+	},
+	TOO_MANY_ATTEMPTS: {
+		variant: "warning",
+		message:
+			"Too many failed attempts. Please wait a few minutes before trying again.",
+	},
+};
+
+const GENERIC_LOGIN_ERROR: LoginErrorEntry = {
+	variant: "error",
+	message: "Something went wrong. Please try again later.",
+};
+
 /**
  * Login page — email and password form inside the shared AuthLayout.
  * On success, navigates to dashboard via query invalidation.
@@ -29,10 +57,7 @@ import useGoogleAuth from "@/hooks/useGoogleAuth";
 const LoginPage = () => {
 	const [showOTP, setShowOTP] = useState(false);
 	const [email, setEmail] = useState("");
-	const [authError, setAuthError] = useState<{
-		variant: "error" | "warning";
-		message: string;
-	} | null>(null);
+	const [authError, setAuthError] = useState<LoginErrorEntry | null>(null);
 
 	const { mutate, isPending } = useLogin();
 	const queryClient = useQueryClient();
@@ -83,22 +108,7 @@ const LoginPage = () => {
 					return;
 				}
 
-				if (error.code === "TOO_MANY_ATTEMPTS") {
-					setAuthError({
-						variant: "warning",
-						message:
-							"Too many failed attempts. Please wait a few minutes before trying again.",
-					});
-					return;
-				}
-
-				setAuthError({
-					variant: "error",
-					message:
-						error.code === "INVALID_CREDENTIALS"
-							? "Invalid email or password. Please try again."
-							: "Something went wrong. Please try again.",
-				});
+				setAuthError(LOGIN_ERROR_COPY[error.code] ?? GENERIC_LOGIN_ERROR);
 			},
 		});
 	};
