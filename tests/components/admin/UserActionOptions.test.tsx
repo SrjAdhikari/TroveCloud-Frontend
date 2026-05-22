@@ -27,6 +27,7 @@ vi.mock("@/lib/toast", () => ({
 
 const ME_URL = "http://localhost:5001/api/auth/me";
 const SUSPEND_URL = "http://localhost:5001/api/admin/users/:id/suspend";
+const UNSUSPEND_URL = "http://localhost:5001/api/admin/users/:id/unsuspend";
 const FORCE_LOGOUT_URL = "http://localhost:5001/api/admin/users/:id/logout";
 
 const makeCaller = (overrides: Partial<UserPayload> = {}): UserPayload => ({
@@ -226,6 +227,41 @@ describe("UserActionOptions — dialog open + mutation fire", () => {
 		await waitFor(() => expect(suspendRequested).toBe(true));
 		await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 
+		expect(toast.success).not.toHaveBeenCalled();
+		expect(toast.undo).not.toHaveBeenCalled();
+	});
+
+	it("clicking Unsuspend on a suspended target fires PATCH /unsuspend silently", async () => {
+		mockMe(makeCaller());
+		let unsuspendRequested = false;
+		server.use(
+			http.patch(UNSUSPEND_URL, () => {
+				unsuspendRequested = true;
+				return HttpResponse.json(
+					okResponse(makeTarget({ status: "active" })),
+				);
+			}),
+		);
+
+		const user = userEvent.setup();
+		renderWithProviders(
+			<UserActionOptions user={makeTarget({ status: "suspended" })} />,
+		);
+
+		await user.click(
+			await screen.findByRole("button", { name: /more actions/i }),
+		);
+		await user.click(
+			await screen.findByRole("menuitem", { name: "Unsuspend" }),
+		);
+
+		const dialog = await screen.findByRole("dialog");
+		await user.click(
+			within(dialog).getByRole("button", { name: "Unsuspend" }),
+		);
+
+		await waitFor(() => expect(unsuspendRequested).toBe(true));
+		await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 		expect(toast.success).not.toHaveBeenCalled();
 		expect(toast.undo).not.toHaveBeenCalled();
 	});

@@ -1,7 +1,7 @@
 //* tests/components/admin/UsersTable.dropdown.test.tsx
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Routes, Route, useLocation } from "react-router";
 import { http, HttpResponse } from "msw";
@@ -111,11 +111,19 @@ describe("UsersTable — row dropdown integration", () => {
 		expect(triggers).toHaveLength(2);
 	});
 
-	it("the row link points to the detail page", async () => {
+	it("clicking the row link navigates to the detail page", async () => {
+		const user = userEvent.setup();
 		renderUnderRoutes([makeUser({ _id: "u1", name: "Alice Anderson" })]);
 
 		const link = await screen.findByRole("link", { name: /alice anderson/i });
 		expect(link).toHaveAttribute("href", "/admin/users/u1");
+
+		await user.click(link);
+		await waitFor(() =>
+			expect(screen.getByTestId("location")).toHaveTextContent(
+				"/admin/users/u1",
+			),
+		);
 	});
 
 	it("clicking the dropdown trigger does not navigate the row", async () => {
@@ -129,5 +137,20 @@ describe("UsersTable — row dropdown integration", () => {
 		expect(screen.getByTestId("location")).toHaveTextContent("/admin/users");
 		// Sanity: the menu actually opened (so we exercised the click, not a no-op).
 		expect(await screen.findByRole("menu")).toBeInTheDocument();
+	});
+
+	it("clicking a menu item opens the dialog without navigating the row", async () => {
+		const user = userEvent.setup();
+		renderUnderRoutes([makeUser({ _id: "u1", name: "Alice Anderson" })]);
+
+		await user.click(
+			await screen.findByRole("button", { name: /more actions/i }),
+		);
+		await user.click(
+			await screen.findByRole("menuitem", { name: "Suspend" }),
+		);
+
+		expect(await screen.findByRole("dialog")).toBeInTheDocument();
+		expect(screen.getByTestId("location")).toHaveTextContent("/admin/users");
 	});
 });
