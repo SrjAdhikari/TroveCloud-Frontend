@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import ProviderIcon from "@/components/admin/ProviderIcon";
 import RoleBadge from "@/components/admin/RoleBadge";
 import StatusBadge from "@/components/admin/StatusBadge";
+import UserActionOptions from "@/components/admin/UserActionOptions";
 
 import cn from "@/lib/utils";
 import getInitials from "@/lib/getInitials";
@@ -29,10 +30,14 @@ interface UsersTableProps {
 }
 
 const TABLE_GRID =
-	"grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_2fr_3fr_1fr_1fr_1fr] lg:grid-cols-[auto_2fr_3fr_1fr_1fr_1fr_1fr]";
+	"grid grid-cols-[auto_1fr_auto_auto] md:grid-cols-[auto_2fr_3fr_1fr_1fr_1fr_auto] lg:grid-cols-[auto_2fr_3fr_1fr_1fr_1fr_1fr_auto]";
 
-const ROW_SUBGRID =
-	"col-span-full grid grid-cols-subgrid items-center gap-3 md:gap-4 px-4 py-3";
+const ROW_WRAPPER =
+	"col-span-full grid grid-cols-subgrid items-center gap-3 md:gap-4 px-4 py-3 group border-b border-border transition-colors hover:bg-muted";
+
+// Link spans cells 1..N-1 (everything except the trailing action cell)
+const ROW_LINK_CELLS =
+	"col-span-3 md:col-span-6 lg:col-span-7 grid grid-cols-subgrid items-center gap-3 md:gap-4 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
 
 /**
  * Header + body grid for the admin users list. Renders three empty-state
@@ -110,61 +115,65 @@ const UsersTable = ({
 					<span className="text-center">Role</span>
 					<span className="text-center">Status</span>
 					<span className="hidden lg:block text-center">Joined</span>
+					<span className="text-center">Actions</span>
 				</div>
 
 				{items.map((user) => (
-					<Link
-						key={user._id}
-						to={adminUserDetailPath(user._id)}
-						className={cn(
-							ROW_SUBGRID,
-							"border-b border-border transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
-						)}
-					>
-						<Avatar className="size-8">
-							<AvatarImage
-								src={user.profilePicture ?? undefined}
-								alt={user.name}
-							/>
-							<AvatarFallback className="text-xs font-medium">
-								{getInitials(user.name)}
-							</AvatarFallback>
-						</Avatar>
+					<div key={user._id} className={ROW_WRAPPER}>
+						<Link
+							to={adminUserDetailPath(user._id)}
+							className={ROW_LINK_CELLS}
+						>
+							<Avatar className="size-8">
+								<AvatarImage
+									src={user.profilePicture ?? undefined}
+									alt={user.name}
+								/>
+								<AvatarFallback className="text-xs font-medium">
+									{getInitials(user.name)}
+								</AvatarFallback>
+							</Avatar>
 
-						{/* Mobile view: name + email stacked, hidden on desktop */}
-						<div className="min-w-0 md:hidden">
-							<p className="truncate text-sm font-medium">{user.name}</p>
+							{/* Mobile view: name + email stacked, hidden on desktop */}
+							<div className="min-w-0 md:hidden">
+								<p className="truncate text-sm font-medium">{user.name}</p>
 
-							<p className="truncate text-xs text-muted-foreground">
+								<p className="truncate text-xs text-muted-foreground">
+									{user.email}
+								</p>
+							</div>
+
+							{/* Desktop view: name, email, provider, role, status, joined date */}
+							<p className="hidden md:block min-w-0 truncate text-sm font-medium">
+								{user.name}
+							</p>
+
+							<p className="hidden md:block min-w-0 truncate text-center text-sm text-muted-foreground">
 								{user.email}
 							</p>
-						</div>
 
-						{/* Desktop view: name, email, provider, role, status, joined date */}
-						<p className="hidden md:block min-w-0 truncate text-sm font-medium">
-							{user.name}
-						</p>
+							<ProviderIcon
+								provider={user.provider}
+								className="hidden md:inline-flex justify-self-center"
+							/>
 
-						<p className="hidden md:block min-w-0 truncate text-center text-sm text-muted-foreground">
-							{user.email}
-						</p>
+							<RoleBadge
+								role={user.role}
+								className="hidden md:inline-flex justify-self-center"
+							/>
 
-						<ProviderIcon
-							provider={user.provider}
-							className="hidden md:inline-flex justify-self-center"
-						/>
+							<StatusBadge
+								status={user.status}
+								className="justify-self-center"
+							/>
 
-						<RoleBadge
-							role={user.role}
-							className="hidden md:inline-flex justify-self-center"
-						/>
+							<span className="hidden lg:block whitespace-nowrap text-center text-sm text-muted-foreground">
+								{formatDate(user.createdAt)}
+							</span>
+						</Link>
 
-						<StatusBadge status={user.status} className="justify-self-center" />
-
-						<span className="hidden lg:block whitespace-nowrap text-center text-sm text-muted-foreground">
-							{formatDate(user.createdAt)}
-						</span>
-					</Link>
+						<UserActionOptions user={user} />
+					</div>
 				))}
 			</div>
 		</section>

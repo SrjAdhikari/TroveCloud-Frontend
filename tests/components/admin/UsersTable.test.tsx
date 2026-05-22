@@ -1,11 +1,36 @@
 //* tests/components/admin/UsersTable.test.tsx
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderWithRouter } from "../../lib/render";
+import { http, HttpResponse } from "msw";
+import { renderWithProviders, renderWithRouter } from "../../lib/render";
+import server from "../../server";
 import UsersTable from "@/components/admin/UsersTable";
 import type { UserItemPayload } from "@/types/admin.types";
+import type { UserPayload } from "@/types/auth.types";
+
+const ME_URL = "http://localhost:5001/api/auth/me";
+
+const caller: UserPayload = {
+	_id: "caller-1",
+	name: "Caller",
+	email: "caller@example.com",
+	role: "superadmin",
+	rootDirId: "root-c1",
+	profilePicture: null,
+	isVerified: true,
+	createdAt: "2026-01-01T00:00:00Z",
+	updatedAt: "2026-01-01T00:00:00Z",
+};
+
+beforeEach(() => {
+	server.use(
+		http.get(ME_URL, () =>
+			HttpResponse.json({ success: true, message: "ok", data: caller }),
+		),
+	);
+});
 
 const sampleUser: UserItemPayload = {
 	_id: "u1",
@@ -36,13 +61,13 @@ const baseProps = {
 
 describe("UsersTable", () => {
 	it("renders a row per user with a link to the detail page", () => {
-		renderWithRouter(<UsersTable {...baseProps} />);
+		renderWithProviders(<UsersTable {...baseProps} />);
 		const link = screen.getByRole("link", { name: /alice anderson/i });
 		expect(link).toHaveAttribute("href", "/admin/users/u1");
 	});
 
 	it("renders the provider glyph for each row", () => {
-		const { container } = renderWithRouter(<UsersTable {...baseProps} />);
+		const { container } = renderWithProviders(<UsersTable {...baseProps} />);
 		// Sample user has provider: "email" — ProviderIcon exposes the label via title.
 		expect(container.querySelector("span[title='Email']")).toBeTruthy();
 	});
@@ -99,14 +124,14 @@ describe("UsersTable", () => {
 	});
 
 	it("dims the table section while isFetching is true", () => {
-		const { container } = renderWithRouter(
+		const { container } = renderWithProviders(
 			<UsersTable {...baseProps} isFetching />,
 		);
 		expect(container.querySelector("section")).toHaveClass("opacity-60");
 	});
 
 	it("does not dim the table when isFetching is false", () => {
-		const { container } = renderWithRouter(<UsersTable {...baseProps} />);
+		const { container } = renderWithProviders(<UsersTable {...baseProps} />);
 		expect(container.querySelector("section")).not.toHaveClass("opacity-60");
 	});
 });

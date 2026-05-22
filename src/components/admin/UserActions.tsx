@@ -16,13 +16,11 @@ import toast from "@/lib/toast";
 import { useCurrentUser } from "@/hooks/useAuth";
 import {
 	useChangeUserRole,
-	useForceLogoutUser,
 	useHardDeleteUser,
-	useRestoreUser,
-	useSoftDeleteUser,
-	useSuspendUser,
-	useUnsuspendUser,
 } from "@/hooks/useAdminMutations";
+import useAdminUserActions, {
+	type SimpleAdminAction,
+} from "@/hooks/useAdminUserActions";
 
 import ROUTES from "@/routes/paths";
 import type { UserDetailPayload } from "@/types/admin.types";
@@ -30,12 +28,6 @@ import type { UserDetailPayload } from "@/types/admin.types";
 interface UserActionsProps {
 	user: UserDetailPayload;
 }
-
-// Actions whose dialog is the plain ConfirmActionDialog template — title /
-// description / confirmLabel sourced from ADMIN_ACTION_TEXT, body differs only
-// in mutation + post-success side effects. changeRole + hardDelete render
-// dedicated dialogs (role Select / type-to-confirm input).
-type SimpleAction = Exclude<AdminAction, "changeRole" | "hardDelete">;
 
 const SIMPLE_ACTIONS = new Set<AdminAction>([
 	"suspend",
@@ -45,7 +37,7 @@ const SIMPLE_ACTIONS = new Set<AdminAction>([
 	"restore",
 ]);
 
-const isSimpleAction = (action: AdminAction): action is SimpleAction =>
+const isSimpleAction = (action: AdminAction): action is SimpleAdminAction =>
 	SIMPLE_ACTIONS.has(action);
 
 /**
@@ -59,54 +51,17 @@ const UserActions = ({ user }: UserActionsProps) => {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 
+	const { simpleActionHandlers, invalidateUsers, invalidateUsersAndOverview } =
+		useAdminUserActions(user);
+
 	const [openAction, setOpenAction] = useState<AdminAction | null>(null);
 
-	const suspend = useSuspendUser();
-	const unsuspend = useUnsuspendUser();
 	const changeRole = useChangeUserRole();
-	const forceLogout = useForceLogoutUser();
-	const softDelete = useSoftDeleteUser();
-	const restore = useRestoreUser();
 	const hardDelete = useHardDeleteUser();
 
 	if (!caller) return null;
 
 	const closeDialog = () => setOpenAction(null);
-
-	const invalidateUsers = () =>
-		queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-
-	const invalidateUsersAndOverview = async () => {
-		await invalidateUsers();
-		await queryClient.invalidateQueries({ queryKey: ["admin", "overview"] });
-	};
-
-	// One row per simple action — fires its mutation then runs
-	// invalidations + post-success feedback.
-	const simpleActionHandlers: Record<SimpleAction, () => Promise<void>> = {
-		suspend: async () => {
-			await suspend.mutateAsync(user._id);
-			await invalidateUsersAndOverview();
-		},
-		unsuspend: async () => {
-			await unsuspend.mutateAsync(user._id);
-			await invalidateUsersAndOverview();
-		},
-		forceLogout: async () => {
-			await forceLogout.mutateAsync(user._id);
-			await invalidateUsers();
-			toast.success("All sessions invalidated for user");
-		},
-		softDelete: async () => {
-			await softDelete.mutateAsync(user._id);
-			await invalidateUsersAndOverview();
-		},
-		restore: async () => {
-			await restore.mutateAsync(user._id);
-			await invalidateUsersAndOverview();
-			toast.success("User restored");
-		},
-	};
 
 	return (
 		<>
