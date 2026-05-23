@@ -1,6 +1,6 @@
 //* src/pages/GitHubCallbackPage.tsx
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { AlertCircle } from "lucide-react";
 
@@ -12,6 +12,32 @@ import { consumeState } from "@/lib/githubOAuth";
 
 const GENERIC_ERROR_MESSAGE =
 	"GitHub sign-in failed. Please try again or continue with email.";
+
+type Validation =
+	| { kind: "error"; message: string }
+	| { kind: "code"; code: string };
+
+/**
+ * Reads the callback URL once and decides whether to surface an error or
+ * forward the code to the backend exchange. `consumeState()` clears the
+ * CSRF token from sessionStorage as a side effect — call exactly once.
+ */
+const validateCallback = (params: URLSearchParams): Validation => {
+	const githubError = params.get("error");
+	if (githubError) {
+		return { kind: "error", message: GENERIC_ERROR_MESSAGE };
+	}
+
+	const code = params.get("code");
+	const returnedState = params.get("state");
+	const expectedState = consumeState();
+
+	if (!code || !returnedState || returnedState !== expectedState) {
+		return { kind: "error", message: GENERIC_ERROR_MESSAGE };
+	}
+
+	return { kind: "code", code };
+};
 
 /**
  * Landing page for `/auth/github/callback`. GitHub redirects here with one of:
@@ -25,14 +51,18 @@ const GENERIC_ERROR_MESSAGE =
  */
 const GitHubCallbackPage = () => {
 	const [params] = useSearchParams();
-	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 
-	// Prevents StrictMode's double-effect from sending the (single-use)
-	// authorization code to the backend twice.
-	const handledRef = useRef(false);
+	// Validate once on mount via useState's lazy initializer. `consumeState()`
+	// removes the CSRF token from sessionStorage; running it inside the
+	// initializer means it fires exactly once per component instance and the
+	// result feeds both `error` initial state and the effect below.
+	const [validation] = useState<Validation>(() => validateCallback(params));
+	const [error, setError] = useState<string | null>(() =>
+		validation.kind === "error" ? validation.message : null,
+	);
 
-	// Stable callback so useGitHubAuth's useCallback-deps don't churn.
+	// Stable callback so useGitHubAuth's useCallback deps don't churn.
 	const goToMyFiles = useCallback(() => {
 		navigate(ROUTES.MY_FILES, { replace: true });
 	}, [navigate]);
@@ -40,26 +70,10 @@ const GitHubCallbackPage = () => {
 	const { handleCode } = useGitHubAuth({ setError, onSuccess: goToMyFiles });
 
 	useEffect(() => {
-		if (handledRef.current) return;
-		handledRef.current = true;
-
-		const githubError = params.get("error");
-		if (githubError) {
-			setError(GENERIC_ERROR_MESSAGE);
-			return;
+		if (validation.kind === "code") {
+			handleCode(validation.code);
 		}
-
-		const code = params.get("code");
-		const returnedState = params.get("state");
-		const expectedState = consumeState();
-
-		if (!code || !returnedState || returnedState !== expectedState) {
-			setError(GENERIC_ERROR_MESSAGE);
-			return;
-		}
-
-		handleCode(code);
-	}, [params, handleCode]);
+	}, [validation, handleCode]);
 
 	return (
 		<div className="w-full max-w-[400px] flex flex-col items-center text-center">
