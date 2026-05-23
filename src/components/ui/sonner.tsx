@@ -14,7 +14,6 @@ type ToasterProps = ComponentProps<typeof Sonner>;
  */
 const Toaster = ({
 	toastOptions: callerToastOptions,
-	theme: _callerTheme,
 	...restProps
 }: ToasterProps) => {
 	const { theme } = useTheme();
