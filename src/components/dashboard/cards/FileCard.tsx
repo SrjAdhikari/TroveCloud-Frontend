@@ -17,6 +17,13 @@ interface FileCardProps {
 	view?: "grid" | "list";
 }
 
+const ROW_WRAPPER =
+	"col-span-full grid grid-cols-subgrid items-center gap-4 group border-b border-border transition-colors hover:bg-muted";
+
+// Button spans cells 1..N-1 (icon, name, modified, size); ItemActions is cell N.
+const ROW_BUTTON_CELLS =
+	"col-span-2 md:col-span-3 lg:col-span-4 grid grid-cols-subgrid items-center gap-4 px-4 py-2 text-left cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
+
 /**
  * Renders a single file as a card with an icon based on its extension.
  * Includes a three-dot menu for rename, download, and delete actions.
@@ -53,19 +60,13 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 
 	return (
 		<>
-			<div
-				role="button"
-				tabIndex={0}
-				onClick={() => setShowPreview(true)}
-				onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
-				className={`group text-left transition-all cursor-pointer ${
-					view === "list"
-						? "grid grid-cols-[auto_1fr_4rem] md:grid-cols-[auto_3fr_2fr_4rem] lg:grid-cols-[auto_3fr_2fr_1fr_4rem] items-center gap-4 px-4 py-2"
-						: "relative rounded-xl border border-border bg-background p-4"
-				}`}
-			>
-				{view === "list" ? (
-					<>
+			{view === "list" ? (
+				<div className={ROW_WRAPPER}>
+					<button
+						type="button"
+						onClick={() => setShowPreview(true)}
+						className={ROW_BUTTON_CELLS}
+					>
 						<div className="flex size-8 shrink-0 items-center justify-center">
 							<img
 								src={src}
@@ -85,52 +86,58 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 						<span className="hidden lg:block text-sm text-muted-foreground text-center">
 							{sizeText ?? "--"}
 						</span>
+					</button>
 
-						<div className="flex justify-center">
-							<ItemActions
-								onRename={() => setShowRename(true)}
-								onDelete={() => setShowDelete(true)}
-								onPreview={() => setShowPreview(true)}
-								onDownload={handleDownload}
+					<div className="flex justify-center">
+						<ItemActions
+							onRename={() => setShowRename(true)}
+							onDelete={() => setShowDelete(true)}
+							onPreview={() => setShowPreview(true)}
+							onDownload={handleDownload}
+						/>
+					</div>
+				</div>
+			) : (
+				<div
+					role="button"
+					tabIndex={0}
+					onClick={() => setShowPreview(true)}
+					onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
+					className="group relative cursor-pointer rounded-xl border border-border bg-background p-4 text-left transition-all"
+				>
+					{/* Action menu — absolute top-right so it doesn't break centering */}
+					<div className="absolute right-2 top-2">
+						<ItemActions
+							onRename={() => setShowRename(true)}
+							onDelete={() => setShowDelete(true)}
+							onPreview={() => setShowPreview(true)}
+							onDownload={handleDownload}
+						/>
+					</div>
+
+					{/* Centered icon + file name */}
+					<div className="flex flex-col items-center gap-3">
+						<div className="flex size-14 shrink-0 items-center justify-center">
+							<img
+								src={src}
+								alt={`${file.extension} file`}
+								className="size-14"
 							/>
 						</div>
-					</>
-				) : (
-					<>
-						{/* Action menu — absolute top-right so it doesn't break centering */}
-						<div className="absolute right-2 top-2">
-							<ItemActions
-								onRename={() => setShowRename(true)}
-								onDelete={() => setShowDelete(true)}
-								onPreview={() => setShowPreview(true)}
-								onDownload={handleDownload}
-							/>
-						</div>
 
-						{/* Centered icon + file name */}
-						<div className="flex flex-col items-center gap-3">
-							<div className="flex size-14 shrink-0 items-center justify-center">
-								<img
-									src={src}
-									alt={`${file.extension} file`}
-									className="size-14"
-								/>
-							</div>
+						<p className="w-full truncate text-center text-sm font-medium">
+							{file.name}
+						</p>
+					</div>
 
-							<p className="w-full truncate text-center text-sm font-medium">
-								{file.name}
-							</p>
-						</div>
+					<hr className="my-3 -mx-4 border-border" />
 
-						<hr className="my-3 -mx-4 border-border" />
-
-						<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
-							<p className="truncate">{sizeText ?? "—"}</p>
-							<p>{formatDateTime(file.updatedAt)}</p>
-						</div>
-					</>
-				)}
-			</div>
+					<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
+						<p className="truncate">{sizeText ?? "—"}</p>
+						<p>{formatDateTime(file.updatedAt)}</p>
+					</div>
+				</div>
+			)}
 
 			<FilePreviewDialog
 				open={showPreview}

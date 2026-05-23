@@ -12,6 +12,9 @@ interface DirectoryListViewProps {
 	files: FileItemPayload[];
 }
 
+const TABLE_GRID =
+	"grid grid-cols-[auto_1fr_4rem] md:grid-cols-[auto_3fr_2fr_4rem] lg:grid-cols-[auto_3fr_2fr_1fr_4rem]";
+
 /**
  * Directory List View component
  *
@@ -21,8 +24,8 @@ interface DirectoryListViewProps {
  */
 const DirectoryListView = ({ folders, files }: DirectoryListViewProps) => {
 	return (
-		<section>
-			<div className="hidden md:grid md:grid-cols-[auto_3fr_2fr_4rem] lg:grid-cols-[auto_3fr_2fr_1fr_4rem] items-center gap-4 border-b border-border px-4 pb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+		<section className={TABLE_GRID}>
+			<div className="hidden md:grid col-span-full grid-cols-subgrid items-center gap-4 border-b border-border px-4 pb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
 				<span aria-hidden="true" className="size-4" />
 				<span>Name</span>
 				<span className="text-center">Modified</span>
@@ -30,15 +33,13 @@ const DirectoryListView = ({ folders, files }: DirectoryListViewProps) => {
 				<span className="text-center">Actions</span>
 			</div>
 
-			<div className="divide-y divide-border border-b border-border *:hover:bg-muted">
-				{folders.map((folder) => (
-					<FolderCard key={folder._id} folder={folder} view="list" />
-				))}
+			{folders.map((folder) => (
+				<FolderCard key={folder._id} folder={folder} view="list" />
+			))}
 
-				{files.map((file) => (
-					<FileCard key={file._id} file={file} view="list" />
-				))}
-			</div>
+			{files.map((file) => (
+				<FileCard key={file._id} file={file} view="list" />
+			))}
 		</section>
 	);
 };
