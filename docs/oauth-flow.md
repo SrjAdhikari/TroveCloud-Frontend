@@ -263,7 +263,7 @@ The callback page calls `navigate(ROUTES.MY_FILES, { replace: true })` (passed t
 | Orchestration hook | `src/hooks/useGitHubAuth.ts` | `useGitHubAuth({ setError, onSuccess })` — uses `mutateAsync` + `try`/`catch`, awaits `refetchQueries` before calling `onSuccess`, whitelists `PROVIDER_MISMATCH` and `GITHUB_EMAIL_NOT_VERIFIED` |
 | UI icon | `src/components/auth/GitHubIcon.tsx` | Inlined Octocat SVG (Lucide doesn't ship brand icons), `currentColor` for theme adaptation. Shared between the button and the callback page |
 | UI button | `src/components/auth/GitHubSignInButton.tsx` | Plain `<button>` with `onClick` → state generation → `window.location.assign(buildAuthorizeUrl(...))`. Defensive missing-clientId guard |
-| Callback page | `src/pages/GitHubCallbackPage.tsx` | Parses query params, verifies CSRF state, calls `handleCode`, renders loading panel (purple spinner ring + GitHub mark) or error panel (danger circle + message + "Back to sign in" button). `handledRef` guards against StrictMode double-effect |
+| Callback page | `src/pages/GitHubCallbackPage.tsx` | Parses query params, verifies CSRF state, calls `handleCode`, renders loading panel (purple spinner ring + GitHub mark) or error panel (danger circle + message + "Back to sign in" button). Validation runs once via a lazy `useState` initializer; the effect only fires `handleCode` when validation succeeds |
 | Routing | `src/routes/AppRoutes.tsx` | Registers `ROUTES.GITHUB_CALLBACK` as a sibling of `<GuestRoute />`, not nested inside it |
 | Page integration | `src/pages/LoginPage.tsx`, `src/pages/RegisterPage.tsx` | Render the GitHub button beneath the Google button, share `isPending` |
 | Path constant | `src/routes/paths.ts` | `ROUTES.GITHUB_CALLBACK = "/auth/github/callback"` |
@@ -273,7 +273,7 @@ The callback page calls `navigate(ROUTES.MY_FILES, { replace: true })` (passed t
 - **No client-side SDK.** GitHub's OAuth is a plain redirect protocol. We construct the authorize URL ourselves via `URLSearchParams` — no third-party library is involved on the frontend.
 - **CSRF state via `sessionStorage`.** `sessionStorage` is per-tab and survives the redirect-roundtrip to GitHub and back. The state is removed on first read (`consumeState` returns `null` on subsequent reads), so a double-check is impossible — defends against replay.
 - **Redirect URI from `window.location.origin`.** Each environment (`http://localhost:5173`, staging URL, prod URL) registers its own origin on the GitHub OAuth app's "Authorization callback URL" allowlist. No per-env `VITE_GITHUB_REDIRECT_URI` env var is needed.
-- **`handledRef` StrictMode guard.** React 18+ StrictMode in dev double-invokes effect setup. Without the ref, the single-use authorization code would be sent to the backend twice — the second attempt would fail because GitHub already invalidated the code on first exchange. The ref ensures the code is processed exactly once even with the double-effect.
+- **Lazy `useState` initializer for validation.** URL parsing + CSRF check run inside `useState(() => validateCallback(params))` — once per component instance, before the first render commits. The result drives both the `error` initial state and the conditional `handleCode` call in `useEffect`. Keeps `setError` out of the effect body (satisfies `react-hooks/set-state-in-effect`) and means the backend exchange fires only when validation succeeds, never on the state-mismatch branch.
 - **`mutateAsync` instead of scoped callbacks.** See [Design decision §6.1](#61-mutateasync--trycatch-instead-of-scoped-mutation-callbacks).
 - **Awaited `refetchQueries`.** See [Design decision §6.3](#63-await-refetchqueries-before-navigating).
 - **Loading-state visual.** The page renders a 64 px purple ring with a spinning border around a static GitHub mark — matches the dimensions of the danger-tinted error circle so transitions between loading and error feel like the same component swapping content.
@@ -321,7 +321,7 @@ mutate(
 
 In testing, both 200 and 409 responses landed at the backend (visible in the Network tab) but neither `onSuccess` nor `onError` ever fired. The page sat on the loading spinner forever.
 
-**Root cause.** The callback page re-renders 5+ times between calling `mutate()` and the response arriving. Each render of `useGitHubAuth` returns a new `handleCode` reference, which the callback's `useEffect` has in its dependency array — so the effect re-runs every render (short-circuited by the `handledRef` guard, but renders still happen). React Query v5's scoped callbacks attached to a single `mutate()` invocation can be lost in this churn when the call originates from a `useEffect`.
+**Root cause.** The callback page re-renders 5+ times between calling `mutate()` and the response arriving. Each render of `useGitHubAuth` returns a new `handleCode` reference, which the callback's `useEffect` has in its dependency array — so the effect re-runs every render. React Query v5's scoped callbacks attached to a single `mutate()` invocation can be lost in this churn when the call originates from a `useEffect`.
 
 **Solution.** Switch to `mutateAsync({ code })` and resolve the success/error path via `try` / `catch`. A real `Promise` is core JavaScript — it can't be lost by React Query's mutation observer plumbing.
 
@@ -399,7 +399,7 @@ onSuccess?.();
 
 - **Redirect URI from `window.location.origin`** — avoids a per-environment `VITE_GITHUB_REDIRECT_URI` env var. Each environment just registers its origin on the GitHub OAuth app. Trade-off: requires the GitHub OAuth app to have all relevant origins added; small operational cost.
 - **`SHOWABLE_ERROR_CODES` whitelist** — only `PROVIDER_MISMATCH` and `GITHUB_EMAIL_NOT_VERIFIED` get their backend message surfaced verbatim. Everything else (network errors, 5xx, unknown 4xx) falls through to a generic message. Defense against unintentionally leaking transport / debug strings.
-- **`useCallback` on `handleCode`** — memoizes the function reference so the callback page's `useEffect` dependency array is stable. Without it, the effect re-runs on every render (short-circuited by `handledRef` so functionally a no-op, but noisy).
+- **`useCallback` on `handleCode`** — memoizes the function reference so the callback page's `useEffect` dependency array is stable. Without it, the effect re-runs on every render — wasteful churn even when `validation`'s stable `useState` reference keeps `handleCode` from re-firing.
 - **Defensive `if (!clientId) return` in the button** — `main.tsx` already validates `VITE_GITHUB_CLIENT_ID` at startup, but the in-button guard makes the file self-explanatory and protects against future drift if startup validation is ever bypassed.
 - **Dedicated `GitHubIcon` component** — extracted because the Octocat SVG appears in both the button and the loading panel of the callback page. Lucide v1 doesn't ship brand icons, so an inline SVG was needed.
 
@@ -440,8 +440,8 @@ Both flows have to handle React 18+ StrictMode's deliberate double-invocation of
 
 | Concern | How it's handled |
 | --- | --- |
-| Double `mutate` from a `useEffect`-triggered call | `handledRef` in `GitHubCallbackPage` ensures only the first effect run reaches `handleCode` |
-| Double `consumeState` removing/re-reading | `handledRef` short-circuits before `consumeState` is reached on the second pass |
+| Double `mutate` from a `useEffect`-triggered call | `validation` is computed once via a lazy `useState` initializer; its reference is stable across the mount, so the effect (deps `[validation, handleCode]`) fires `handleCode` exactly once per mount |
+| Double `consumeState` removing/re-reading | The initializer runs once per component instance — production single-mount calls `consumeState` exactly once. Dev StrictMode mount-unmount-mount calls it twice; the second instance's validation falls into the state-mismatch error branch (cosmetic dev-only flash before the user is navigated away) |
 | Double-mount risk for the popup-based Google flow | Not an issue — `mutate` fires from a synchronous user-event handler, not from an effect |
 
 ### 7.5 Already-authenticated user revisits a callback URL
