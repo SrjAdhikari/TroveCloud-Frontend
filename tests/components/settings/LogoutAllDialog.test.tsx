@@ -31,7 +31,7 @@ describe("LogoutAllDialog", () => {
 		renderWithProviders(<LogoutAllDialog onClose={vi.fn()} />);
 
 		await user.click(
-			screen.getByRole("button", { name: /log out all/i }),
+			screen.getByRole("button", { name: /^log out$/i }),
 		);
 
 		await waitFor(() =>
@@ -52,7 +52,7 @@ describe("LogoutAllDialog", () => {
 		renderWithProviders(<LogoutAllDialog onClose={vi.fn()} />);
 
 		await user.click(
-			screen.getByRole("button", { name: /log out all/i }),
+			screen.getByRole("button", { name: /^log out$/i }),
 		);
 
 		await waitFor(() =>

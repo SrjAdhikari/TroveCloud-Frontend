@@ -75,7 +75,7 @@ const LogoutAllDialog = ({ onClose }: LogoutAllDialogProps) => {
 						disabled={isPending}
 						className="cursor-pointer"
 					>
-						{isPending ? "Logging out..." : "Log out everywhere"}
+						{isPending ? "Logging out..." : "Log out"}
 					</Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>
