@@ -32,6 +32,16 @@ if (typeof window !== "undefined") {
 			dispatchEvent: () => false,
 		});
 	}
+
+	// SidebarProvider (and other Radix layout primitives) rely on
+	// ResizeObserver, which jsdom doesn't provide.
+	if (!window.ResizeObserver) {
+		window.ResizeObserver = class ResizeObserver {
+			observe() {}
+			unobserve() {}
+			disconnect() {}
+		};
+	}
 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));

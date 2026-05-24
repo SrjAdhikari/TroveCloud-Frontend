@@ -3,6 +3,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProfileTab from "@/components/settings/ProfileTab";
 import SecurityTab from "@/components/settings/SecurityTab";
+import SessionsTab from "@/components/settings/SessionsTab";
 import StorageTab from "@/components/settings/StorageTab";
 import AccountTab from "@/components/settings/AccountTab";
 
@@ -35,6 +36,10 @@ const SettingsPage = () => {
 							Security
 						</TabsTrigger>
 
+						<TabsTrigger value="sessions" className={tabsClass}>
+							Sessions
+						</TabsTrigger>
+
 						<TabsTrigger value="storage" className={tabsClass}>
 							Storage
 						</TabsTrigger>
@@ -52,6 +57,10 @@ const SettingsPage = () => {
 
 						<TabsContent value="security">
 							<SecurityTab />
+						</TabsContent>
+
+						<TabsContent value="sessions">
+							<SessionsTab />
 						</TabsContent>
 
 						<TabsContent value="storage">
