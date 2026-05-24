@@ -7,6 +7,7 @@ import { MemoryRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import toast from "@/lib/toast";
+import ROUTES from "@/routes/paths";
 import usePostLogout from "@/hooks/usePostLogout";
 
 const mockNavigate = vi.fn();
@@ -45,7 +46,7 @@ describe("usePostLogout", () => {
 
 		expect(client.getQueryData(["currentUser"])).toBeUndefined();
 		expect(client.getQueryData(["directory"])).toBeUndefined();
-		expect(mockNavigate).toHaveBeenCalledWith("/");
+		expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ROOT);
 		expect(toast.success).toHaveBeenCalledWith("Logged out successfully");
 	});
 });
