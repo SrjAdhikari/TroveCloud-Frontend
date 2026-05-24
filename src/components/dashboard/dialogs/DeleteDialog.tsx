@@ -18,8 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface DeleteDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 	itemId: string;
 	itemName: string;
 	type: "file" | "folder";
@@ -31,8 +30,7 @@ interface DeleteDialogProps {
  * Folders are deleted recursively (all nested contents).
  */
 const DeleteDialog = ({
-	open,
-	onOpenChange,
+	onClose,
 	itemId,
 	itemName,
 	type,
@@ -48,7 +46,7 @@ const DeleteDialog = ({
 			onSuccess: () => {
 				toast.success(`${type === "folder" ? "Folder" : "File"} deleted`);
 				queryClient.invalidateQueries({ queryKey: ["directory"] });
-				onOpenChange(false);
+				onClose();
 			},
 			onError: () => {
 				toast.error("Couldn't delete. Please try again.");
@@ -57,7 +55,7 @@ const DeleteDialog = ({
 	};
 
 	return (
-		<AlertDialog open={open} onOpenChange={onOpenChange}>
+		<AlertDialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
 			<AlertDialogContent
 				size="sm"
 				className="min-w-xs max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background"

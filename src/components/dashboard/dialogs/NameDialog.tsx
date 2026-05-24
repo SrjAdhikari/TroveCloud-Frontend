@@ -1,6 +1,5 @@
 //* src/components/dashboard/dialogs/NameDialog.tsx
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LucideIcon } from "lucide-react";
@@ -31,8 +30,7 @@ interface NameDialogContent {
 }
 
 interface NameDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 	content: NameDialogContent;
 	schema: ZodObject<{ name: ZodString }>;
 	defaultValue?: string;
@@ -42,12 +40,12 @@ interface NameDialogProps {
 
 /**
  * Reusable dialog for entering a name — used for creating and renaming files/folders.
- * Handles form state, Zod validation (3–50 chars), and reset on open/close.
+ * Handles form state and Zod validation (3–50 chars). Parent-conditionally mounted,
+ * so the form initialises fresh from defaultValue on every open.
  * The parent controls the mutation via onSubmit and isPending props.
  */
 const NameDialog = ({
-	open,
-	onOpenChange,
+	onClose,
 	content,
 	schema,
 	defaultValue = "",
@@ -67,7 +65,6 @@ const NameDialog = ({
 	const {
 		register,
 		handleSubmit,
-		reset,
 		formState: { errors, isValid },
 	} = useForm<NameFormData>({
 		mode: "onChange",
@@ -75,19 +72,12 @@ const NameDialog = ({
 		defaultValues: { name: defaultValue },
 	});
 
-	/** Reset form with default value whenever dialog opens/closes */
-	useEffect(() => {
-		if (open) {
-			reset({ name: defaultValue });
-		}
-	}, [open, defaultValue, reset]);
-
 	const handleFormSubmit = (data: NameFormData) => {
 		onSubmit(data.name);
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
 			<DialogContent className="min-w-xs max-w-xs sm:max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background">
 				<DialogHeader className="text-center gap-1">
 					<div className="mx-auto mb-1 flex size-10 items-center justify-center rounded-lg bg-primary/10">
@@ -119,7 +109,7 @@ const NameDialog = ({
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => onOpenChange(false)}
+							onClick={onClose}
 							className="cursor-pointer"
 						>
 							Cancel

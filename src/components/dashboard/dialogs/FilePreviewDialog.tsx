@@ -16,8 +16,7 @@ import { Button } from "@/components/ui/button";
 import PreviewContent from "@/components/dashboard/preview/PreviewContent";
 
 interface FilePreviewDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 	file: FileItemPayload;
 	onDownload: () => void;
 }
@@ -28,8 +27,7 @@ interface FilePreviewDialogProps {
  * Includes a download button and shows a fallback for unsupported types.
  */
 const FilePreviewDialog = ({
-	open,
-	onOpenChange,
+	onClose,
 	file,
 	onDownload,
 }: FilePreviewDialogProps) => {
@@ -37,7 +35,7 @@ const FilePreviewDialog = ({
 	const isUnsupported = previewType === "unsupported";
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
 			<DialogContent
 				showCloseButton={false}
 				className={cn(

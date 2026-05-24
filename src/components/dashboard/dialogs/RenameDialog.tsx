@@ -12,8 +12,7 @@ import NameDialog from "@/components/dashboard/dialogs/NameDialog";
 import type { NameDialogContent } from "@/components/dashboard/dialogs/NameDialog";
 
 interface RenameDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 	itemId: string;
 	currentName: string;
 	type: "file" | "folder";
@@ -48,8 +47,7 @@ const getContent = (type: "file" | "folder"): NameDialogContent => {
  * Delegates UI to NameDialog and handles the rename mutation.
  */
 const RenameDialog = ({
-	open,
-	onOpenChange,
+	onClose,
 	itemId,
 	currentName,
 	type,
@@ -80,7 +78,7 @@ const RenameDialog = ({
 		mutate(params as never, {
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: ["directory"] });
-				onOpenChange(false);
+				onClose();
 			},
 			onError: () => {
 				toast.error(
@@ -92,8 +90,7 @@ const RenameDialog = ({
 
 	return (
 		<NameDialog
-			open={open}
-			onOpenChange={onOpenChange}
+			onClose={onClose}
 			content={content}
 			schema={schema}
 			defaultValue={displayName}
