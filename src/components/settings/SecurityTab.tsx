@@ -69,7 +69,6 @@ const SecurityTab = () => {
 					</div>
 				</CardContent>
 			</Card>
-
 		</div>
 	);
 };
