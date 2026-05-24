@@ -29,6 +29,7 @@ const LogoutAllDialog = ({ onClose }: LogoutAllDialogProps) => {
 	const handlePostLogout = usePostLogout();
 
 	const handleConfirm = () => {
+		if (isPending) return;
 		mutate(undefined, {
 			onSuccess: () =>
 				handlePostLogout("Logged out of all devices successfully"),
