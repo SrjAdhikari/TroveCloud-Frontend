@@ -126,21 +126,23 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 				</div>
 			)}
 
-			<RenameDialog
-				open={showRename}
-				onOpenChange={setShowRename}
-				itemId={folder._id}
-				currentName={folder.name}
-				type="folder"
-			/>
+			{showRename && (
+				<RenameDialog
+					onClose={() => setShowRename(false)}
+					itemId={folder._id}
+					currentName={folder.name}
+					type="folder"
+				/>
+			)}
 
-			<DeleteDialog
-				open={showDelete}
-				onOpenChange={setShowDelete}
-				itemId={folder._id}
-				itemName={folder.name}
-				type="folder"
-			/>
+			{showDelete && (
+				<DeleteDialog
+					onClose={() => setShowDelete(false)}
+					itemId={folder._id}
+					itemName={folder.name}
+					type="folder"
+				/>
+			)}
 		</>
 	);
 };

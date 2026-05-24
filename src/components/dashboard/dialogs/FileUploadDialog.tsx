@@ -18,8 +18,7 @@ import FileLimitAlert from "@/components/dashboard/upload/FileLimitAlert";
 import SelectedFileList from "@/components/dashboard/upload/SelectedFileList";
 
 interface FileUploadDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 	onUpload: (files: FileList) => void;
 }
 
@@ -28,23 +27,9 @@ interface FileUploadDialogProps {
  * Replaces the native file picker with a more polished experience.
  * Selected files are passed to the parent's onUpload callback on confirm.
  */
-const FileUploadDialog = ({
-	open,
-	onOpenChange,
-	onUpload,
-}: FileUploadDialogProps) => {
+const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 	const [oversizedNames, setOversizedNames] = useState<string[]>([]);
-	const { selectedFiles, addFiles, removeFile, reset, totalSize } =
-		useFileSelection();
-
-	/** Resets the dialog state when closing */
-	const handleOpenChange = (value: boolean) => {
-		if (!value) {
-			reset();
-			setOversizedNames([]);
-		}
-		onOpenChange(value);
-	};
+	const { selectedFiles, addFiles, removeFile, totalSize } = useFileSelection();
 
 	/** Reject oversized files at add-time so the backend never sees them. */
 	const acceptFiles = (incoming: FileList | File[]) => {
@@ -67,11 +52,11 @@ const FileUploadDialog = ({
 		selectedFiles.forEach((file) => dataTransfer.items.add(file));
 
 		onUpload(dataTransfer.files);
-		handleOpenChange(false);
+		onClose();
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
+		<Dialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
 			<DialogContent className="sm:max-w-lg bg-background gap-0 p-0 top-[50%] max-h-[90vh] flex flex-col">
 				<DialogHeader className="p-5">
 					<DialogTitle>Upload Files</DialogTitle>
@@ -99,7 +84,7 @@ const FileUploadDialog = ({
 				<div className="flex justify-end gap-2 p-5">
 					<Button
 						variant="outline"
-						onClick={() => handleOpenChange(false)}
+						onClick={onClose}
 						className="cursor-pointer"
 					>
 						Cancel

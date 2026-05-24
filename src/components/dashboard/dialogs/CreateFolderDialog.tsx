@@ -10,8 +10,7 @@ import NameDialog from "@/components/dashboard/dialogs/NameDialog";
 import type { NameDialogContent } from "@/components/dashboard/dialogs/NameDialog";
 
 interface CreateFolderDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 	parentDirId?: string;
 }
 
@@ -30,8 +29,7 @@ const dialogContent: NameDialogContent = {
  * Delegates UI to NameDialog and handles the create mutation.
  */
 const CreateFolderDialog = ({
-	open,
-	onOpenChange,
+	onClose,
 	parentDirId,
 }: CreateFolderDialogProps) => {
 	const queryClient = useQueryClient();
@@ -43,7 +41,7 @@ const CreateFolderDialog = ({
 			{
 				onSuccess: () => {
 					queryClient.invalidateQueries({ queryKey: ["directory"] });
-					onOpenChange(false);
+					onClose();
 				},
 				onError: () => {
 					toast.error("Couldn't create folder. Please try again.");
@@ -54,8 +52,7 @@ const CreateFolderDialog = ({
 
 	return (
 		<NameDialog
-			open={open}
-			onOpenChange={onOpenChange}
+			onClose={onClose}
 			content={dialogContent}
 			schema={folderNameSchema}
 			isPending={isPending}

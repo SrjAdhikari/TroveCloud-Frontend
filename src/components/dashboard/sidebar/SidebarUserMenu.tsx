@@ -166,7 +166,7 @@ const SidebarUserMenu = () => {
 				</SidebarMenu>
 			</SidebarFooter>
 
-			<LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />
+			{logoutOpen && <LogoutDialog onClose={() => setLogoutOpen(false)} />}
 		</>
 	);
 };

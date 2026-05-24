@@ -129,18 +129,20 @@ const DashboardPage = () => {
 			</div>
 
 			{/* Create folder dialog */}
-			<CreateFolderDialog
-				open={showCreateFolder}
-				onOpenChange={setShowCreateFolder}
-				parentDirId={dirId}
-			/>
+			{showCreateFolder && (
+				<CreateFolderDialog
+					onClose={() => setShowCreateFolder(false)}
+					parentDirId={dirId}
+				/>
+			)}
 
 			{/* Upload dialog */}
-			<FileUploadDialog
-				open={showUpload}
-				onOpenChange={setShowUpload}
-				onUpload={upload}
-			/>
+			{showUpload && (
+				<FileUploadDialog
+					onClose={() => setShowUpload(false)}
+					onUpload={upload}
+				/>
+			)}
 
 			{/* Drive Import dialog */}
 			{showDriveImport && driveImportFlow.status !== "picking" && (

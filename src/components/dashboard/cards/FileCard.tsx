@@ -139,27 +139,31 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 				</div>
 			)}
 
-			<FilePreviewDialog
-				open={showPreview}
-				onOpenChange={setShowPreview}
-				file={file}
-				onDownload={handleDownload}
-			/>
+			{showPreview && (
+				<FilePreviewDialog
+					onClose={() => setShowPreview(false)}
+					file={file}
+					onDownload={handleDownload}
+				/>
+			)}
 
-			<RenameDialog
-				open={showRename}
-				onOpenChange={setShowRename}
-				itemId={file._id}
-				currentName={file.name}
-				type="file"
-			/>
-			<DeleteDialog
-				open={showDelete}
-				onOpenChange={setShowDelete}
-				itemId={file._id}
-				itemName={file.name}
-				type="file"
-			/>
+			{showRename && (
+				<RenameDialog
+					onClose={() => setShowRename(false)}
+					itemId={file._id}
+					currentName={file.name}
+					type="file"
+				/>
+			)}
+
+			{showDelete && (
+				<DeleteDialog
+					onClose={() => setShowDelete(false)}
+					itemId={file._id}
+					itemName={file.name}
+					type="file"
+				/>
+			)}
 		</>
 	);
 };

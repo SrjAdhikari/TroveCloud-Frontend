@@ -21,8 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface LogoutDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+	onClose: () => void;
 }
 
 /**
@@ -30,7 +29,7 @@ interface LogoutDialogProps {
  * Offers two actions: log out the current session, or log out everywhere (all devices).
  * On success, invalidates the currentUser query and redirects to / (sign in).
  */
-const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
+const LogoutDialog = ({ onClose }: LogoutDialogProps) => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -45,7 +44,7 @@ const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
 		queryClient.removeQueries({ queryKey: ["currentUser"] });
 		queryClient.removeQueries({ queryKey: ["directory"] });
 
-		onOpenChange(false);
+		onClose();
 		navigate(ROUTES.ROOT);
 		toast.success(message);
 	};
@@ -72,7 +71,7 @@ const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
 	};
 
 	return (
-		<AlertDialog open={open} onOpenChange={onOpenChange}>
+		<AlertDialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
 			<AlertDialogContent
 				size="sm"
 				className="min-w-xs max-w-xs p-5 gap-2 max-sm:min-w-[calc(100%-2rem)]"
