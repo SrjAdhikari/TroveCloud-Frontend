@@ -67,7 +67,7 @@ const FilterSelect = <T extends string>({
 				<SelectValue />
 			</SelectTrigger>
 
-			<SelectContent>
+			<SelectContent position="popper">
 				{hasAllLabel && <SelectItem value={ALL}>{allLabel}</SelectItem>}
 				{options.map((opt) => (
 					<SelectItem key={opt.value} value={opt.value}>
