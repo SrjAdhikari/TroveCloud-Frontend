@@ -54,7 +54,7 @@ const SessionsTab = () => {
 	return (
 		<div className="space-y-6">
 			{/* Active sessions */}
-			<Card>
+			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
 						<Monitor className="size-4" />
@@ -117,7 +117,7 @@ const SessionsTab = () => {
 			</Card>
 
 			{/* Log out of all devices */}
-			<Card>
+			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
 						<LogOut className="size-4" />
