@@ -62,8 +62,7 @@ const SessionsTab = () => {
 					</CardTitle>
 
 					<CardDescription>
-						Devices currently logged into your account. You can revoke access
-						from any device.
+						Devices currently logged into your account.
 					</CardDescription>
 				</CardHeader>
 
