@@ -1,13 +1,13 @@
 //* src/components/dashboard/sidebar/SidebarUserMenu.tsx
 
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Ellipsis, LogOut, Settings, ShieldUser } from "lucide-react";
-import { useCurrentUser } from "@/hooks/useAuth";
+import { useCurrentUser, useLogout } from "@/hooks/useAuth";
+import usePostLogout from "@/hooks/usePostLogout";
+import toast from "@/lib/toast";
 import ROUTES from "@/routes/paths";
 import isAdminRole from "@/lib/role";
 import getInitials from "@/lib/getInitials";
-import LogoutDialog from "@/components/dashboard/dialogs/LogoutDialog";
 
 import {
 	SidebarFooter,
@@ -33,7 +33,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const SidebarUserMenu = () => {
 	const navigate = useNavigate();
 	const { data: userResponse } = useCurrentUser();
-	const [logoutOpen, setLogoutOpen] = useState(false);
+	const { mutate: logout, isPending: isLoggingOut } = useLogout();
+	const handlePostLogout = usePostLogout();
+
+	const handleLogout = () => {
+		if (isLoggingOut) return;
+		logout(undefined, {
+			onSuccess: () => handlePostLogout("Logged out successfully"),
+			onError: () => {
+				toast.error("Couldn't log out. Please try again.");
+			},
+		});
+	};
 
 	const user = userResponse?.data;
 	const isAdmin = isAdminRole(user?.role);
@@ -154,7 +165,7 @@ const SidebarUserMenu = () => {
 								<DropdownMenuGroup>
 									<DropdownMenuItem
 										className="cursor-pointer"
-										onSelect={() => setLogoutOpen(true)}
+										onSelect={handleLogout}
 									>
 										<LogOut className="mr-2 size-4" />
 										Log out
@@ -165,8 +176,6 @@ const SidebarUserMenu = () => {
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarFooter>
-
-			{logoutOpen && <LogoutDialog onClose={() => setLogoutOpen(false)} />}
 		</>
 	);
 };
