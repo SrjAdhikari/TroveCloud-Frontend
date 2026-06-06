@@ -2,10 +2,15 @@
 
 import { Camera, Calendar } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useAuth";
+
+import getInitials from "@/lib/getInitials";
+import { formatDate } from "@/lib/formatters";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ProfileNameForm from "@/components/settings/ProfileNameForm";
 import {
 	Card,
 	CardContent,
@@ -15,27 +20,7 @@ import {
 } from "@/components/ui/card";
 
 /**
- * Extracts up to two initials from a user's name for the avatar fallback.
- */
-const getInitials = (name: string) => {
-	const parts = name.trim().split(/\s+/);
-	if (parts.length >= 2) {
-		return (parts[0][0] + parts[1][0]).toUpperCase();
-	}
-	return name.slice(0, 2).toUpperCase();
-};
-
-/**
- * Formats an ISO date string to a readable format (e.g., "April 2026").
- */
-const formatJoinDate = (dateStr: string) => {
-	const date = new Date(dateStr);
-	return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-};
-
-/**
- * Profile settings tab — displays user info with placeholder edit controls.
- * Name and avatar editing will be functional once backend supports it.
+ * Profile settings tab — avatar, editable name, read-only email, member-since.
  */
 const ProfileTab = () => {
 	const { data: userResponse } = useCurrentUser();
@@ -65,7 +50,6 @@ const ProfileTab = () => {
 								</AvatarFallback>
 							</Avatar>
 
-							{/* Upload overlay */}
 							<button
 								type="button"
 								disabled
@@ -90,21 +74,10 @@ const ProfileTab = () => {
 						</div>
 					</div>
 
-					{/* Name */}
-					<div className="space-y-2">
-						<Label htmlFor="name">Name</Label>
-						<Input
-							id="name"
-							value={user?.name ?? ""}
-							disabled
-							className="max-w-md"
-						/>
-						<p className="text-xs text-muted-foreground">
-							Name editing coming soon.
-						</p>
-					</div>
+					{/* Name — editable */}
+					{user && <ProfileNameForm currentName={user.name} />}
 
-					{/* Email */}
+					{/* Email — read-only */}
 					<div className="space-y-2">
 						<Label htmlFor="email">Email</Label>
 						<Input
@@ -122,8 +95,7 @@ const ProfileTab = () => {
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
 						<Calendar className="size-3.5" />
 						<span>
-							Member since{" "}
-							{user?.createdAt ? formatJoinDate(user.createdAt) : "—"}
+							Member since {user?.createdAt ? formatDate(user.createdAt) : "—"}
 						</span>
 					</div>
 				</CardContent>
