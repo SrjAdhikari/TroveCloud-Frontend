@@ -19,7 +19,7 @@ const SecurityTab = () => {
 	return (
 		<div className="space-y-6">
 			{/* Change password */}
-			<Card>
+			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
 						<KeyRound className="size-4" />

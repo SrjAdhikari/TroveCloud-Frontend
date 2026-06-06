@@ -18,7 +18,7 @@ const AccountTab = () => {
 	return (
 		<div className="space-y-6">
 			{/* Export data */}
-			<Card>
+			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
 						<Download className="size-4" />
@@ -43,7 +43,7 @@ const AccountTab = () => {
 			</Card>
 
 			{/* Danger zone */}
-			<Card className="border-destructive/30">
+			<Card className="border-destructive/30 bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2 text-destructive">
 						<AlertTriangle className="size-4" />
