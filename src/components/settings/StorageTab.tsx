@@ -65,7 +65,7 @@ const StorageTab = () => {
 	return (
 		<div className="space-y-6">
 			{/* Usage overview */}
-			<Card>
+			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
 						<Database className="size-4" />
@@ -127,7 +127,7 @@ const StorageTab = () => {
 			</Card>
 
 			{/* Plan */}
-			<Card>
+			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
 						<Crown className="size-4" />
