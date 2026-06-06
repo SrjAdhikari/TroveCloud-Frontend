@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface WrapperOptions extends Omit<RenderOptions, "wrapper"> {
 	initialEntries?: string[];
+	client?: QueryClient;
 }
 
 /**
@@ -34,10 +35,11 @@ const renderWithProviders = (
 	ui: ReactElement,
 	options: WrapperOptions = {},
 ) => {
-	const { initialEntries = ["/"], ...rest } = options;
-	const client = new QueryClient({
-		defaultOptions: { queries: { retry: false } },
-	});
+	const {
+		initialEntries = ["/"],
+		client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+		...rest
+	} = options;
 	return render(
 		<MemoryRouter initialEntries={initialEntries}>
 			<TooltipProvider>
