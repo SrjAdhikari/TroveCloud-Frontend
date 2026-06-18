@@ -1,7 +1,7 @@
 //* src/components/dashboard/upload/SelectedFileList.tsx
 
 import { File as FileIcon, X } from "lucide-react";
-import { formatFileSize } from "@/lib/formatters";
+import { formatBytes } from "@/lib/formatters";
 
 interface SelectedFileListProps {
 	files: File[];
@@ -28,7 +28,7 @@ const SelectedFileList = ({
 				</p>
 
 				<p className="text-xs text-muted-foreground">
-					{formatFileSize(totalSize)}
+					{formatBytes(totalSize)}
 				</p>
 			</div>
 
@@ -45,7 +45,7 @@ const SelectedFileList = ({
 
 						<div className="flex items-center gap-2 shrink-0 ml-2">
 							<span className="text-xs text-muted-foreground">
-								{formatFileSize(file.size)}
+								{formatBytes(file.size)}
 							</span>
 
 							<button
