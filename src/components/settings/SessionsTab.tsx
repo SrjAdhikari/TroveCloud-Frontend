@@ -83,7 +83,7 @@ const SessionsTab = () => {
 										<p className="text-sm font-medium">
 											{session.device}
 											{session.current && (
-												<span className="ml-2 text-xs font-normal text-green-600 dark:text-green-400">
+												<span className="ml-2 text-xs font-normal text-success">
 													This device
 												</span>
 											)}
