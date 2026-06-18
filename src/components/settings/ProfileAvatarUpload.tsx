@@ -56,9 +56,8 @@ const ProfileAvatarUpload = ({ user }: ProfileAvatarUploadProps) => {
 
 		mutate(file, {
 			onSuccess: (response) => {
-				// Cache the returned user so the avatar/sidebar update without a refetch.
+				// Cache the returned user so the avatar/sidebar swap without a refetch
 				queryClient.setQueryData(["currentUser"], response);
-				toast.success("Profile picture updated");
 			},
 			onError: (error) => {
 				setUploadError(PICTURE_ERROR_COPY[error.code] ?? GENERIC_PICTURE_ERROR);
