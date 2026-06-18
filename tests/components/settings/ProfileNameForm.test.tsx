@@ -52,7 +52,7 @@ describe("ProfileNameForm", () => {
 		expect(screen.getByRole("button", { name: /save/i })).toBeInTheDocument();
 	});
 
-	it("saves a changed valid name, updates the cache, and toasts", async () => {
+	it("saves a changed valid name, updates the cache, and hides Save (no toast)", async () => {
 		const user = userEvent.setup();
 		const client = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
@@ -80,21 +80,20 @@ describe("ProfileNameForm", () => {
 		await waitFor(() => expect(save).toBeEnabled());
 		await user.click(save);
 
-		await waitFor(() =>
-			expect(toast.success).toHaveBeenCalledWith("Profile updated"),
-		);
 		// The returned user lands in the cache so the sidebar avatar/name update.
 		await waitFor(() =>
 			expect(client.getQueryData(["currentUser"])).toMatchObject({
 				data: { name: "Ada B. Lovelace" },
 			}),
 		);
-		// Save hides again once the baseline resets to the saved value.
+		// Save hides again once the baseline resets — this vanishing IS the
+		// success confirmation now that the toast is gone.
 		await waitFor(() =>
 			expect(
 				screen.queryByRole("button", { name: /save/i }),
 			).not.toBeInTheDocument(),
 		);
+		expect(toast.success).not.toHaveBeenCalled();
 	});
 
 	it("keeps Save disabled when the name is invalid (too short)", async () => {

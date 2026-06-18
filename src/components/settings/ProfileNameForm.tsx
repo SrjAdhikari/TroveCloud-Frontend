@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AlertBanner from "@/components/ui/alert-banner";
-import toast from "@/lib/toast";
 import {
 	profileNameSchema,
 	type ProfileNameFormData,
@@ -30,8 +29,8 @@ interface ProfileNameFormProps {
 
 /**
  * Editable display-name field. The Save button surfaces inside the input's
- * right edge only once the value changes; the bare hook's side effects (cache
- * write, toast) are owned here at the call site.
+ * right edge only once the value changes; the bare hook's side effect (cache
+ * write) is owned here at the call site.
  */
 const ProfileNameForm = ({ currentName }: ProfileNameFormProps) => {
 	const { mutate, isPending } = useUpdateProfileName();
@@ -53,10 +52,9 @@ const ProfileNameForm = ({ currentName }: ProfileNameFormProps) => {
 		setServerError(null);
 		mutate(name, {
 			onSuccess: (response) => {
-				// Cache the returned user so the sidebar avatar/name update without a refetch.
+				// Cache the returned user so the sidebar avatar/name update without a refetch
 				queryClient.setQueryData(["currentUser"], response);
 				reset({ name: response.data.name });
-				toast.success("Profile updated");
 			},
 			onError: (error) => {
 				setServerError(NAME_ERROR_COPY[error.code] ?? GENERIC_NAME_ERROR);

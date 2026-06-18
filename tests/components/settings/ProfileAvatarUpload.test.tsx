@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 
 describe("ProfileAvatarUpload", () => {
-	it("uploads a valid image, updates the cache, and toasts on success", async () => {
+	it("uploads a valid image and updates the cache (no toast)", async () => {
 		const ue = userEvent.setup();
 		const client = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
@@ -57,15 +57,14 @@ describe("ProfileAvatarUpload", () => {
 		});
 		await ue.upload(screen.getByLabelText(/upload profile picture/i), file);
 
-		await waitFor(() =>
-			expect(toast.success).toHaveBeenCalledWith("Profile picture updated"),
-		);
-		// The returned user lands in the cache so the avatar/sidebar update.
+		// The returned user lands in the cache so the avatar/sidebar swap — this
+		// visual change IS the success confirmation now that the toast is gone.
 		await waitFor(() =>
 			expect(client.getQueryData(["currentUser"])).toMatchObject({
 				data: { profilePicture: "https://cdn/x.png" },
 			}),
 		);
+		expect(toast.success).not.toHaveBeenCalled();
 	});
 
 	it("rejects a non-image file inline without a request", async () => {
