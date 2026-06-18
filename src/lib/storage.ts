@@ -68,7 +68,8 @@ const buildBreakdown = (usage: StorageUsage): BreakdownRow[] => {
 	return breakdown.map((item) => {
 		const meta =
 			STORAGE_CATEGORY_META[item.category] ?? STORAGE_CATEGORY_META.Other;
-		const widthPercent = used > 0 ? Math.round((item.size / used) * 100) : 0;
+		const rawWidthPercent = used > 0 ? Math.round((item.size / used) * 100) : 0;
+		const widthPercent = Math.min(100, rawWidthPercent);
 
 		return {
 			label: item.category,

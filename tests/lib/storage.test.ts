@@ -73,6 +73,15 @@ describe("buildBreakdown", () => {
 		expect(rows[0].barColor).toBe("bg-muted-foreground");
 	});
 
+	it("clamps a category wider than used to 100%", () => {
+		const rows = buildBreakdown({
+			used: 100,
+			total: 1_000,
+			breakdown: [{ category: "Documents", size: 250, icon: "file-text" }],
+		});
+		expect(rows[0].widthPercent).toBe(100);
+	});
+
 	it("returns an empty array when there are no files", () => {
 		expect(
 			buildBreakdown({ used: 0, total: 2_000_000_000, breakdown: [] }),
