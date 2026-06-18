@@ -13,15 +13,15 @@ const formatDate = (dateStr: string) => {
 };
 
 /**
- * Formats a byte count into a human-readable file size string.
- * e.g., 1536 → "1.5 KB", 2097152 → "2 MB"
+ * Formats a byte count into a human-readable size string
+ * e.g., 2048 → "2.0 KB", 1_000_000_000 → "1 GB"
  */
-const formatFileSize = (bytes: number): string => {
-	if (bytes === 0) return "0 B";
+const formatBytes = (bytes: number): string => {
+	if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
 
 	const units = ["B", "KB", "MB", "GB", "TB"];
-	const i = Math.floor(Math.log(bytes) / Math.log(1024));
-	const size = bytes / Math.pow(1024, i);
+	const i = Math.floor(Math.log(bytes) / Math.log(1000));
+	const size = bytes / Math.pow(1000, i);
 
 	return `${size % 1 === 0 ? size : size.toFixed(1)} ${units[i]}`;
 };
@@ -55,7 +55,7 @@ const pluralize = (count: number, word: string) =>
 
 export {
 	formatDate,
-	formatFileSize,
+	formatBytes,
 	formatDateTime,
 	formatNumber,
 	pluralize,

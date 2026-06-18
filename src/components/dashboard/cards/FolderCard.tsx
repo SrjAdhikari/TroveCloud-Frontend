@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
-import { formatDateTime, formatFileSize } from "@/lib/formatters";
+import { formatDateTime, formatBytes } from "@/lib/formatters";
 import { getFolderIcon } from "@/lib/iconMapper";
 import type { DirectoryItemPayload } from "@/types/directory.types";
 import ItemActions from "@/components/dashboard/cards/ItemActions";
@@ -43,7 +43,7 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 			: null;
 
 	const sizeText =
-		folder.totalSize != null ? formatFileSize(folder.totalSize) : null;
+		folder.totalSize != null ? formatBytes(folder.totalSize) : null;
 
 	const metadata =
 		[fileCountText, sizeText].filter(Boolean).join(" · ") || null;

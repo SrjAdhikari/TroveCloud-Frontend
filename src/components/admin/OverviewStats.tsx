@@ -8,7 +8,7 @@ import {
 	UsersRound,
 } from "lucide-react";
 
-import { formatFileSize, formatNumber } from "@/lib/formatters";
+import { formatBytes, formatNumber } from "@/lib/formatters";
 
 import StatCard from "@/components/admin/StatCard";
 import type { SystemOverviewPayload } from "@/types/admin.types";
@@ -54,7 +54,7 @@ const OverviewStats = ({ overview }: OverviewStatsProps) => {
 				label="Storage"
 				icon={Database}
 				breakdown={[
-					{ label: "Total", value: formatFileSize(storage.totalBytes) },
+					{ label: "Total", value: formatBytes(storage.totalBytes) },
 					{ label: "Files", value: formatNumber(storage.totalFiles) },
 					{
 						label: "Directories",

@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import toast from "@/lib/toast";
-import { formatDateTime, formatFileSize } from "@/lib/formatters";
+import { formatDateTime, formatBytes } from "@/lib/formatters";
 import { getFileIcon } from "@/lib/iconMapper";
 import type { FileItemPayload } from "@/types/directory.types";
 import { useDownloadFile } from "@/hooks/useFile";
@@ -36,7 +36,7 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 	const { src } = getFileIcon(file.extension);
 	const { mutate: download } = useDownloadFile();
 
-	const sizeText = file.size != null ? formatFileSize(file.size) : null;
+	const sizeText = file.size != null ? formatBytes(file.size) : null;
 
 	/**
 	 * Downloads the file by fetching it as a Blob, creating a temporary

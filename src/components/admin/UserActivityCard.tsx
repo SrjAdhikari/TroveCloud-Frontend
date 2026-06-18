@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import {
 	formatDateTime,
-	formatFileSize,
+	formatBytes,
 	formatNumber,
 } from "@/lib/formatters";
 import type { UserDetailPayload } from "@/types/admin.types";
@@ -55,7 +55,7 @@ const UserActivityCard = ({ stats }: UserActivityCardProps) => {
 					<ActivityInfoRow
 						icon={Database}
 						label="Storage used"
-						value={formatFileSize(stats.storageBytes)}
+						value={formatBytes(stats.storageBytes)}
 					/>
 					<ActivityInfoRow
 						icon={File}

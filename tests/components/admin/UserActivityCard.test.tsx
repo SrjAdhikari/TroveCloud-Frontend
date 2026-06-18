@@ -27,7 +27,7 @@ describe("UserActivityCard", () => {
 		render(<UserActivityCard stats={makeStats()} />);
 
 		expect(screen.getByText("Storage used")).toBeInTheDocument();
-		expect(screen.getByText("2.3 GB")).toBeInTheDocument();
+		expect(screen.getByText("2.5 GB")).toBeInTheDocument();
 
 		expect(screen.getByText("Files")).toBeInTheDocument();
 		expect(screen.getByText("1,247")).toBeInTheDocument();
