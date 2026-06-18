@@ -31,6 +31,14 @@ beforeEach(() => {
 			}),
 		),
 	);
+	server.use(
+		http.get(`${API_BASE_URL}/storage/usage`, () =>
+			HttpResponse.json({
+				success: true,
+				data: { used: 575703552, total: 1000000000, breakdown: [] },
+			}),
+		),
+	);
 });
 
 const openMenu = async (user: ReturnType<typeof userEvent.setup>) => {
@@ -83,5 +91,21 @@ describe("SidebarUserMenu logout", () => {
 				"Couldn't log out. Please try again.",
 			),
 		);
+	});
+});
+
+describe("SidebarUserMenu storage", () => {
+	it("shows the user's storage usage from the API", async () => {
+		const user = userEvent.setup();
+
+		renderWithProviders(
+			<SidebarProvider>
+				<SidebarUserMenu />
+			</SidebarProvider>,
+		);
+
+		await openMenu(user);
+
+		expect(await screen.findByText("575.7 MB / 1 GB")).toBeInTheDocument();
 	});
 });

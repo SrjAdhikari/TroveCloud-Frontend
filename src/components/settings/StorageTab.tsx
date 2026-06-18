@@ -1,13 +1,7 @@
 //* src/components/settings/StorageTab.tsx
 
-import {
-	Database,
-	FileText,
-	Image,
-	Video,
-	FileArchive,
-	Crown,
-} from "lucide-react";
+import { Database, Crown } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -16,51 +10,61 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import AlertBanner from "@/components/ui/alert-banner";
 
-/**
- * Placeholder storage breakdown data.
- * Will be replaced with real data once the backend supports storage analytics.
- */
-const storageBreakdown = [
-	{
-		label: "Documents",
-		size: "850 MB",
-		color: "bg-blue-500",
-		width: "35%",
-		icon: FileText,
-	},
-	{
-		label: "Images",
-		size: "720 MB",
-		color: "bg-green-500",
-		width: "30%",
-		icon: Image,
-	},
-	{
-		label: "Videos",
-		size: "580 MB",
-		color: "bg-purple-500",
-		width: "24%",
-		icon: Video,
-	},
-	{
-		label: "Other",
-		size: "250 MB",
-		color: "bg-orange-500",
-		width: "11%",
-		icon: FileArchive,
-	},
-];
+import useStorageUsage from "@/hooks/useStorageUsage";
 
-/**
- * Storage settings tab — usage breakdown and plan management.
- * All data is hardcoded placeholder until backend supports storage endpoints.
- */
+import { formatBytes } from "@/lib/formatters";
+import {
+	getUsagePercent,
+	getUsageBarColor,
+	buildBreakdown,
+} from "@/lib/storage";
+
+/** Storage settings tab — real usage overview, per-category breakdown */
 const StorageTab = () => {
-	/** TODO: Replace hardcoded values with real storage data once backend supports it */
-	const usedGB = 2.4;
-	const totalGB = 10;
-	const usedPercent = Math.round((usedGB / totalGB) * 100);
+	const { data: storageResponse, isLoading, isError } = useStorageUsage();
+	const usage = storageResponse?.data;
+
+	if (isLoading) {
+		return (
+			<div className="space-y-6">
+				<Card className="bg-background">
+					<CardHeader>
+						<CardTitle className="text-base flex items-center gap-2">
+							<Database className="size-4" />
+							Storage usage
+						</CardTitle>
+						<CardDescription>
+							Your current storage usage across TroveCloud.
+						</CardDescription>
+					</CardHeader>
+
+					<CardContent className="space-y-7">
+						<Skeleton className="h-8 w-40" />
+						<Skeleton className="h-3 w-full rounded-full" />
+						<div className="space-y-3">
+							<Skeleton className="h-4 w-32" />
+							<Skeleton className="h-1.5 w-full rounded-full" />
+							<Skeleton className="h-1.5 w-full rounded-full" />
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	if (isError || !usage) {
+		return (
+			<AlertBanner variant="error">
+				Unable to load your storage usage. Please refresh and try again.
+			</AlertBanner>
+		);
+	}
+
+	const usedPercent = getUsagePercent(usage.used, usage.total);
+	const breakdown = buildBreakdown(usage);
 
 	return (
 		<div className="space-y-6">
@@ -80,15 +84,24 @@ const StorageTab = () => {
 					{/* Total usage bar */}
 					<div>
 						<div className="flex items-baseline justify-between">
-							<span className="text-2xl font-semibold">{usedGB} GB</span>
+							<span className="text-lg font-semibold">
+								{formatBytes(usage.used)}
+							</span>
 							<span className="text-sm text-muted-foreground">
-								of {totalGB} GB used
+								of {formatBytes(usage.total)} used
 							</span>
 						</div>
 
-						<div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted">
+						<div
+							className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted"
+							role="progressbar"
+							aria-valuenow={usedPercent}
+							aria-valuemin={0}
+							aria-valuemax={100}
+							aria-label={`Storage used: ${formatBytes(usage.used)} of ${formatBytes(usage.total)}`}
+						>
 							<div
-								className="h-full rounded-full bg-blue-500 transition-all"
+								className={`h-full rounded-full transition-all ${getUsageBarColor(usedPercent)}`}
 								style={{ width: `${usedPercent}%` }}
 							/>
 						</div>
@@ -102,25 +115,29 @@ const StorageTab = () => {
 					<div className="space-y-3">
 						<h3 className="text-sm font-medium">Breakdown by type</h3>
 
-						{storageBreakdown.map(
-							({ label, size, color, width, icon: Icon }) => (
-								<div key={label}>
-									<div className="flex items-center justify-between text-sm">
-										<div className="flex items-center gap-2">
-											<Icon className="size-3.5 text-muted-foreground" />
-											<span>{label}</span>
+						{breakdown.length === 0 ? (
+							<p className="text-sm text-muted-foreground">No files yet.</p>
+						) : (
+							breakdown.map(
+								({ label, size, widthPercent, icon: Icon, barColor }) => (
+									<div key={label}>
+										<div className="flex items-center justify-between text-sm">
+											<div className="flex items-center gap-2">
+												<Icon className="size-3.5 text-muted-foreground" />
+												<span>{label}</span>
+											</div>
+											<span className="text-muted-foreground">{size}</span>
 										</div>
-										<span className="text-muted-foreground">{size}</span>
-									</div>
 
-									<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-										<div
-											className={`h-full rounded-full ${color}`}
-											style={{ width }}
-										/>
+										<div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+											<div
+												className={`h-full rounded-full ${barColor}`}
+												style={{ width: `${widthPercent}%` }}
+											/>
+										</div>
 									</div>
-								</div>
-							),
+								),
+							)
 						)}
 					</div>
 				</CardContent>
@@ -134,8 +151,8 @@ const StorageTab = () => {
 						Your plan
 					</CardTitle>
 					<CardDescription>
-						You are currently on the <strong>Free</strong> plan with {totalGB}{" "}
-						GB of storage.
+						You are currently on the <strong>Free</strong> plan with{" "}
+						{formatBytes(usage.total)} of storage.
 					</CardDescription>
 				</CardHeader>
 
@@ -144,7 +161,7 @@ const StorageTab = () => {
 						<div>
 							<p className="text-sm font-medium">Free Plan</p>
 							<p className="text-xs text-muted-foreground">
-								{totalGB} GB storage &middot; Basic features
+								{formatBytes(usage.total)} storage &middot; Basic features
 							</p>
 						</div>
 						<Button
