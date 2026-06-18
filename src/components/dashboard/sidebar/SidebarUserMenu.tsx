@@ -2,12 +2,18 @@
 
 import { useNavigate } from "react-router";
 import { Ellipsis, LogOut, Settings, ShieldUser } from "lucide-react";
+
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import usePostLogout from "@/hooks/usePostLogout";
-import toast from "@/lib/toast";
+import useStorageUsage from "@/hooks/useStorageUsage";
+
 import ROUTES from "@/routes/paths";
+
+import toast from "@/lib/toast";
 import isAdminRole from "@/lib/role";
 import getInitials from "@/lib/getInitials";
+import { formatBytes } from "@/lib/formatters";
+import { getUsagePercent, getUsageBarColor } from "@/lib/storage";
 
 import {
 	SidebarFooter,
@@ -32,7 +38,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
  */
 const SidebarUserMenu = () => {
 	const navigate = useNavigate();
+
 	const { data: userResponse } = useCurrentUser();
+	const { data: storageResponse } = useStorageUsage();
+
+	const usage = storageResponse?.data;
+	const usagePercent = usage ? getUsagePercent(usage.used, usage.total) : 0;
+
 	const { mutate: logout, isPending: isLoggingOut } = useLogout();
 	const handlePostLogout = usePostLogout();
 
@@ -114,22 +126,35 @@ const SidebarUserMenu = () => {
 
 								<DropdownMenuSeparator />
 
-								{/* TODO: Replace hardcoded values with real storage data once backend supports it */}
-								<div className="px-3 py-2">
-									<div className="flex items-center justify-between text-xs text-muted-foreground">
-										<span>Storage</span>
-										<span>2.4 / 10 GB</span>
-									</div>
+								{/* Storage usage */}
+								{usage && (
+									<>
+										<div className="px-3 py-2">
+											<div className="flex items-center justify-between text-xs text-muted-foreground">
+												<span>Storage</span>
+												<span>
+													{`${formatBytes(usage.used)} / ${formatBytes(usage.total)}`}
+												</span>
+											</div>
 
-									<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-										<div
-											className="h-full rounded-full bg-primary"
-											style={{ width: "24%" }}
-										/>
-									</div>
-								</div>
+											<div
+												className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+												role="progressbar"
+												aria-valuenow={usagePercent}
+												aria-valuemin={0}
+												aria-valuemax={100}
+												aria-label={`Storage used: ${formatBytes(usage.used)} of ${formatBytes(usage.total)}`}
+											>
+												<div
+													className={`h-full rounded-full ${getUsageBarColor(usagePercent)}`}
+													style={{ width: `${usagePercent}%` }}
+												/>
+											</div>
+										</div>
 
-								<DropdownMenuSeparator />
+										<DropdownMenuSeparator />
+									</>
+								)}
 
 								{/* Settings */}
 								<DropdownMenuGroup>
