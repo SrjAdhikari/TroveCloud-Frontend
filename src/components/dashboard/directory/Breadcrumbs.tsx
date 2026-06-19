@@ -13,24 +13,33 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import type { DirectoryAncestorPayload } from "@/types/directory.types";
+import type { DirectoryCrumbPayload } from "@/types/directory.types";
 
+// Root → current folder, self-inclusive (last crumb = the folder you're in).
 interface BreadcrumbsProps {
-	ancestors: DirectoryAncestorPayload[];
-	currentName: string;
+	breadcrumb: DirectoryCrumbPayload[];
 }
 
-// Collapse middle ancestors into "…" when the path is deeper than this.
-const TRUNCATE_THRESHOLD = 4;
+// Collapse intermediate crumbs into "…" once the trail
+// (root + middle + current) is deeper than this many entries.
+const TRUNCATE_THRESHOLD = 5;
 
-const Breadcrumbs = ({ ancestors, currentName }: BreadcrumbsProps) => {
-	const hasRoot = ancestors.length > 0;
-	const isLong = ancestors.length > TRUNCATE_THRESHOLD;
+const Breadcrumbs = ({ breadcrumb }: BreadcrumbsProps) => {
+	if (breadcrumb.length === 0) return null;
 
-	// Ancestors between root and current (root is always shown as "My Files").
-	// When the path is long, only the last 2 are kept; the rest hide behind "…".
-	const middle = ancestors.slice(1);
+	const current = breadcrumb[breadcrumb.length - 1];
+
+	// Folders strictly between root and current.
+	const middle = breadcrumb.slice(1, -1);
+	const isLong = breadcrumb.length > TRUNCATE_THRESHOLD;
 	const visibleMiddle = isLong ? middle.slice(-2) : middle;
+
+	// At root the only crumb is the root folder itself; label it "My Files"
+	// rather than leaking the raw root name (e.g. "root-<email>").
+	const isRootOnly = breadcrumb.length === 1;
+
+	// Only show the root link crumb when we aren't already at root.
+	const hasRoot = !isRootOnly;
 
 	return (
 		<Breadcrumb>
@@ -57,13 +66,11 @@ const Breadcrumbs = ({ ancestors, currentName }: BreadcrumbsProps) => {
 					</>
 				)}
 
-				{visibleMiddle.map((ancestor) => (
-					<Fragment key={ancestor._id}>
+				{visibleMiddle.map((crumb) => (
+					<Fragment key={crumb._id}>
 						<BreadcrumbItem>
 							<BreadcrumbLink asChild>
-								<Link to={`/my-files?dir=${ancestor._id}`}>
-									{ancestor.name}
-								</Link>
+								<Link to={`/my-files?dir=${crumb._id}`}>{crumb.name}</Link>
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 
@@ -72,7 +79,9 @@ const Breadcrumbs = ({ ancestors, currentName }: BreadcrumbsProps) => {
 				))}
 
 				<BreadcrumbItem>
-					<BreadcrumbPage>{currentName}</BreadcrumbPage>
+					<BreadcrumbPage>
+						{isRootOnly ? "My Files" : current.name}
+					</BreadcrumbPage>
 				</BreadcrumbItem>
 			</BreadcrumbList>
 		</Breadcrumb>

@@ -29,8 +29,8 @@ export interface FileItemPayload {
 	updatedAt: string;
 }
 
-// A breadcrumb ancestor entry — root → immediate parent of the current dir
-export interface DirectoryAncestorPayload {
+// A single breadcrumb crumb — one node on the root → current trail
+export interface DirectoryCrumbPayload {
 	_id: string;
 	name: string;
 }
@@ -43,7 +43,9 @@ export interface DirectoryContentsPayload {
 	userId: string;
 	fileCount?: number;
 	totalSize?: number;
-	ancestors: DirectoryAncestorPayload[];
+	// Root → current folder, self-inclusive (last crumb = this directory)
+	breadcrumb: DirectoryCrumbPayload[];
+	path: string;
 	files: FileItemPayload[];
 	childDirectories: DirectoryItemPayload[];
 }
