@@ -73,10 +73,7 @@ const DashboardPage = () => {
 		<div className="-m-6">
 			<div className="space-y-2 border-b px-3 py-2 sm:px-6">
 				{!isRoot && (
-					<Breadcrumbs
-						ancestors={directory?.ancestors ?? []}
-						currentName={displayName}
-					/>
+					<Breadcrumbs breadcrumb={directory?.breadcrumb ?? []} />
 				)}
 
 				<div className="flex items-center justify-between gap-4">
