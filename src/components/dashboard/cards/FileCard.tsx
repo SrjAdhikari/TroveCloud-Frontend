@@ -42,6 +42,7 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 	const { mutate: download } = useDownloadFile();
 
 	const sizeText = file.size != null ? formatBytes(file.size) : null;
+	const baseName = file.name.slice(0, -file.extension.length) || file.name;
 
 	/**
 	 * Downloads the file by fetching it as a Blob, creating a temporary
@@ -122,27 +123,21 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 						/>
 					</div>
 
-					{/* Centered icon + file name */}
-					<div className="flex flex-col items-center gap-3">
-						<div className="flex size-14 shrink-0 items-center justify-center">
-							<img
-								src={src}
-								alt={`${file.extension} file`}
-								className="size-14"
-							/>
-						</div>
-
-						<p className="w-full truncate text-center text-sm font-medium">
-							{file.name}
-						</p>
+					{/* Icon above the divider */}
+					<div className="flex h-24 items-center justify-center">
+						<img src={src} alt={`${file.extension} file`} className="size-16" />
 					</div>
 
 					<hr className="my-3 -mx-4 border-border" />
 
-					<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
-						<p className="truncate">{sizeText ?? "—"}</p>
-						<p>{formatDateTime(file.updatedAt)}</p>
-					</div>
+					{/* Name below the divider — base truncates, extension stays visible */}
+					<p
+						title={file.name}
+						className="flex w-full justify-center text-sm font-medium"
+					>
+						<span className="min-w-0 truncate">{baseName}</span>
+						<span className="shrink-0">{file.extension}</span>
+					</p>
 				</div>
 			)}
 

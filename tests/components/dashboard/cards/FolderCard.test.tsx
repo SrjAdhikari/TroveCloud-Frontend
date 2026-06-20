@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { useLocation } from "react-router";
 
 import { renderWithProviders } from "../../../lib/render";
+import { formatBytes, formatDateTime } from "@/lib/formatters";
 import FolderCard from "@/components/dashboard/cards/FolderCard";
 import type { DirectoryItemPayload } from "@/types/directory.types";
 
@@ -80,5 +81,18 @@ describe("FolderCard — list view", () => {
 		);
 
 		expect(await screen.findByText("/My Files/Reports")).toBeInTheDocument();
+	});
+});
+
+describe("FolderCard — grid view", () => {
+	it("shows the name but no file-count, size, or date metadata (now in the Details dialog)", () => {
+		renderWithProviders(
+			<FolderCard folder={folder} view="grid" currentPath="/My Files" />,
+		);
+
+		expect(screen.getByText("Reports")).toBeInTheDocument();
+		expect(screen.queryByText(/file/i)).toBeNull();
+		expect(screen.queryByText(formatBytes(folder.totalSize!))).toBeNull();
+		expect(screen.queryByText(formatDateTime(folder.updatedAt))).toBeNull();
 	});
 });
