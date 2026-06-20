@@ -10,6 +10,7 @@ import FileCard from "@/components/dashboard/cards/FileCard";
 interface DirectoryListViewProps {
 	folders: DirectoryItemPayload[];
 	files: FileItemPayload[];
+	currentPath: string;
 }
 
 const TABLE_GRID =
@@ -20,9 +21,14 @@ const TABLE_GRID =
  *
  * @param folders - Array of folder items
  * @param files - Array of file items
+ * @param currentPath - Path of the directory currently being viewed
  * @returns Directory List View component
  */
-const DirectoryListView = ({ folders, files }: DirectoryListViewProps) => {
+const DirectoryListView = ({
+	folders,
+	files,
+	currentPath,
+}: DirectoryListViewProps) => {
 	return (
 		<section className={TABLE_GRID}>
 			<div className="hidden md:grid col-span-full grid-cols-subgrid items-center gap-4 border-b border-border px-4 pb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -34,11 +40,21 @@ const DirectoryListView = ({ folders, files }: DirectoryListViewProps) => {
 			</div>
 
 			{folders.map((folder) => (
-				<FolderCard key={folder._id} folder={folder} view="list" />
+				<FolderCard
+					key={folder._id}
+					folder={folder}
+					currentPath={currentPath}
+					view="list"
+				/>
 			))}
 
 			{files.map((file) => (
-				<FileCard key={file._id} file={file} view="list" />
+				<FileCard
+					key={file._id}
+					file={file}
+					currentPath={currentPath}
+					view="list"
+				/>
 			))}
 		</section>
 	);

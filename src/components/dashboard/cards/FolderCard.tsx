@@ -9,9 +9,11 @@ import type { DirectoryItemPayload } from "@/types/directory.types";
 import ItemActions from "@/components/dashboard/cards/ItemActions";
 import RenameDialog from "@/components/dashboard/dialogs/RenameDialog";
 import DeleteDialog from "@/components/dashboard/dialogs/DeleteDialog";
+import DetailsDialog from "@/components/dashboard/dialogs/DetailsDialog";
 
 interface FolderCardProps {
 	folder: DirectoryItemPayload;
+	currentPath: string;
 	view?: "grid" | "list";
 }
 
@@ -26,9 +28,10 @@ const ROW_LINK_CELLS =
  * Renders a single folder as a clickable card.
  * Clicking navigates into the folder by setting the `dir` search param.
  */
-const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
+const FolderCard = ({ folder, currentPath, view = "grid" }: FolderCardProps) => {
 	const [showRename, setShowRename] = useState(false);
 	const [showDelete, setShowDelete] = useState(false);
+	const [showDetails, setShowDetails] = useState(false);
 
 	const [, setSearchParams] = useSearchParams();
 	const { icon: Icon, color, bg } = getFolderIcon(folder.name);
@@ -84,6 +87,7 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 						<ItemActions
 							onRename={() => setShowRename(true)}
 							onDelete={() => setShowDelete(true)}
+							onDetails={() => setShowDetails(true)}
 						/>
 					</div>
 				</div>
@@ -100,6 +104,7 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 						<ItemActions
 							onRename={() => setShowRename(true)}
 							onDelete={() => setShowDelete(true)}
+							onDetails={() => setShowDetails(true)}
 						/>
 					</div>
 
@@ -141,6 +146,15 @@ const FolderCard = ({ folder, view = "grid" }: FolderCardProps) => {
 					itemId={folder._id}
 					itemName={folder.name}
 					type="folder"
+				/>
+			)}
+
+			{showDetails && (
+				<DetailsDialog
+					onClose={() => setShowDetails(false)}
+					currentPath={currentPath}
+					type="folder"
+					item={folder}
 				/>
 			)}
 		</>

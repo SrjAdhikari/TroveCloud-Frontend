@@ -30,7 +30,7 @@ const renderListRow = () => {
 
 	return renderWithProviders(
 		<>
-			<FolderCard folder={folder} view="list" />
+			<FolderCard folder={folder} view="list" currentPath="/My Files" />
 			<LocationProbe />
 		</>,
 		{ initialEntries: ["/my-files"] },
@@ -66,5 +66,19 @@ describe("FolderCard — list view", () => {
 		expect(screen.getByTestId("location")).not.toHaveTextContent("?dir=");
 		// Sanity: the menu actually opened (so we exercised the click).
 		expect(await screen.findByRole("menu")).toBeInTheDocument();
+	});
+
+	it("opening Details shows the folder's full path", async () => {
+		const user = userEvent.setup();
+		renderWithProviders(
+			<FolderCard folder={folder} view="list" currentPath="/My Files" />,
+		);
+
+		await user.click(screen.getByRole("button", { name: /more actions/i }));
+		await user.click(
+			await screen.findByRole("menuitem", { name: /details/i }),
+		);
+
+		expect(await screen.findByText("/My Files/Reports")).toBeInTheDocument();
 	});
 });

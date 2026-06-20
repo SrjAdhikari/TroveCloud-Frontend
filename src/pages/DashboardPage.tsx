@@ -68,6 +68,7 @@ const DashboardPage = () => {
 	}
 
 	const displayName = isRoot ? "My Files" : (directory?.name ?? "");
+	const currentPath = directory?.path ?? "";
 
 	return (
 		<div className="-m-6">
@@ -103,13 +104,22 @@ const DashboardPage = () => {
 						/>
 					)
 				) : view === "list" ? (
-					<DirectoryListView folders={folders} files={files} />
+					<DirectoryListView
+						folders={folders}
+						files={files}
+						currentPath={currentPath}
+					/>
 				) : (
 					<>
 						{folders.length > 0 && (
 							<DirectoryGridView title="Folders">
 								{folders.map((folder) => (
-									<FolderCard key={folder._id} folder={folder} view={view} />
+									<FolderCard
+										key={folder._id}
+										folder={folder}
+										currentPath={currentPath}
+										view={view}
+									/>
 								))}
 							</DirectoryGridView>
 						)}
@@ -117,7 +127,12 @@ const DashboardPage = () => {
 						{files.length > 0 && (
 							<DirectoryGridView title="Files">
 								{files.map((file) => (
-									<FileCard key={file._id} file={file} view={view} />
+									<FileCard
+										key={file._id}
+										file={file}
+										currentPath={currentPath}
+										view={view}
+									/>
 								))}
 							</DirectoryGridView>
 						)}
