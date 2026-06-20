@@ -5,6 +5,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "../../../lib/render";
+import { formatBytes, formatDateTime } from "@/lib/formatters";
 import FileCard from "@/components/dashboard/cards/FileCard";
 import type { FileItemPayload } from "@/types/directory.types";
 
@@ -66,5 +67,17 @@ describe("FileCard — list view", () => {
 		expect(
 			await screen.findByText("/My Files/report.pdf"),
 		).toBeInTheDocument();
+	});
+});
+
+describe("FileCard — grid view", () => {
+	it("shows the name with the extension kept visible, and no size/date metadata", () => {
+		renderWithProviders(<FileCard file={file} view="grid" currentPath="/My Files" />);
+
+		// Name is split so the extension survives end-truncation of long names.
+		expect(screen.getByText("report")).toBeInTheDocument();
+		expect(screen.getByText(".pdf")).toBeInTheDocument();
+		expect(screen.queryByText(formatBytes(file.size!))).toBeNull();
+		expect(screen.queryByText(formatDateTime(file.updatedAt))).toBeNull();
 	});
 });

@@ -48,9 +48,6 @@ const FolderCard = ({ folder, currentPath, view = "grid" }: FolderCardProps) => 
 	const sizeText =
 		folder.totalSize != null ? formatBytes(folder.totalSize) : null;
 
-	const metadata =
-		[fileCountText, sizeText].filter(Boolean).join(" · ") || null;
-
 	return (
 		<>
 			{view === "list" ? (
@@ -108,26 +105,24 @@ const FolderCard = ({ folder, currentPath, view = "grid" }: FolderCardProps) => 
 						/>
 					</div>
 
-					{/* Centered icon + folder name */}
-					<div className="flex flex-col items-center gap-3">
+					{/* Icon above the divider */}
+					<div className="flex h-24 items-center justify-center">
 						<div
-							className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${bg}`}
+							className={`flex size-14 shrink-0 items-center justify-center rounded-xl ${bg}`}
 						>
-							<Icon className={`size-6 ${color}`} />
+							<Icon aria-hidden="true" className={`size-8 ${color}`} />
 						</div>
-
-						<p className="w-full truncate text-center text-sm font-medium">
-							{folder.name}
-						</p>
 					</div>
 
 					<hr className="my-3 -mx-4 border-border" />
 
-					{/* Folder metadata */}
-					<div className="mt-2 space-y-1 text-center text-xs text-muted-foreground">
-						<p className="truncate">{metadata ?? "—"}</p>
-						<p>{formatDateTime(folder.updatedAt)}</p>
-					</div>
+					{/* Name below the divider */}
+					<p
+						title={folder.name}
+						className="w-full truncate text-center text-sm font-medium"
+					>
+						{folder.name}
+					</p>
 				</div>
 			)}
 
