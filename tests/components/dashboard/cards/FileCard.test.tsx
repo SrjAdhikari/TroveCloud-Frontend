@@ -21,7 +21,7 @@ const file: FileItemPayload = {
 
 describe("FileCard — list view", () => {
 	it("renders the row as a button (no link) — file rows open an in-app preview, not a route", () => {
-		renderWithProviders(<FileCard file={file} view="list" />);
+		renderWithProviders(<FileCard file={file} view="list" currentPath="/My Files" />);
 
 		expect(screen.queryByRole("link", { name: /report\.pdf/i })).toBeNull();
 		expect(
@@ -31,7 +31,7 @@ describe("FileCard — list view", () => {
 
 	it("clicking the row opens the preview dialog", async () => {
 		const user = userEvent.setup();
-		renderWithProviders(<FileCard file={file} view="list" />);
+		renderWithProviders(<FileCard file={file} view="list" currentPath="/My Files" />);
 
 		expect(screen.queryByRole("dialog")).toBeNull();
 
@@ -42,7 +42,7 @@ describe("FileCard — list view", () => {
 
 	it("clicking the More actions trigger does not open the preview dialog", async () => {
 		const user = userEvent.setup();
-		renderWithProviders(<FileCard file={file} view="list" />);
+		renderWithProviders(<FileCard file={file} view="list" currentPath="/My Files" />);
 
 		await user.click(screen.getByRole("button", { name: /more actions/i }));
 
@@ -50,5 +50,21 @@ describe("FileCard — list view", () => {
 		expect(await screen.findByRole("menu")).toBeInTheDocument();
 		// ... and the preview dialog did NOT.
 		expect(screen.queryByRole("dialog")).toBeNull();
+	});
+
+	it("opening Details shows the file's full path", async () => {
+		const user = userEvent.setup();
+		renderWithProviders(
+			<FileCard file={file} view="list" currentPath="/My Files" />,
+		);
+
+		await user.click(screen.getByRole("button", { name: /more actions/i }));
+		await user.click(
+			await screen.findByRole("menuitem", { name: /details/i }),
+		);
+
+		expect(
+			await screen.findByText("/My Files/report.pdf"),
+		).toBeInTheDocument();
 	});
 });

@@ -5,15 +5,19 @@ import { useState } from "react";
 import toast from "@/lib/toast";
 import { formatDateTime, formatBytes } from "@/lib/formatters";
 import { getFileIcon } from "@/lib/iconMapper";
+
 import type { FileItemPayload } from "@/types/directory.types";
 import { useDownloadFile } from "@/hooks/useFile";
+
 import ItemActions from "@/components/dashboard/cards/ItemActions";
 import RenameDialog from "@/components/dashboard/dialogs/RenameDialog";
 import DeleteDialog from "@/components/dashboard/dialogs/DeleteDialog";
 import FilePreviewDialog from "@/components/dashboard/dialogs/FilePreviewDialog";
+import DetailsDialog from "@/components/dashboard/dialogs/DetailsDialog";
 
 interface FileCardProps {
 	file: FileItemPayload;
+	currentPath: string;
 	view?: "grid" | "list";
 }
 
@@ -28,10 +32,11 @@ const ROW_BUTTON_CELLS =
  * Renders a single file as a card with an icon based on its extension.
  * Includes a three-dot menu for rename, download, and delete actions.
  */
-const FileCard = ({ file, view = "grid" }: FileCardProps) => {
+const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 	const [showPreview, setShowPreview] = useState(false);
 	const [showRename, setShowRename] = useState(false);
 	const [showDelete, setShowDelete] = useState(false);
+	const [showDetails, setShowDetails] = useState(false);
 
 	const { src } = getFileIcon(file.extension);
 	const { mutate: download } = useDownloadFile();
@@ -92,6 +97,7 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 						<ItemActions
 							onRename={() => setShowRename(true)}
 							onDelete={() => setShowDelete(true)}
+							onDetails={() => setShowDetails(true)}
 							onPreview={() => setShowPreview(true)}
 							onDownload={handleDownload}
 						/>
@@ -110,6 +116,7 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 						<ItemActions
 							onRename={() => setShowRename(true)}
 							onDelete={() => setShowDelete(true)}
+							onDetails={() => setShowDetails(true)}
 							onPreview={() => setShowPreview(true)}
 							onDownload={handleDownload}
 						/>
@@ -144,6 +151,15 @@ const FileCard = ({ file, view = "grid" }: FileCardProps) => {
 					onClose={() => setShowPreview(false)}
 					file={file}
 					onDownload={handleDownload}
+				/>
+			)}
+
+			{showDetails && (
+				<DetailsDialog
+					onClose={() => setShowDetails(false)}
+					currentPath={currentPath}
+					type="file"
+					item={file}
 				/>
 			)}
 

@@ -26,6 +26,7 @@ import {
 interface ItemActionsProps {
 	onRename: () => void;
 	onDelete: () => void;
+	onDetails: () => void;
 	onPreview?: () => void;
 	onDownload?: () => void;
 }
@@ -82,6 +83,7 @@ const MenuItem = ({
  *
  * @param onRename - Function to rename the item
  * @param onDelete - Function to delete the item
+ * @param onDetails - Function to open the item's details dialog
  * @param onPreview - Function to preview the item
  * @param onDownload - Function to download the item
  * @returns ItemActions component
@@ -89,6 +91,7 @@ const MenuItem = ({
 const ItemActions = ({
 	onRename,
 	onDelete,
+	onDetails,
 	onPreview,
 	onDownload,
 }: ItemActionsProps) => {
@@ -118,7 +121,9 @@ const ItemActions = ({
 				onClick={(e) => e.stopPropagation()}
 				className="min-w-44 bg-background p-1.5"
 			>
-				<MenuItem icon={Info} disabled>Details</MenuItem>
+				<MenuItem icon={Info} onClick={onDetails}>
+					Details
+				</MenuItem>
 
 				{onPreview && (
 					<MenuItem icon={Eye} onClick={onPreview}>

@@ -12,6 +12,7 @@ export interface DirectoryItemPayload {
 	parentDirId: string | null;
 	userId: string;
 	fileCount?: number;
+	folderCount?: number;
 	totalSize?: number;
 	createdAt: string;
 	updatedAt: string;
