@@ -1,15 +1,15 @@
 //* src/components/dashboard/cards/ItemCardLayout.tsx
 
 import type { ReactNode } from "react";
-import { Link, type To } from "react-router";
+import { Link, useNavigate, type To } from "react-router";
 
 interface ItemCardLayoutProps {
 	view: "grid" | "list";
 	icon: ReactNode;
 	name: ReactNode;
 	actions: ReactNode;
-	onActivate: () => void;
 	to?: To;
+	onActivate?: () => void;
 	modified?: ReactNode;
 	size?: ReactNode;
 }
@@ -28,22 +28,27 @@ const ItemCardLayout = ({
 	icon,
 	name,
 	actions,
-	onActivate,
 	to,
+	onActivate,
 	modified,
 	size,
 }: ItemCardLayoutProps) => {
+	const navigate = useNavigate();
+
+	// A card navigates (`to`) or runs an imperative action (`onActivate`)
+	const activate = to ? () => navigate(to) : onActivate;
+
 	if (view === "grid") {
 		return (
 			<div
 				role="button"
 				tabIndex={0}
-				onClick={onActivate}
+				onClick={activate}
 				onKeyDown={(e) => {
 					// role="button" must honor both Enter and Space
 					if (e.key === "Enter" || e.key === " ") {
 						e.preventDefault();
-						onActivate();
+						activate?.();
 					}
 				}}
 				className={GRID_CARD}
@@ -90,7 +95,7 @@ const ItemCardLayout = ({
 			) : (
 				<button
 					type="button"
-					onClick={onActivate}
+					onClick={activate}
 					className={`${ROW_CELLS} text-left`}
 				>
 					{cells}

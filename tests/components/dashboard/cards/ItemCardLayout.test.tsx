@@ -1,11 +1,19 @@
 //* tests/components/dashboard/cards/ItemCardLayout.test.tsx
 
 import { describe, it, expect, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useLocation } from "react-router";
 
 import { renderWithRouter } from "../../../lib/render";
 import ItemCardLayout from "@/components/dashboard/cards/ItemCardLayout";
+
+const LocationProbe = () => {
+	const location = useLocation();
+	return (
+		<p data-testid="location">{`${location.pathname}${location.search}`}</p>
+	);
+};
 
 describe("ItemCardLayout — list view activation", () => {
 	it("renders the row as a link carrying the name when `to` is provided (folder semantics, #89)", () => {
@@ -49,23 +57,48 @@ describe("ItemCardLayout — list view activation", () => {
 });
 
 describe("ItemCardLayout — grid view activation", () => {
-	it("renders an imperative button (never a link, even with `to`) that fires onActivate on click", async () => {
+	it("navigates to `to` on click — grid stays a div (never a link), but `to` still drives navigation", async () => {
+		const user = userEvent.setup();
+
+		renderWithRouter(
+			<>
+				<ItemCardLayout
+					view="grid"
+					to={{ search: "?dir=f1" }}
+					icon={<span data-testid="icon" />}
+					name={<p>Reports</p>}
+					actions={<button type="button">More actions</button>}
+				/>
+				<LocationProbe />
+			</>,
+			{ initialEntries: ["/my-files"] },
+		);
+
+		expect(screen.queryByRole("link")).toBeNull();
+		await user.click(screen.getByRole("button", { name: /reports/i }));
+		await waitFor(() =>
+			expect(screen.getByTestId("location")).toHaveTextContent(
+				"/my-files?dir=f1",
+			),
+		);
+	});
+
+	it("fires onActivate on click when there is no `to` (imperative file card)", async () => {
 		const user = userEvent.setup();
 		const onActivate = vi.fn();
 
 		renderWithRouter(
 			<ItemCardLayout
 				view="grid"
-				to={{ search: "?dir=f1" }}
 				icon={<span data-testid="icon" />}
-				name={<p>Reports</p>}
+				name={<p>report.pdf</p>}
 				actions={<button type="button">More actions</button>}
 				onActivate={onActivate}
 			/>,
 		);
 
 		expect(screen.queryByRole("link")).toBeNull();
-		await user.click(screen.getByRole("button", { name: /reports/i }));
+		await user.click(screen.getByRole("button", { name: /report\.pdf/i }));
 		expect(onActivate).toHaveBeenCalledTimes(1);
 	});
 

@@ -1,7 +1,6 @@
 //* src/components/dashboard/cards/FolderCard.tsx
 
 import { useState } from "react";
-import { useSearchParams } from "react-router";
 
 import { formatDateTime, formatBytes } from "@/lib/formatters";
 import { FOLDER_ICON } from "@/lib/iconMapper";
@@ -33,7 +32,6 @@ const FolderCard = ({
 	const [showDelete, setShowDelete] = useState(false);
 	const [showDetails, setShowDetails] = useState(false);
 
-	const [, setSearchParams] = useSearchParams();
 	const { icon: FolderGlyph, className: iconClassName } = FOLDER_ICON;
 
 	const fileCountText =
@@ -75,7 +73,6 @@ const FolderCard = ({
 			<ItemCardLayout
 				view={view}
 				to={{ search: `?dir=${folder._id}` }}
-				onActivate={() => setSearchParams({ dir: folder._id })}
 				icon={icon}
 				name={name}
 				modified={formatDateTime(folder.updatedAt)}
