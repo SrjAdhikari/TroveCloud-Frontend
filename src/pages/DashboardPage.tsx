@@ -8,8 +8,6 @@ import useSidebarActions from "@/hooks/useSidebarActions";
 import useFileUpload from "@/hooks/useFileUpload";
 import useDriveImportFlow from "@/hooks/useDriveImportFlow";
 
-import FolderCard from "@/components/dashboard/cards/FolderCard";
-import FileCard from "@/components/dashboard/cards/FileCard";
 import Breadcrumbs from "@/components/dashboard/directory/Breadcrumbs";
 import DirectoryGridView from "@/components/dashboard/directory/DirectoryGridView";
 import DirectoryListView from "@/components/dashboard/directory/DirectoryListView";
@@ -110,33 +108,11 @@ const DashboardPage = () => {
 						currentPath={currentPath}
 					/>
 				) : (
-					<>
-						{folders.length > 0 && (
-							<DirectoryGridView title="Folders">
-								{folders.map((folder) => (
-									<FolderCard
-										key={folder._id}
-										folder={folder}
-										currentPath={currentPath}
-										view={view}
-									/>
-								))}
-							</DirectoryGridView>
-						)}
-
-						{files.length > 0 && (
-							<DirectoryGridView title="Files">
-								{files.map((file) => (
-									<FileCard
-										key={file._id}
-										file={file}
-										currentPath={currentPath}
-										view={view}
-									/>
-								))}
-							</DirectoryGridView>
-						)}
-					</>
+					<DirectoryGridView
+						folders={folders}
+						files={files}
+						currentPath={currentPath}
+					/>
 				)}
 			</div>
 
