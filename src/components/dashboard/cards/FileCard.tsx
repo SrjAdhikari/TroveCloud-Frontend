@@ -9,6 +9,7 @@ import { getFileIcon } from "@/lib/iconMapper";
 import type { FileItemPayload } from "@/types/directory.types";
 import { useDownloadFile } from "@/hooks/useFile";
 
+import ItemCardLayout from "@/components/dashboard/cards/ItemCardLayout";
 import ItemActions from "@/components/dashboard/cards/ItemActions";
 import RenameDialog from "@/components/dashboard/dialogs/RenameDialog";
 import DeleteDialog from "@/components/dashboard/dialogs/DeleteDialog";
@@ -20,13 +21,6 @@ interface FileCardProps {
 	currentPath: string;
 	view?: "grid" | "list";
 }
-
-const ROW_WRAPPER =
-	"col-span-full grid grid-cols-subgrid items-center gap-4 group border-b border-border transition-colors hover:bg-muted";
-
-// Button spans cells 1..N-1 (icon, name, modified, size); ItemActions is cell N.
-const ROW_BUTTON_CELLS =
-	"col-span-2 md:col-span-3 lg:col-span-4 grid grid-cols-subgrid items-center gap-4 px-4 py-2 text-left cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
 
 /**
  * Renders a single file as a card with an icon based on its extension.
@@ -64,82 +58,49 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 		});
 	};
 
+	const icon = (
+		<img
+			src={src}
+			alt={`${file.extension} file`}
+			className={view === "grid" ? "size-12" : "size-7"}
+		/>
+	);
+
+	const name =
+		view === "grid" ? (
+			// Split the name so end-truncation keeps the extension visible.
+			<p
+				title={file.name}
+				className="flex w-full justify-center text-sm font-medium"
+			>
+				<span className="min-w-0 truncate">{baseName}</span>
+				<span className="shrink-0">{file.extension}</span>
+			</p>
+		) : (
+			<div className="min-w-0">
+				<p className="truncate text-sm font-medium">{file.name}</p>
+			</div>
+		);
+
 	return (
 		<>
-			{view === "list" ? (
-				<div className={ROW_WRAPPER}>
-					<button
-						type="button"
-						onClick={() => setShowPreview(true)}
-						className={ROW_BUTTON_CELLS}
-					>
-						<div className="flex size-8 shrink-0 items-center justify-center">
-							<img
-								src={src}
-								alt={`${file.extension} file`}
-								className="size-7"
-							/>
-						</div>
-
-						<div className="min-w-0">
-							<p className="truncate text-sm font-medium">{file.name}</p>
-						</div>
-
-						<span className="hidden md:block text-sm text-muted-foreground text-center">
-							{formatDateTime(file.updatedAt)}
-						</span>
-
-						<span className="hidden lg:block text-sm text-muted-foreground text-center">
-							{sizeText ?? "--"}
-						</span>
-					</button>
-
-					<div className="flex justify-center">
-						<ItemActions
-							onRename={() => setShowRename(true)}
-							onDelete={() => setShowDelete(true)}
-							onDetails={() => setShowDetails(true)}
-							onPreview={() => setShowPreview(true)}
-							onDownload={handleDownload}
-						/>
-					</div>
-				</div>
-			) : (
-				<div
-					role="button"
-					tabIndex={0}
-					onClick={() => setShowPreview(true)}
-					onKeyDown={(e) => e.key === "Enter" && setShowPreview(true)}
-					className="group relative cursor-pointer rounded-xl border border-border bg-background p-4 text-left transition-all"
-				>
-					{/* Action menu — absolute top-right so it doesn't break centering */}
-					<div className="absolute right-2 top-2">
-						<ItemActions
-							onRename={() => setShowRename(true)}
-							onDelete={() => setShowDelete(true)}
-							onDetails={() => setShowDetails(true)}
-							onPreview={() => setShowPreview(true)}
-							onDownload={handleDownload}
-						/>
-					</div>
-
-					{/* Icon above the divider */}
-					<div className="flex h-24 items-center justify-center">
-						<img src={src} alt={`${file.extension} file`} className="size-12" />
-					</div>
-
-					<hr className="my-3 -mx-4 border-border" />
-
-					{/* Name below the divider — base truncates, extension stays visible */}
-					<p
-						title={file.name}
-						className="flex w-full justify-center text-sm font-medium"
-					>
-						<span className="min-w-0 truncate">{baseName}</span>
-						<span className="shrink-0">{file.extension}</span>
-					</p>
-				</div>
-			)}
+			<ItemCardLayout
+				view={view}
+				onActivate={() => setShowPreview(true)}
+				icon={icon}
+				name={name}
+				modified={formatDateTime(file.updatedAt)}
+				size={sizeText ?? "--"}
+				actions={
+					<ItemActions
+						onRename={() => setShowRename(true)}
+						onDelete={() => setShowDelete(true)}
+						onDetails={() => setShowDetails(true)}
+						onPreview={() => setShowPreview(true)}
+						onDownload={handleDownload}
+					/>
+				}
+			/>
 
 			{showPreview && (
 				<FilePreviewDialog
