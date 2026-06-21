@@ -125,7 +125,7 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 
 					{/* Icon above the divider */}
 					<div className="flex h-24 items-center justify-center">
-						<img src={src} alt={`${file.extension} file`} className="size-16" />
+						<img src={src} alt={`${file.extension} file`} className="size-12" />
 					</div>
 
 					<hr className="my-3 -mx-4 border-border" />

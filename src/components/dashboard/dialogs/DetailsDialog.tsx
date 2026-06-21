@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 
 import { formatBytes, formatDateTime, formatNumber } from "@/lib/formatters";
-import { getFileIcon, getFolderIcon } from "@/lib/iconMapper";
+import { getFileIcon, FOLDER_ICON } from "@/lib/iconMapper";
 
 import type {
 	DirectoryItemPayload,
@@ -53,7 +53,7 @@ const PathDetail = ({ path }: { path: string }) =>
 		</div>
 	);
 
-// Type-appropriate header icon: image for files, themed Lucide chip for folders.
+// Type-appropriate header icon: image for files, uniform folder glyph for folders.
 const HeaderIcon = (props: DetailsDialogProps) => {
 	if (props.type === "file") {
 		return (
@@ -65,13 +65,9 @@ const HeaderIcon = (props: DetailsDialogProps) => {
 		);
 	}
 
-	const { icon: Icon, color, bg } = getFolderIcon(props.item.name);
+	const { icon: FolderGlyph, className } = FOLDER_ICON;
 	return (
-		<div
-			className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${bg}`}
-		>
-			<Icon aria-hidden="true" className={`size-5 ${color}`} />
-		</div>
+		<FolderGlyph aria-hidden="true" className={`size-8 shrink-0 ${className}`} />
 	);
 };
 

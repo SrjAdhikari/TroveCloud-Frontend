@@ -1,18 +1,6 @@
 //* src/lib/iconMapper.ts
 
-import {
-	Folder,
-	FileText,
-	Image,
-	Video,
-	Music,
-	Download,
-	Archive,
-	Code,
-	Gamepad2,
-	type LucideIcon,
-} from "lucide-react";
-
+import { Folder } from "lucide-react";
 
 // ─── File Icons ──────────────────────────────────────────────
 
@@ -92,104 +80,14 @@ const getFileIcon = (extension: string): FileIconEntry => {
 	return FILE_ICON_MAP[ext] ?? DEFAULT_FILE_ICON;
 };
 
-// ─── Folder Icons ────────────────────────────────────────────
-
-interface FolderIconEntry {
-	icon: LucideIcon;
-	color: string;
-	bg: string;
-}
-
-/** Maps common folder names to specific icons and colors */
-const FOLDER_ICON_MAP: {
-	keywords: string[];
-	icon: LucideIcon;
-	color: string;
-	bg: string;
-}[] = [
-	{
-		keywords: [
-			"image",
-			"images",
-			"photo",
-			"photos",
-			"picture",
-			"pictures",
-			"screenshot",
-			"screenshots",
-		],
-		icon: Image,
-		color: "text-pink-500",
-		bg: "bg-pink-500/10",
-	},
-	{
-		keywords: ["video", "videos", "movie", "movies", "recording", "recordings"],
-		icon: Video,
-		color: "text-purple-500",
-		bg: "bg-purple-500/10",
-	},
-	{
-		keywords: ["music", "audio", "song", "songs", "podcast", "podcasts"],
-		icon: Music,
-		color: "text-orange-500",
-		bg: "bg-orange-500/10",
-	},
-	{
-		keywords: [
-			"document",
-			"documents",
-			"docs",
-			"report",
-			"reports",
-			"note",
-			"notes",
-		],
-		icon: FileText,
-		color: "text-indigo-500",
-		bg: "bg-indigo-500/10",
-	},
-	{
-		keywords: ["download", "downloads"],
-		icon: Download,
-		color: "text-green-500",
-		bg: "bg-green-500/10",
-	},
-	{
-		keywords: ["archive", "archives", "backup", "backups", "zip"],
-		icon: Archive,
-		color: "text-amber-500",
-		bg: "bg-amber-500/10",
-	},
-	{
-		keywords: ["code", "project", "projects", "dev", "source", "src"],
-		icon: Code,
-		color: "text-cyan-500",
-		bg: "bg-cyan-500/10",
-	},
-	{
-		keywords: ["game", "games", "gaming"],
-		icon: Gamepad2,
-		color: "text-violet-500",
-		bg: "bg-violet-500/10",
-	},
-];
-
-const DEFAULT_FOLDER_ICON: FolderIconEntry = {
-	icon: Folder,
-	color: "text-blue-500",
-	bg: "bg-blue-500/10",
-};
+// ─── Folder Icon ─────────────────────────────────────────────
 
 /**
- * Returns the icon, color, and background for a folder based on its name.
- * Matches folder name (case-insensitive) against known keywords.
+ * A single uniform folder icon for every folder, like Explorer/Finder/Drive.
  */
-const getFolderIcon = (name: string): FolderIconEntry => {
-	const lower = name.toLowerCase();
-	const match = FOLDER_ICON_MAP.find((entry) =>
-		entry.keywords.some((keyword) => lower === keyword),
-	);
-	return match ?? DEFAULT_FOLDER_ICON;
+const FOLDER_ICON = {
+	icon: Folder,
+	className: "fill-amber-500 text-amber-500",
 };
 
-export { getFileIcon, getFolderIcon };
+export { getFileIcon, FOLDER_ICON };
