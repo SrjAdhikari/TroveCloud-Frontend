@@ -96,3 +96,26 @@ describe("FolderCard — grid view", () => {
 		expect(screen.queryByText(formatDateTime(folder.updatedAt))).toBeNull();
 	});
 });
+
+describe("FolderCard — uniform folder icon", () => {
+	it("renders one uniform folder glyph for every folder, ignoring name-based types", () => {
+		const { container } = renderWithProviders(
+			<>
+				<FolderCard
+					folder={{ ...folder, _id: "a", name: "Photos" }}
+					view="grid"
+					currentPath="/My Files"
+				/>
+				<FolderCard
+					folder={{ ...folder, _id: "b", name: "Videos" }}
+					view="grid"
+					currentPath="/My Files"
+				/>
+			</>,
+		);
+
+		expect(container.querySelectorAll(".lucide-folder")).toHaveLength(2);
+		expect(container.querySelector(".lucide-image")).toBeNull();
+		expect(container.querySelector(".lucide-video")).toBeNull();
+	});
+});

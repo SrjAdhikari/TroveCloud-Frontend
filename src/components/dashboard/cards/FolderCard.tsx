@@ -4,8 +4,10 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { formatDateTime, formatBytes } from "@/lib/formatters";
-import { getFolderIcon } from "@/lib/iconMapper";
+import { FOLDER_ICON } from "@/lib/iconMapper";
+
 import type { DirectoryItemPayload } from "@/types/directory.types";
+
 import ItemActions from "@/components/dashboard/cards/ItemActions";
 import RenameDialog from "@/components/dashboard/dialogs/RenameDialog";
 import DeleteDialog from "@/components/dashboard/dialogs/DeleteDialog";
@@ -28,13 +30,17 @@ const ROW_LINK_CELLS =
  * Renders a single folder as a clickable card.
  * Clicking navigates into the folder by setting the `dir` search param.
  */
-const FolderCard = ({ folder, currentPath, view = "grid" }: FolderCardProps) => {
+const FolderCard = ({
+	folder,
+	currentPath,
+	view = "grid",
+}: FolderCardProps) => {
 	const [showRename, setShowRename] = useState(false);
 	const [showDelete, setShowDelete] = useState(false);
 	const [showDetails, setShowDetails] = useState(false);
 
 	const [, setSearchParams] = useSearchParams();
-	const { icon: Icon, color, bg } = getFolderIcon(folder.name);
+	const { icon: FolderGlyph, className: iconClassName } = FOLDER_ICON;
 
 	const handleClick = () => {
 		setSearchParams({ dir: folder._id });
@@ -56,10 +62,11 @@ const FolderCard = ({ folder, currentPath, view = "grid" }: FolderCardProps) => 
 						to={{ search: `?dir=${folder._id}` }}
 						className={ROW_LINK_CELLS}
 					>
-						<div
-							className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${bg}`}
-						>
-							<Icon className={`size-5 ${color}`} />
+						<div className="flex size-8 shrink-0 items-center justify-center">
+							<FolderGlyph
+								aria-hidden="true"
+								className={`size-7 ${iconClassName}`}
+							/>
 						</div>
 
 						<div className="flex min-w-0 items-center gap-3">
@@ -107,11 +114,10 @@ const FolderCard = ({ folder, currentPath, view = "grid" }: FolderCardProps) => 
 
 					{/* Icon above the divider */}
 					<div className="flex h-24 items-center justify-center">
-						<div
-							className={`flex size-14 shrink-0 items-center justify-center rounded-xl ${bg}`}
-						>
-							<Icon aria-hidden="true" className={`size-8 ${color}`} />
-						</div>
+						<FolderGlyph
+							aria-hidden="true"
+							className={`size-12 ${iconClassName}`}
+						/>
 					</div>
 
 					<hr className="my-3 -mx-4 border-border" />
