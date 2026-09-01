@@ -11,6 +11,7 @@ const callerBase = {
 	email: "caller@example.com",
 	rootDirId: "r1",
 	profilePicture: null,
+	provider: "email" as const,
 	isVerified: true,
 	createdAt: "2026-01-01T00:00:00.000Z",
 	updatedAt: "2026-01-01T00:00:00.000Z",

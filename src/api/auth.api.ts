@@ -10,6 +10,7 @@ import type {
 	ResendOTPPayload,
 	ForgotPasswordPayload,
 	ResetPasswordPayload,
+	ChangePasswordPayload,
 	GoogleSignInPayload,
 	GitHubSignInPayload,
 } from "@/types/auth.types";
@@ -92,6 +93,18 @@ const resetPassword = async (payload: ResetPasswordPayload) => {
 };
 
 /**
+ * Changes the signed-in user's password. The backend revokes every other
+ * session but keeps this one, so the caller stays signed in.
+ */
+const changePassword = async (payload: ChangePasswordPayload) => {
+	const { data } = await axiosClient.patch<ApiSuccessResponse>(
+		"/auth/change-password",
+		payload,
+	);
+	return data;
+};
+
+/**
  * Signs in (or signs up) a user using a Google ID token.
  */
 const signInWithGoogle = async (payload: GoogleSignInPayload) => {
@@ -138,6 +151,7 @@ export {
 	login,
 	forgotPassword,
 	resetPassword,
+	changePassword,
 	signInWithGoogle,
 	signInWithGitHub,
 	logout,
