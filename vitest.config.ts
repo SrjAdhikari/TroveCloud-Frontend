@@ -13,6 +13,18 @@ export default defineConfig({
 	},
 	test: {
 		environment: "jsdom",
+
+		// One jsdom environment per worker is memory-hungry, so one worker per
+		// core oversubscribes a loaded machine: environment setup slows ~6x and
+		// blows the findBy* deadline. Half the cores is reliable AND faster.
+		maxWorkers: "50%",
+
+		// Memory pressure can slow a jsdom environment ~5x, pushing a correct
+		// test past the 5s default. Must stay ABOVE the 5s asyncUtilTimeout in
+		// tests/setup.ts so a missing element reports as findBy's DOM dump
+		// rather than an opaque test timeout.
+		testTimeout: 20000,
+		hookTimeout: 20000,
 		globals: true,
 		setupFiles: ["./tests/setup.ts"],
 		include: ["tests/**/*.test.{ts,tsx}"],

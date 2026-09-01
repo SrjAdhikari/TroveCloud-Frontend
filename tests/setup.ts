@@ -1,8 +1,15 @@
 //* tests/setup.ts
 
 import "@testing-library/jest-dom/vitest";
+import { configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import server from "./server";
+
+// findBy* defaults to a 1s deadline, which assumes a fast machine. On a
+// loaded box or a shared CI runner, render + MSW round-trip can exceed it
+// and fail a correct test. It only elapses on failure, so passing tests
+// pay nothing.
+configure({ asyncUtilTimeout: 5000 });
 
 // jsdom doesn't implement these Pointer Events / scroll APIs that Radix
 // primitives (Select, Dialog, etc.) call internally. Polyfilling them as
