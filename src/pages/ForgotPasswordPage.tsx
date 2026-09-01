@@ -80,9 +80,17 @@ const ForgotPasswordPage = () => {
 					return;
 				}
 
+				if (error.code === "RATE_LIMITED") {
+					setAuthError({
+						variant: "warning",
+						message: "Too many attempts. Please wait a moment and try again.",
+					});
+					return;
+				}
+
 				setAuthError({
 					variant: "error",
-					message: error.message || "Something went wrong. Please try again.",
+					message: "Something went wrong. Please try again.",
 				});
 			},
 		});
