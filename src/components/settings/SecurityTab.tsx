@@ -3,6 +3,7 @@
 import { KeyRound } from "lucide-react";
 
 import ChangePasswordForm from "@/components/settings/ChangePasswordForm";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import { useCurrentUser } from "@/hooks/useAuth";
 import {
 	Card,
@@ -27,7 +28,9 @@ const OAUTH_PROVIDER_NAMES = {
  *
  * OAuth accounts have no TroveCloud password (the backend rejects them with
  * PROVIDER_MISMATCH), so the card explains that instead of rendering a form
- * that could never succeed.
+ * that could never succeed. An unknown provider withholds the form rather
+ * than defaulting to it — ProtectedRoute makes that unreachable today, but
+ * this component shouldn't depend on a guard two levels up.
  */
 const SecurityTab = () => {
 	const { data: userResponse } = useCurrentUser();
@@ -51,15 +54,17 @@ const SecurityTab = () => {
 				</CardHeader>
 
 				<CardContent>
-					{oauthProviderName ? (
+					{oauthProviderName && (
 						<p className="max-w-md text-sm text-muted-foreground">
 							You signed in with {oauthProviderName}, so there&apos;s no
 							TroveCloud password to change. Manage your password from your{" "}
 							{oauthProviderName} account.
 						</p>
-					) : (
-						<ChangePasswordForm />
 					)}
+
+					{provider === "email" && <ChangePasswordForm />}
+
+					{!provider && <LoadingSpinner />}
 				</CardContent>
 			</Card>
 		</div>

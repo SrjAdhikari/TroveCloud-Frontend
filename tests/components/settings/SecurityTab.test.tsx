@@ -1,7 +1,7 @@
 //* tests/components/settings/SecurityTab.test.tsx
 
 import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 
 import { renderWithProviders } from "../../lib/render";
@@ -86,6 +86,20 @@ describe("SecurityTab", () => {
 		await screen.findByText(/you signed in with Google/i);
 		expect(
 			screen.queryByText("Update your password to keep your account secure."),
+		).not.toBeInTheDocument();
+	});
+
+	it("withholds the form until the provider is known", async () => {
+		// No /auth/me handler — the query fails and `provider` stays undefined.
+		renderWithProviders(<SecurityTab />);
+
+		await waitFor(() =>
+			expect(
+				screen.queryByLabelText("Current password"),
+			).not.toBeInTheDocument(),
+		);
+		expect(
+			screen.queryByRole("button", { name: /update password/i }),
 		).not.toBeInTheDocument();
 	});
 });
