@@ -1,8 +1,9 @@
 //* src/components/settings/SecurityTab.tsx
 
 import { KeyRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import FormField from "@/components/form/FormField";
+
+import ChangePasswordForm from "@/components/settings/ChangePasswordForm";
+import { useCurrentUser } from "@/hooks/useAuth";
 import {
 	Card,
 	CardContent,
@@ -12,13 +13,30 @@ import {
 } from "@/components/ui/card";
 
 /**
+ * Display names for the providers that own the password instead of us. Keyed
+ * by every non-email provider, so adding one to `AuthProvider` fails to
+ * compile here rather than silently showing them a password form.
+ */
+const OAUTH_PROVIDER_NAMES = {
+	google: "Google",
+	github: "GitHub",
+} as const;
+
+/**
  * Security settings tab — change password.
- * All controls are placeholder until backend endpoints are available.
+ *
+ * OAuth accounts have no TroveCloud password (the backend rejects them with
+ * PROVIDER_MISMATCH), so the card explains that instead of rendering a form
+ * that could never succeed.
  */
 const SecurityTab = () => {
+	const { data: userResponse } = useCurrentUser();
+	const provider = userResponse?.data.provider;
+	const oauthProviderName =
+		provider && provider !== "email" ? OAUTH_PROVIDER_NAMES[provider] : null;
+
 	return (
 		<div className="space-y-6">
-			{/* Change password */}
 			<Card className="bg-background">
 				<CardHeader>
 					<CardTitle className="text-base flex items-center gap-2">
@@ -26,47 +44,22 @@ const SecurityTab = () => {
 						Change password
 					</CardTitle>
 					<CardDescription>
-						Update your password to keep your account secure.
+						{oauthProviderName
+							? `Your password is managed by ${oauthProviderName}.`
+							: "Update your password to keep your account secure."}
 					</CardDescription>
 				</CardHeader>
 
-				<CardContent className="space-y-5">
-					<div className="max-w-md">
-						<FormField
-							id="current-password"
-							label="Current password"
-							type="password"
-							placeholder="Enter current password"
-							disabled
-						/>
-					</div>
-
-					<div className="max-w-md">
-						<FormField
-							id="new-password"
-							label="New password"
-							type="password"
-							placeholder="Enter new password"
-							disabled
-						/>
-					</div>
-
-					<div className="max-w-md">
-						<FormField
-							id="confirm-password"
-							label="Confirm new password"
-							type="password"
-							placeholder="Confirm new password"
-							disabled
-						/>
-					</div>
-
-					<div className="flex items-center gap-3">
-						<Button disabled className="cursor-not-allowed">
-							Update password
-						</Button>
-						<p className="text-xs text-muted-foreground">Coming soon</p>
-					</div>
+				<CardContent>
+					{oauthProviderName ? (
+						<p className="max-w-md text-sm text-muted-foreground">
+							You signed in with {oauthProviderName}, so there&apos;s no
+							TroveCloud password to change. Manage your password from your{" "}
+							{oauthProviderName} account.
+						</p>
+					) : (
+						<ChangePasswordForm />
+					)}
 				</CardContent>
 			</Card>
 		</div>

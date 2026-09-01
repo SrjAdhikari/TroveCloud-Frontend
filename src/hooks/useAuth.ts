@@ -9,6 +9,7 @@ import {
 	login,
 	forgotPassword,
 	resetPassword,
+	changePassword,
 	signInWithGoogle,
 	signInWithGitHub,
 	logout,
@@ -71,6 +72,13 @@ const useResetPassword = () => {
 };
 
 /**
+ * Mutation hook for changing the signed-in user's password.
+ */
+const useChangePassword = () => {
+	return useMutation({ mutationFn: changePassword });
+};
+
+/**
  * Mutation hook for signing in with a Google ID token.
  */
 const useGoogleSignIn = () => {
@@ -106,6 +114,7 @@ export {
 	useLogin,
 	useForgotPassword,
 	useResetPassword,
+	useChangePassword,
 	useGoogleSignIn,
 	useGitHubSignIn,
 	useLogout,

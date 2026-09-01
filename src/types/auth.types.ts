@@ -6,6 +6,8 @@
  * these types define structure only.
  */
 
+export type AuthProvider = "email" | "google" | "github";
+
 export type UserRole = "user" | "admin" | "superadmin";
 
 // GET /api/auth/me — authenticated user shape
@@ -16,6 +18,7 @@ export interface UserPayload {
 	role: UserRole;
 	rootDirId: string;
 	profilePicture: string | null;
+	provider: AuthProvider;
 	isVerified: boolean;
 	createdAt: string;
 	updatedAt: string;
@@ -54,6 +57,12 @@ export interface ForgotPasswordPayload {
 export interface ResetPasswordPayload {
 	email: string;
 	otp: string;
+	newPassword: string;
+}
+
+// PATCH /api/auth/change-password
+export interface ChangePasswordPayload {
+	currentPassword: string;
 	newPassword: string;
 }
 

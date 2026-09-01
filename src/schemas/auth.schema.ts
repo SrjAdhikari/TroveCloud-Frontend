@@ -3,6 +3,19 @@
 import { z } from "zod/v4";
 
 /**
+ * Shared password-strength policy, mirroring what the backend enforces.
+ * Login deliberately opts out — you sign in with whatever you already have.
+ */
+const strongPasswordSchema = z
+	.string()
+	.trim()
+	.min(8, "Password must be at least 8 characters")
+	.regex(/[a-z]/, "Password must contain at least one lowercase letter")
+	.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+	.regex(/[0-9]/, "Password must contain at least one number")
+	.regex(/[^a-zA-Z0-9]/, "Password must contain at least one special character");
+
+/**
  * Validation schema for the register form.
  */
 const registerSchema = z.object({
@@ -14,18 +27,7 @@ const registerSchema = z.object({
 		.max(50, "Name must be at most 50 characters"),
 
 	email: z.email("Please enter a valid email address"),
-
-	password: z
-		.string()
-		.trim()
-		.min(8, "Password must be at least 8 characters")
-		.regex(/[a-z]/, "Password must contain at least one lowercase letter")
-		.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-		.regex(/[0-9]/, "Password must contain at least one number")
-		.regex(
-			/[^a-zA-Z0-9]/,
-			"Password must contain at least one special character",
-		),
+	password: strongPasswordSchema,
 });
 
 /**
@@ -41,7 +43,6 @@ const loginSchema = z.object({
  */
 const verifyOTPSchema = z.object({
 	email: z.email("Please enter a valid email address"),
-
 	otp: z
 		.string()
 		.trim()
@@ -58,28 +59,34 @@ const resendOTPSchema = z.object({
 
 /**
  * Validation schema for the reset password form.
- * Validates the new password with the same rules as registration so users
- * can't downgrade their password strength on reset.
  */
 const resetPasswordSchema = z
 	.object({
-		newPassword: z
-			.string()
-			.trim()
-			.min(8, "Password must be at least 8 characters")
-			.regex(/[a-z]/, "Password must contain at least one lowercase letter")
-			.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-			.regex(/[0-9]/, "Password must contain at least one number")
-			.regex(
-				/[^a-zA-Z0-9]/,
-				"Password must contain at least one special character",
-			),
-
+		newPassword: strongPasswordSchema,
 		confirmPassword: z.string().trim().nonempty("Please confirm your password"),
 	})
 	.refine((data) => data.newPassword === data.confirmPassword, {
 		message: "Passwords do not match",
 		path: ["confirmPassword"],
+	});
+
+/**
+ * Validation schema for the change-password form. The reuse check preempts the
+ * backend's PASSWORD_REUSE rejection so the user gets it inline.
+ */
+const changePasswordSchema = z
+	.object({
+		currentPassword: z.string().trim().nonempty("Current password is required"),
+		newPassword: strongPasswordSchema,
+		confirmPassword: z.string().trim().nonempty("Please confirm your password"),
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	})
+	.refine((data) => data.newPassword !== data.currentPassword, {
+		message: "New password must be different from your current password",
+		path: ["newPassword"],
 	});
 
 /** Inferred types from schemas — use these as form types */
@@ -88,6 +95,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 type VerifyOTPFormData = z.infer<typeof verifyOTPSchema>;
 type ResendOTPFormData = z.infer<typeof resendOTPSchema>;
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
 export type {
 	RegisterFormData,
@@ -95,6 +103,7 @@ export type {
 	VerifyOTPFormData,
 	ResendOTPFormData,
 	ResetPasswordFormData,
+	ChangePasswordFormData,
 };
 
 export {
@@ -103,4 +112,5 @@ export {
 	verifyOTPSchema,
 	resendOTPSchema,
 	resetPasswordSchema,
+	changePasswordSchema,
 };
