@@ -13,6 +13,7 @@ const file: FileItemPayload = {
 	_id: "file1",
 	name: "report.pdf",
 	extension: ".pdf",
+	contentType: "application/pdf",
 	size: 2048,
 	parentDirId: "root",
 	userId: "u1",

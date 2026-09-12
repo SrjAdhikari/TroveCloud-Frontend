@@ -12,6 +12,7 @@ const makeUserDetail = (
 	name: "Ada Lovelace",
 	email: "ada@example.com",
 	profilePicture: null,
+	profilePictureUrl: null,
 	role: "admin",
 	rootDirId: "root-u1",
 	isVerified: true,

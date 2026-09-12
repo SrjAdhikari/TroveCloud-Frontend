@@ -8,6 +8,12 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
+
+	// R2 dev CORS workaround
+	server: {
+		port: 5173,
+		strictPort: true,
+	},
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
