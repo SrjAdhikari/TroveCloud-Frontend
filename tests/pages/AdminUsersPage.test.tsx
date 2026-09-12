@@ -19,6 +19,7 @@ const makeUser = (
 	name: `User ${id}`,
 	email: `user${id}@example.com`,
 	profilePicture: null,
+	profilePictureUrl: null,
 	role: "user",
 	rootDirId: `root-${id}`,
 	isVerified: true,

@@ -16,6 +16,7 @@ const userPayload = {
 	role: "user",
 	rootDirId: "root1",
 	profilePicture: null,
+	profilePictureUrl: null,
 	provider: "email",
 	isVerified: true,
 	createdAt: "2026-04-01T00:00:00.000Z",

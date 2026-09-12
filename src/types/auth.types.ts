@@ -18,6 +18,7 @@ export interface UserPayload {
 	role: UserRole;
 	rootDirId: string;
 	profilePicture: string | null;
+	profilePictureUrl: string | null;
 	provider: AuthProvider;
 	isVerified: boolean;
 	createdAt: string;

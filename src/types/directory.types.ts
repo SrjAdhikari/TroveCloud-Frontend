@@ -23,6 +23,7 @@ export interface FileItemPayload {
 	_id: string;
 	name: string;
 	extension: string;
+	contentType: string;
 	size?: number;
 	parentDirId: string;
 	userId: string;
@@ -44,9 +45,23 @@ export interface DirectoryContentsPayload {
 	userId: string;
 	fileCount?: number;
 	totalSize?: number;
-	// Root → current folder, self-inclusive (last crumb = this directory)
 	breadcrumb: DirectoryCrumbPayload[];
 	path: string;
 	files: FileItemPayload[];
 	childDirectories: DirectoryItemPayload[];
+}
+
+// POST /api/files/:parentDirId? — Creates a presigned PUT target
+export interface UploadTicketPayload {
+	fileId: string;
+	uploadUrl: string;
+	contentType: string;
+	expiresAt: string;
+	uploadExpiresAt: string;
+}
+
+// GET /api/files/:id/download-url — Creates a presigned GET target
+export interface DownloadUrlPayload {
+	url: string;
+	expiresAt: string;
 }
