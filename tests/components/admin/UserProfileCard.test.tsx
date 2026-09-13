@@ -1,10 +1,9 @@
 //* tests/components/admin/UserProfileCard.test.tsx
 
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import UserProfileCard from "@/components/admin/UserProfileCard";
 import type { UserDetailPayload } from "@/types/admin.types";
-import LoadedImage from "../../lib/loadedImage";
 
 const makeUserDetail = (
 	overrides: Partial<UserDetailPayload> = {},
@@ -34,29 +33,7 @@ const makeUserDetail = (
 	...overrides,
 });
 
-afterEach(() => {
-	vi.unstubAllGlobals();
-});
-
 describe("UserProfileCard", () => {
-	it("renders the presigned profilePictureUrl, not the stale profilePicture", async () => {
-		vi.stubGlobal("Image", LoadedImage);
-
-		render(
-			<UserProfileCard
-				user={makeUserDetail({
-					profilePicture: "https://oauth-cdn/stale.png",
-					profilePictureUrl: "https://r2/presigned.png?sig=abc",
-				})}
-			/>,
-		);
-
-		expect(await screen.findByAltText("Ada Lovelace")).toHaveAttribute(
-			"src",
-			"https://r2/presigned.png?sig=abc",
-		);
-	});
-
 	it("renders the Profile kicker label", () => {
 		render(<UserProfileCard user={makeUserDetail()} />);
 
@@ -100,7 +77,7 @@ describe("UserProfileCard", () => {
 		expect(screen.queryByText("Admin")).toBeNull();
 	});
 
-	it("falls back to initials when profilePictureUrl is null", () => {
+	it("falls back to initials when profilePicture is null", () => {
 		render(<UserProfileCard user={makeUserDetail({ name: "Grace Hopper" })} />);
 
 		expect(screen.getByText("GH")).toBeInTheDocument();

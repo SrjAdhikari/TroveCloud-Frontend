@@ -72,10 +72,7 @@ const ProfileAvatarUpload = ({ user }: ProfileAvatarUploadProps) => {
 		<div className="flex items-center gap-5">
 			<div className="relative group">
 				<Avatar className="size-20">
-					<AvatarImage
-						src={user.profilePictureUrl ?? undefined}
-						alt={user.name}
-					/>
+					<AvatarImage src={user.profilePicture ?? undefined} alt={user.name} />
 					<AvatarFallback className="text-xl font-medium">
 						{getInitials(user.name) || "?"}
 					</AvatarFallback>
