@@ -126,7 +126,7 @@ const UsersTable = ({
 						>
 							<Avatar className="size-8">
 								<AvatarImage
-									src={user.profilePicture ?? undefined}
+									src={user.profilePictureUrl ?? undefined}
 									alt={user.name}
 								/>
 								<AvatarFallback className="text-xs font-medium">

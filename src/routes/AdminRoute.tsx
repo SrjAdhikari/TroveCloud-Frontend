@@ -11,10 +11,12 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
  * Redirects unauthenticated visitors to the sign-in page and plain users to /my-files.
  */
 const AdminRoute = () => {
-	const { data, isLoading, isError } = useCurrentUser();
+	const { data, isLoading } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	if (isError || !data) return <Navigate to={ROUTES.ROOT} replace />;
+	// A failed background refetch keeps cached data, so only a missing user
+	// redirects. Genuine 401s are evicted by the axios interceptor.
+	if (!data) return <Navigate to={ROUTES.ROOT} replace />;
 
 	if (!isAdminRole(data.data.role)) {
 		return <Navigate to={ROUTES.MY_FILES} replace />;
