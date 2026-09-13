@@ -42,8 +42,8 @@ const useGoogleAuth = ({ setError, onSuccess }: UseGoogleAuthOptions) => {
 			{
 				onSuccess: () => {
 					onSuccess?.();
-					// Invalidate cached auth state so GuestRoute refetches and redirects to /my-files.
-					// useCurrentUser uses staleTime: Infinity, so manual invalidation is required.
+					// Invalidate cached auth state so GuestRoute redirects to /my-files
+					// immediately, rather than waiting for the cache to go stale.
 					queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 				},
 				onError: (error) => {

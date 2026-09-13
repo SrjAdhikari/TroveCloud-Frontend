@@ -16,6 +16,8 @@ import {
 	logoutAll,
 } from "@/api/auth.api";
 
+const CURRENT_USER_STALE_TIME = 45 * 60 * 1000;
+
 /**
  * Query hook for fetching the current authenticated user.
  * Used by auth guards to determine if the user is logged in.
@@ -25,7 +27,7 @@ const useCurrentUser = () => {
 		queryKey: ["currentUser"],
 		queryFn: getCurrentUser,
 		retry: false,
-		staleTime: Infinity,
+		staleTime: CURRENT_USER_STALE_TIME,
 	});
 };
 

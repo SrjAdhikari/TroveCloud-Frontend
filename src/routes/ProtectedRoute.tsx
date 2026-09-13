@@ -11,10 +11,10 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
  * Shows a full-screen spinner while the auth check is in progress.
  */
 const ProtectedRoute = () => {
-	const { data, isLoading, isError } = useCurrentUser();
+	const { data, isLoading } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	if (isError || !data) return <Navigate to={ROUTES.ROOT} replace />;
+	if (!data) return <Navigate to={ROUTES.ROOT} replace />;
 
 	return <Outlet />;
 };
