@@ -11,12 +11,10 @@ import LoadingSpinner from "@/components/ui/loading-spinner";
  * Shows a full-screen spinner while the auth check is in progress.
  */
 const ProtectedRoute = () => {
-	const { data, isLoading } = useCurrentUser();
+	const { data, isLoading, isError } = useCurrentUser();
 
 	if (isLoading) return <LoadingSpinner fullScreen />;
-	// A failed background refetch keeps cached data, so only a missing user
-	// redirects. Genuine 401s are evicted by the axios interceptor.
-	if (!data) return <Navigate to={ROUTES.ROOT} replace />;
+	if (isError || !data) return <Navigate to={ROUTES.ROOT} replace />;
 
 	return <Outlet />;
 };

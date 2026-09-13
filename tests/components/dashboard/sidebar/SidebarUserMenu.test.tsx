@@ -1,12 +1,11 @@
 //* tests/components/dashboard/sidebar/SidebarUserMenu.test.tsx
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 
 import { renderWithProviders } from "../../../lib/render";
-import LoadedImage from "../../../lib/loadedImage";
 import server from "../../../server";
 import { API_BASE_URL } from "@/lib/constants";
 import toast from "@/lib/toast";
@@ -45,46 +44,6 @@ beforeEach(() => {
 const openMenu = async (user: ReturnType<typeof userEvent.setup>) => {
 	await user.click(await screen.findByRole("button", { name: /ada lovelace/i }));
 };
-
-afterEach(() => {
-	vi.unstubAllGlobals();
-});
-
-describe("SidebarUserMenu avatar", () => {
-	it("renders the presigned profilePictureUrl in both the trigger and the menu", async () => {
-		const user = userEvent.setup();
-		vi.stubGlobal("Image", LoadedImage);
-		server.use(
-			http.get(`${API_BASE_URL}/auth/me`, () =>
-				HttpResponse.json({
-					status: "success",
-					data: {
-						_id: "1",
-						name: "Ada Lovelace",
-						email: "ada@example.com",
-						role: "user",
-						profilePicture: "https://oauth-cdn/stale.png",
-						profilePictureUrl: "https://r2/presigned.png?sig=abc",
-					},
-				}),
-			),
-		);
-
-		renderWithProviders(
-			<SidebarProvider>
-				<SidebarUserMenu />
-			</SidebarProvider>,
-		);
-
-		await openMenu(user);
-
-		const avatars = await screen.findAllByAltText("Ada Lovelace");
-		expect(avatars).toHaveLength(2);
-		for (const avatar of avatars) {
-			expect(avatar).toHaveAttribute("src", "https://r2/presigned.png?sig=abc");
-		}
-	});
-});
 
 describe("SidebarUserMenu logout", () => {
 	it("logs out the current session instantly without a confirmation dialog", async () => {

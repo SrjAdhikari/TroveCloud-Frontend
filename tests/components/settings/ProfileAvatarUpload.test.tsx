@@ -1,13 +1,12 @@
 //* tests/components/settings/ProfileAvatarUpload.test.tsx
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { QueryClient } from "@tanstack/react-query";
 
 import { renderWithProviders } from "../../lib/render";
-import LoadedImage from "../../lib/loadedImage";
 import server from "../../server";
 import { API_BASE_URL, MAX_PROFILE_PICTURE_BYTES } from "@/lib/constants";
 import ProfileAvatarUpload from "@/components/settings/ProfileAvatarUpload";
@@ -35,29 +34,9 @@ const user: UserPayload = {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	vi.stubGlobal("Image", LoadedImage);
-});
-
-afterEach(() => {
-	vi.unstubAllGlobals();
 });
 
 describe("ProfileAvatarUpload", () => {
-	it("renders the presigned profilePictureUrl, not the stale profilePicture", async () => {
-		const oauthUser: UserPayload = {
-			...user,
-			profilePicture: "https://oauth-cdn/stale.png",
-			profilePictureUrl: "https://r2/presigned.png?sig=abc",
-		};
-
-		renderWithProviders(<ProfileAvatarUpload user={oauthUser} />);
-
-		expect(await screen.findByAltText("Ada Lovelace")).toHaveAttribute(
-			"src",
-			"https://r2/presigned.png?sig=abc",
-		);
-	});
-
 	it("uploads a valid image and updates the cache (no toast)", async () => {
 		const ue = userEvent.setup();
 		const client = new QueryClient({
@@ -68,10 +47,7 @@ describe("ProfileAvatarUpload", () => {
 				HttpResponse.json({
 					success: true,
 					message: "Profile picture updated successfully",
-					data: {
-						...user,
-						profilePictureUrl: "https://r2/fresh.png?sig=xyz",
-					},
+					data: { ...user, profilePicture: "https://cdn/x.png" },
 				}),
 			),
 		);
@@ -87,7 +63,7 @@ describe("ProfileAvatarUpload", () => {
 		// visual change IS the success confirmation now that the toast is gone.
 		await waitFor(() =>
 			expect(client.getQueryData(["currentUser"])).toMatchObject({
-				data: { profilePictureUrl: "https://r2/fresh.png?sig=xyz" },
+				data: { profilePicture: "https://cdn/x.png" },
 			}),
 		);
 		expect(toast.success).not.toHaveBeenCalled();

@@ -71,7 +71,7 @@ const SidebarUserMenu = () => {
 								<SidebarMenuButton size="lg" tooltip={user?.name}>
 									<Avatar className="size-8">
 										<AvatarImage
-											src={user?.profilePictureUrl ?? undefined}
+											src={user?.profilePicture ?? undefined}
 											alt={user?.name}
 										/>
 
@@ -103,7 +103,7 @@ const SidebarUserMenu = () => {
 									<div className="flex items-center gap-3 px-1 py-1">
 										<Avatar className="size-8">
 											<AvatarImage
-												src={user?.profilePictureUrl ?? undefined}
+												src={user?.profilePicture ?? undefined}
 												alt={user?.name}
 											/>
 

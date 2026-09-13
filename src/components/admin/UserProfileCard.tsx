@@ -47,7 +47,7 @@ const UserProfileCard = ({ user }: UserProfileCardProps) => {
 				<div className="flex items-center gap-6">
 					<Avatar className="size-28 shrink-0">
 						<AvatarImage
-							src={user.profilePictureUrl ?? undefined}
+							src={user.profilePicture ?? undefined}
 							alt={user.name}
 						/>
 						<AvatarFallback className="text-2xl font-medium">
