@@ -1,10 +1,11 @@
 //* tests/components/admin/UsersTable.test.tsx
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { renderWithProviders, renderWithRouter } from "../../lib/render";
+import LoadedImage from "../../lib/loadedImage";
 import server from "../../server";
 import UsersTable from "@/components/admin/UsersTable";
 import type { UserItemPayload } from "@/types/admin.types";
@@ -62,7 +63,27 @@ const baseProps = {
 	onResetPage: vi.fn(),
 };
 
+afterEach(() => {
+	vi.unstubAllGlobals();
+});
+
 describe("UsersTable", () => {
+	it("renders the presigned profilePictureUrl for a row avatar", async () => {
+		vi.stubGlobal("Image", LoadedImage);
+		const withAvatar: UserItemPayload = {
+			...sampleUser,
+			profilePicture: "https://oauth-cdn/stale.png",
+			profilePictureUrl: "https://r2/presigned.png?sig=abc",
+		};
+
+		renderWithProviders(<UsersTable {...baseProps} items={[withAvatar]} />);
+
+		expect(await screen.findByAltText("Alice Anderson")).toHaveAttribute(
+			"src",
+			"https://r2/presigned.png?sig=abc",
+		);
+	});
+
 	it("renders a row per user with a link to the detail page", () => {
 		renderWithProviders(<UsersTable {...baseProps} />);
 		const link = screen.getByRole("link", { name: /alice anderson/i });
