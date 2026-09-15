@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Copy, Check } from "lucide-react";
 
-import axiosClient from "@/config/axiosClient";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface TextPreviewProps {
@@ -19,12 +18,21 @@ const TextPreview = ({ url }: TextPreviewProps) => {
 	const [error, setError] = useState(false);
 	const [copied, setCopied] = useState(false);
 
-	/** Fetch file content as plain text on mount */
+	/** Bare fetch — the URL is a presigned R2 target, so send no credentials */
 	useEffect(() => {
-		axiosClient
-			.get(url, { responseType: "text" })
-			.then((res) => setContent(res.data))
-			.catch(() => setError(true));
+		const controller = new AbortController();
+
+		fetch(url, { signal: controller.signal })
+			.then((response) => {
+				if (!response.ok) throw new Error("Preview fetch failed");
+				return response.text();
+			})
+			.then(setContent)
+			.catch(() => {
+				if (!controller.signal.aborted) setError(true);
+			});
+
+		return () => controller.abort();
 	}, [url]);
 
 	if (error) {
