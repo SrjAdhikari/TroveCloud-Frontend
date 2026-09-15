@@ -1,9 +1,9 @@
 //* src/hooks/useFile.ts
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
 	uploadFile,
-	downloadFile,
+	getFileDownloadUrl,
 	renameFile,
 	deleteFile,
 } from "@/api/file.api";
@@ -27,11 +27,27 @@ const useUploadFile = () => {
 };
 
 /**
- * Mutation hook for downloading a file by its ID.
- * Returns a Blob for triggering a browser download.
+ * Query hook for creating a signed URL to preview a file inline.
+ * Never cached — the URL expires in an hour, so each mount creates a fresh one.
+ */
+const useFilePreviewUrl = (fileId: string) => {
+	return useQuery({
+		queryKey: ["filePreviewUrl", fileId],
+		queryFn: () => getFileDownloadUrl(fileId),
+		gcTime: 0,
+		refetchOnMount: "always",
+		retry: false,
+	});
+};
+
+/**
+ * Mutation hook for creating a signed download URL.
+ * Returns the URL for the caller to hand to the browser.
  */
 const useDownloadFile = () => {
-	return useMutation({ mutationFn: downloadFile });
+	return useMutation({
+		mutationFn: (fileId: string) => getFileDownloadUrl(fileId, "download"),
+	});
 };
 
 /**
@@ -56,4 +72,10 @@ const useDeleteFile = () => {
 	return useMutation({ mutationFn: deleteFile });
 };
 
-export { useUploadFile, useDownloadFile, useRenameFile, useDeleteFile };
+export {
+	useUploadFile,
+	useFilePreviewUrl,
+	useDownloadFile,
+	useRenameFile,
+	useDeleteFile,
+};

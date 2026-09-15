@@ -1,10 +1,13 @@
 //* tests/components/dashboard/cards/FileCard.test.tsx
 
-import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 
 import { renderWithProviders } from "../../../lib/render";
+import server from "../../../server";
+import { API_BASE_URL } from "@/lib/constants";
 import { formatBytes, formatDateTime } from "@/lib/formatters";
 import FileCard from "@/components/dashboard/cards/FileCard";
 import type { FileItemPayload } from "@/types/directory.types";
@@ -20,6 +23,40 @@ const file: FileItemPayload = {
 	createdAt: "2026-04-01T10:00:00Z",
 	updatedAt: "2026-04-15T12:00:00Z",
 };
+
+describe("FileCard — download", () => {
+	it("sends the browser to the minted signed URL rather than a blob", async () => {
+		const user = userEvent.setup();
+		const signedUrl = "https://r2.example.com/report.pdf?X-Amz-Signature=abc";
+		server.use(
+			http.get(`${API_BASE_URL}/files/file1/download-url`, () =>
+				HttpResponse.json({
+					success: true,
+					message: "Download URL created successfully",
+					data: { url: signedUrl, expiresAt: "2026-09-13T13:00:00.000Z" },
+				}),
+			),
+		);
+
+		const navigatedTo: string[] = [];
+		const clickSpy = vi
+			.spyOn(HTMLAnchorElement.prototype, "click")
+			.mockImplementation(function (this: HTMLAnchorElement) {
+				navigatedTo.push(this.href);
+			});
+
+		renderWithProviders(
+			<FileCard file={file} view="list" currentPath="/My Files" />,
+		);
+
+		await user.click(screen.getByRole("button", { name: /more actions/i }));
+		await user.click(await screen.findByRole("menuitem", { name: /download/i }));
+
+		await waitFor(() => expect(navigatedTo).toContain(signedUrl));
+
+		clickSpy.mockRestore();
+	});
+});
 
 describe("FileCard — list view", () => {
 	it("renders the row as a button (no link) — file rows open an in-app preview, not a route", () => {

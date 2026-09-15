@@ -2,23 +2,63 @@
 
 import { FileQuestion } from "lucide-react";
 
-import { getFilePreviewUrl, getPreviewType } from "@/lib/filePreview";
+import { getPreviewType } from "@/lib/filePreview";
 import { getFileIcon } from "@/lib/iconMapper";
+import { useFilePreviewUrl } from "@/hooks/useFile";
 import type { FileItemPayload } from "@/types/directory.types";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import TextPreview from "@/components/dashboard/preview/TextPreview";
 
 interface PreviewContentProps {
 	file: FileItemPayload;
 }
 
+const UnsupportedPreview = ({ file }: PreviewContentProps) => {
+	const { src } = getFileIcon(file.extension);
+
+	return (
+		<div className="flex flex-col items-center gap-5 py-8">
+			<div className="flex size-16 items-center justify-center">
+				<img src={src} alt={`${file.extension} file`} className="size-16" />
+			</div>
+
+			<div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+				<FileQuestion className="size-4" />
+				Preview not available for this file type
+			</div>
+		</div>
+	);
+};
+
 /**
  * Renders the appropriate preview element based on the file type.
- * Supports images, PDFs, videos, audio, and text/code files.
- * Shows a fallback for unsupported types.
+ * The signed URL is created per mount and never cached, so an expiring 
+ * URL cannot outlive the open dialog.
  */
 const PreviewContent = ({ file }: PreviewContentProps) => {
-	const previewUrl = getFilePreviewUrl(file._id);
 	const previewType = getPreviewType(file.extension);
+	const isPreviewable = previewType !== "unsupported";
+	const { data, isPending, isError } = useFilePreviewUrl(file._id);
+
+	if (!isPreviewable) return <UnsupportedPreview file={file} />;
+
+	if (isPending) {
+		return (
+			<div className="flex items-center justify-center py-8">
+				<LoadingSpinner className="size-5" />
+			</div>
+		);
+	}
+
+	if (isError || !data) {
+		return (
+			<div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+				Couldn't load this preview. Please try again.
+			</div>
+		);
+	}
+
+	const previewUrl = data.data.url;
 
 	switch (previewType) {
 		case "image":
@@ -51,24 +91,8 @@ const PreviewContent = ({ file }: PreviewContentProps) => {
 		case "audio":
 			return <audio src={previewUrl} controls className="w-full" />;
 
-		case "text":
+		default:
 			return <TextPreview url={previewUrl} />;
-
-		default: {
-			const { src } = getFileIcon(file.extension);
-			return (
-				<div className="flex flex-col items-center gap-5 py-8">
-					<div className="flex size-16 items-center justify-center">
-						<img src={src} alt={`${file.extension} file`} className="size-16" />
-					</div>
-
-					<div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-						<FileQuestion className="size-4" />
-						Preview not available for this file type
-					</div>
-				</div>
-			);
-		}
 	}
 };
 

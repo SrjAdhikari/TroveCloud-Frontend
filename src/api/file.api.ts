@@ -2,7 +2,10 @@
 
 import axiosClient from "@/config/axiosClient";
 import type { ApiSuccessResponse } from "@/types/api.types";
-import type { FileItemPayload } from "@/types/directory.types";
+import type {
+	DownloadUrlPayload,
+	FileItemPayload,
+} from "@/types/directory.types";
 
 /**
  * Uploads a file as a raw binary stream.
@@ -37,13 +40,14 @@ const uploadFile = async (
 };
 
 /**
- * Downloads a file by its ID.
- * Returns a Blob so the caller can trigger a browser download.
+ * Creates a short-lived signed URL served directly by R2.
+ * Pass "download" to force an attachment; omit it to preview inline.
  */
-const downloadFile = async (fileId: string) => {
-	const { data } = await axiosClient.get<Blob>(`/files/${fileId}`, {
-		params: { action: "download" },
-		responseType: "blob",
+const getFileDownloadUrl = async (fileId: string, action?: "download") => {
+	const { data } = await axiosClient.get<
+		ApiSuccessResponse<DownloadUrlPayload>
+	>(`/files/${fileId}/download-url`, {
+		params: action ? { action } : undefined,
 	});
 	return data;
 };
@@ -69,4 +73,4 @@ const deleteFile = async (fileId: string) => {
 	return data;
 };
 
-export { uploadFile, downloadFile, renameFile, deleteFile };
+export { uploadFile, getFileDownloadUrl, renameFile, deleteFile };

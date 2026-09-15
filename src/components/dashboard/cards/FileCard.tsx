@@ -39,18 +39,16 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 	const baseName = file.name.slice(0, -file.extension.length) || file.name;
 
 	/**
-	 * Downloads the file by fetching it as a Blob, creating a temporary
-	 * object URL, and programmatically clicking a hidden anchor element.
+	 * Creates a signed URL and points the browser at it. R2 serves the bytes
+	 * with Content-Disposition, so the saved filename comes from the server.
 	 */
 	const handleDownload = () => {
 		download(file._id, {
-			onSuccess: (blob) => {
-				const url = URL.createObjectURL(blob);
+			onSuccess: (response) => {
 				const a = document.createElement("a");
-				a.href = url;
-				a.download = file.name;
+				a.href = response.data.url;
+				a.rel = "noopener";
 				a.click();
-				URL.revokeObjectURL(url);
 			},
 			onError: () => {
 				toast.error("Couldn't download the file. Please try again.");
