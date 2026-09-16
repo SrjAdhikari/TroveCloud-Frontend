@@ -1,148 +1,259 @@
 //* src/hooks/useFileUpload.ts
 
-import { useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import toast from "@/lib/toast";
-import { uploadFile } from "@/api/file.api";
 import { MAX_FILE_SIZE_LABEL } from "@/lib/constants";
+import {
+	confirmUpload,
+	createUploadTicket,
+	uploadFileToR2,
+} from "@/api/file.api";
 
-/** Backend error codes mapped to user-facing copy shown in the upload progress panel. */
-const UPLOAD_ERROR_MESSAGES: Record<string, string> = {
+const MINT_ERROR_MESSAGES: Record<string, string> = {
 	FILE_TOO_LARGE: `File is too large. Please upload a file smaller than ${MAX_FILE_SIZE_LABEL}.`,
-	DIRECTORY_NOT_FOUND: "We couldn't find the destination folder. Please try again or choose a different location.",
-	INVALID_INPUT: "Something went wrong while uploading your file. Please check the file and try again.",
-	INVALID_ID: "We couldn't process your upload due to a system issue. Please try again in a moment.",
+	STORAGE_LIMIT_EXCEEDED:
+		"You don't have enough storage left for this file. Free up some space and try again.",
+	DIRECTORY_NOT_FOUND:
+		"We couldn't find the destination folder. Please try again or choose a different location.",
+	VALIDATION_ERROR:
+		"Something went wrong while uploading your file. Please check the file and try again.",
+	INVALID_INPUT:
+		"This file needs a proper extension, like .pdf or .png. Please rename it and try again.",
+	INVALID_ID:
+		"We couldn't process your upload due to a system issue. Please try again in a moment.",
+	RATE_LIMITED:
+		"You've started too many uploads at once. Please wait a moment and try again.",
 };
+
+const MINT_FALLBACK_MESSAGE =
+	"We couldn't start your upload. Please try again.";
+
+const CONFIRM_ERROR_MESSAGES: Record<string, string> = {
+	UPLOAD_INCOMPLETE:
+		"Your file didn't finish uploading. Please upload it again.",
+	UPLOAD_OBJECT_MISMATCH:
+		"The stored file didn't match what we reserved. Please upload it again.",
+	UPLOAD_ALREADY_CONFIRMED:
+		"This upload was already finished and the stored file no longer matches. Please upload it again.",
+	FILE_NOT_FOUND:
+		"We couldn't find this upload any more. Please upload the file again.",
+	RATE_LIMITED:
+		"You've started too many uploads at once. Please wait a moment and try again.",
+};
+
+const CONFIRM_FALLBACK_MESSAGE =
+	"We couldn't finish your upload. Please try again.";
+
+const CONFIRM_RETRY_CODES = ["RATE_LIMITED"];
+const CONFIRM_RETRY_DELAYS = [1000, 2000];
+const SUCCESS_DISMISS_DELAY = 2000;
+
+type UploadStep = "mint" | "put" | "confirm";
+
+const readErrorCode = (error: unknown) =>
+	(error as { code?: string })?.code ?? "";
+
+const readStatus = (error: unknown) =>
+	(error as { response?: { status?: number } })?.response?.status;
+
+/**
+ * A chain of confirmations to ensure they run one at a time.
+ * Process-wide — every enqueued confirm must be left settled or the chain stalls.
+ */
+let confirmChain: Promise<void> = Promise.resolve();
+
+const enqueueConfirm = <T>(task: () => Promise<T>) => {
+	const result = confirmChain.then(task);
+	confirmChain = result.then(
+		() => undefined,
+		() => undefined,
+	);
+	return result;
+};
+
+/** Resolves after ms, or immediately if the signal is or becomes aborted. */
+const sleep = (ms: number, signal: AbortSignal) =>
+	new Promise<void>((resolve) => {
+		if (signal.aborted) return resolve();
+
+		const done = () => {
+			clearTimeout(timer);
+			signal.removeEventListener("abort", done);
+			resolve();
+		};
+
+		const timer = setTimeout(done, ms);
+		signal.addEventListener("abort", done, { once: true });
+	});
+
+const confirmWithRetry = async (fileId: string, signal: AbortSignal) => {
+	for (let attempt = 0; ; attempt++) {
+		if (signal.aborted) throw signal.reason;
+
+		try {
+			return await confirmUpload(fileId, signal);
+		} catch (error) {
+			const retryable =
+				attempt < CONFIRM_RETRY_DELAYS.length &&
+				CONFIRM_RETRY_CODES.includes(readErrorCode(error));
+
+			if (!retryable) throw error;
+
+			await sleep(CONFIRM_RETRY_DELAYS[attempt], signal);
+		}
+	}
+};
+
+const resolveUploadError = (step: UploadStep, error: unknown) => {
+	if (step === "put") {
+		const expired = readStatus(error) === 403;
+		return {
+			message: expired
+				? "This upload link expired before the file finished. Please upload it again."
+				: "The file couldn't be transferred. Please check your connection and try again.",
+			mapped: expired,
+		};
+	}
+
+	const messages =
+		step === "mint" ? MINT_ERROR_MESSAGES : CONFIRM_ERROR_MESSAGES;
+	const fallback =
+		step === "mint" ? MINT_FALLBACK_MESSAGE : CONFIRM_FALLBACK_MESSAGE;
+	const code = readErrorCode(error);
+	const mapped = code in messages;
+
+	return { message: mapped ? messages[code] : fallback, mapped };
+};
+
+type UploadStatus =
+	| "reserving"
+	| "uploading"
+	| "confirming"
+	| "success"
+	| "error";
 
 interface UploadItem {
 	id: string;
 	fileName: string;
 	progress: number;
-	status: "uploading" | "success" | "error";
+	status: UploadStatus;
 	errorMessage?: string;
 }
 
-/**
- * Manages concurrent file uploads with progress tracking and cancellation.
- * Each file gets its own AbortController so uploads can be cancelled independently.
- * Successful uploads auto-dismiss after 2 seconds.
- */
+/** A hook for uploading files to R2, with progress tracking and error handling. */
 const useFileUpload = (dirId?: string) => {
 	const queryClient = useQueryClient();
 	const [uploads, setUploads] = useState<UploadItem[]>([]);
 
-	/**
-	 * useRef instead of useState because we need to read/write controllers
-	 * synchronously (inside cancel) without triggering re-renders
-	 */
-	const abortControllers = useRef<Map<string, AbortController>>(new Map());
+	const abortControllers = useRef(new Map<string, AbortController>());
+	const dismissTimers = useRef(
+		new Map<string, ReturnType<typeof setTimeout>>(),
+	);
 
-	/** Removes a completed/failed upload from the panel */
+	useEffect(() => {
+		const controllers = abortControllers.current;
+		const timers = dismissTimers.current;
+
+		return () => {
+			controllers.forEach((controller) => controller.abort());
+			controllers.clear();
+			timers.forEach((timer) => clearTimeout(timer));
+			timers.clear();
+		};
+	}, []);
+
+	const patch = useCallback((id: string, changes: Partial<UploadItem>) => {
+		setUploads((prev) =>
+			prev.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+		);
+	}, []);
+
 	const dismiss = useCallback((id: string) => {
-		setUploads((prev) => prev.filter((item) => item.id !== id));
-	}, []);
-
-	/** Cancels an in-progress upload by aborting its request */
-	const cancel = useCallback((id: string) => {
-		const controller = abortControllers.current.get(id);
-		if (controller) {
-			controller.abort();
-			abortControllers.current.delete(id);
+		const timer = dismissTimers.current.get(id);
+		if (timer !== undefined) {
+			clearTimeout(timer);
+			dismissTimers.current.delete(id);
 		}
+
 		setUploads((prev) => prev.filter((item) => item.id !== id));
 	}, []);
 
-	/**
-	 * Uploads each selected file and tracks progress.
-	 * Calls the API directly (not via useMutation) so multiple
-	 * concurrent uploads each get independent success/error handling.
-	 */
+	/** Aborts the upload, which also stops its state machine. */
+	const cancel = useCallback(
+		(id: string) => {
+			abortControllers.current.get(id)?.abort();
+			abortControllers.current.delete(id);
+			dismiss(id);
+		},
+		[dismiss],
+	);
+
 	const upload = useCallback(
 		(files: FileList) => {
 			Array.from(files).forEach(async (file) => {
 				const id = crypto.randomUUID();
-
-				/**
-				 * Create a new AbortController for each file
-				 * This allows us to cancel individual uploads independently
-				 */
 				const controller = new AbortController();
 				abortControllers.current.set(id, controller);
 
-				// Add the new upload to the state
 				setUploads((prev) => [
 					...prev,
-					{ id, fileName: file.name, progress: 0, status: "uploading" },
+					{ id, fileName: file.name, progress: 0, status: "reserving" },
 				]);
 
+				let step: UploadStep = "mint";
+
 				try {
-					await uploadFile(
+					const ticket = await createUploadTicket(
 						file,
 						dirId,
-						(progress) => {
-							setUploads((prev) =>
-								prev.map((item) =>
-									item.id === id && item.status === "uploading"
-										? { ...item, progress }
-										: item,
-								),
-							);
-						},
-
-						// Pass the AbortController signal to the uploadFile function
 						controller.signal,
 					);
-
-					// Remove the AbortController from the map once the upload is complete
-					abortControllers.current.delete(id);
-
-					setUploads((prev) =>
-						prev.map((item) =>
-							item.id === id
-								? { ...item, progress: 100, status: "success" }
-								: item,
-						),
-					);
-
-					// Invalidate the directory query to refresh the file list
-					queryClient.invalidateQueries({ queryKey: ["directory"] });
-
-					// Remove the upload from the panel after 2 seconds
-					setTimeout(() => {
-						setUploads((prev) => prev.filter((item) => item.id !== id));
-					}, 2000);
-				} catch (error) {
-					// Remove the AbortController from the map once the upload is failed
-					abortControllers.current.delete(id);
-
-					/**
-					 * If the user cancelled the upload, the abort throws an error —
-					 * we don't want to show an error for a user-initiated action
-					 */
 					if (controller.signal.aborted) return;
 
-					const code = (error as { code?: string })?.code;
-					const isClientError = code !== undefined && code in UPLOAD_ERROR_MESSAGES;
-					const message = isClientError
-						? UPLOAD_ERROR_MESSAGES[code]
-						: "Upload failed. Please try again.";
+					step = "put";
+					patch(id, { status: "uploading" });
 
-					setUploads((prev) =>
-						prev.map((item) =>
-							item.id === id
-								? { ...item, status: "error", errorMessage: message }
-								: item,
-						),
-					);
+					await uploadFileToR2(ticket.data.uploadUrl, file, {
+						contentType: ticket.data.contentType,
+						onProgress: (progress) => patch(id, { progress }),
+						signal: controller.signal,
+					});
+					if (controller.signal.aborted) return;
 
-					// Per feedback patterns: 4xx client errors stay inline (panel row);
-					// 5xx / network failures get an additional toast for visibility.
-					if (!isClientError) toast.error(message);
+					step = "confirm";
+					patch(id, { status: "confirming", progress: 100 });
+
+					await enqueueConfirm(async () => {
+						if (controller.signal.aborted) return;
+						await confirmWithRetry(ticket.data.fileId, controller.signal);
+					});
+					if (controller.signal.aborted) return;
+
+					abortControllers.current.delete(id);
+					patch(id, { status: "success" });
+
+					queryClient.invalidateQueries({ queryKey: ["directory"] });
+
+					const timer = setTimeout(() => {
+						dismissTimers.current.delete(id);
+						dismiss(id);
+					}, SUCCESS_DISMISS_DELAY);
+					dismissTimers.current.set(id, timer);
+				} catch (error) {
+					abortControllers.current.delete(id);
+					if (controller.signal.aborted) return;
+
+					const { message, mapped } = resolveUploadError(step, error);
+
+					patch(id, { status: "error", errorMessage: message });
+
+					if (!mapped) toast.error(message);
 				}
 			});
 		},
-		[dirId, queryClient],
+		[dirId, dismiss, patch, queryClient],
 	);
 
 	return { uploads, upload, dismiss, cancel };

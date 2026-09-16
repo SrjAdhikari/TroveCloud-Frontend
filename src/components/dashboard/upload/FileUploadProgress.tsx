@@ -1,6 +1,6 @@
 //* src/components/dashboard/upload/FileUploadProgress.tsx
 
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,26 @@ interface FileUploadProgressProps {
 	onCancel: (id: string) => void;
 }
 
-/** Status label shown below the file name for completed/failed uploads */
+/** Determines if an upload is currently in flight (i.e., can be canceled) */
+const isInFlight = (status: UploadItem["status"]) =>
+	status === "reserving" || status === "uploading" || status === "confirming";
+
+/** Status line shown below the file name for every status except uploading */
 const StatusLabel = ({
 	status,
 	errorMessage,
 }: Pick<UploadItem, "status" | "errorMessage">) => {
+	if (status === "reserving" || status === "confirming")
+		return (
+			<p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+				<Loader2
+					aria-hidden="true"
+					className="size-3.5 shrink-0 animate-spin text-primary"
+				/>
+				{status === "reserving" ? "Preparing upload..." : "Finishing up..."}
+			</p>
+		);
+
 	if (status === "success")
 		return <p className="text-xs text-success mt-1">Completed</p>;
 
@@ -42,14 +57,21 @@ const FileUploadProgress = ({
 	if (uploads.length === 0) return null;
 
 	return (
-		<div className="fixed bottom-6 right-6 z-50 w-80 rounded-xl bg-card shadow-lg">
+		<div
+			role="status"
+			aria-live="polite"
+			className="fixed bottom-6 right-6 z-50 w-80 rounded-xl bg-card shadow-lg"
+		>
 			<div className="px-4 pt-4 pb-2">
 				<h3 className="font-heading font-medium">In Progress</h3>
 			</div>
 
 			<div className="max-h-64 overflow-y-auto px-3 pb-3 space-y-2">
 				{uploads.map((upload) => (
-					<div key={upload.id} className="rounded-lg border border-border bg-background p-3">
+					<div
+						key={upload.id}
+						className="rounded-lg border border-border bg-background p-3"
+					>
 						{/* File name + close button */}
 						<div className="flex items-center gap-2">
 							<p className="truncate text-sm font-medium min-w-0 flex-1">
@@ -60,17 +82,17 @@ const FileUploadProgress = ({
 								variant="ghost"
 								size="icon"
 								onClick={() =>
-									upload.status === "uploading"
+									isInFlight(upload.status)
 										? onCancel(upload.id)
 										: onDismiss(upload.id)
 								}
 								aria-label={
-									upload.status === "uploading"
+									isInFlight(upload.status)
 										? `Cancel upload of ${upload.fileName}`
 										: `Dismiss ${upload.fileName}`
 								}
 								className={`size-5 shrink-0 cursor-pointer ${
-									upload.status === "uploading"
+									isInFlight(upload.status)
 										? "text-destructive hover:text-destructive"
 										: ""
 								}`}
@@ -84,9 +106,13 @@ const FileUploadProgress = ({
 							<div className="flex items-center gap-2 mt-2">
 								<Progress
 									value={upload.progress}
+									aria-label={`Uploading ${upload.fileName}`}
 									className="h-1.5 flex-1 *:data-[slot=progress-indicator]:bg-primary"
 								/>
-								<span className="text-xs text-muted-foreground w-9 text-right">
+								<span
+									aria-hidden="true"
+									className="text-xs text-muted-foreground w-9 text-right"
+								>
 									{upload.progress}%
 								</span>
 							</div>
