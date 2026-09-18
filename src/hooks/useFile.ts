@@ -1,30 +1,7 @@
 //* src/hooks/useFile.ts
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-	uploadFile,
-	getFileDownloadUrl,
-	renameFile,
-	deleteFile,
-} from "@/api/file.api";
-
-/**
- * Mutation hook for uploading a file as a raw binary stream.
- * Accepts an optional onUploadProgress callback for tracking upload percentage.
- */
-const useUploadFile = () => {
-	return useMutation({
-		mutationFn: ({
-			file,
-			parentDirId,
-			onUploadProgress,
-		}: {
-			file: File;
-			parentDirId?: string;
-			onUploadProgress?: (progress: number) => void;
-		}) => uploadFile(file, parentDirId, onUploadProgress),
-	});
-};
+import { getFileDownloadUrl, renameFile, deleteFile } from "@/api/file.api";
 
 /**
  * Query hook for creating a signed URL to preview a file inline.
@@ -73,7 +50,6 @@ const useDeleteFile = () => {
 };
 
 export {
-	useUploadFile,
 	useFilePreviewUrl,
 	useDownloadFile,
 	useRenameFile,

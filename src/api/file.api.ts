@@ -1,40 +1,66 @@
 //* src/api/file.api.ts
 
+import axios from "axios";
+
 import axiosClient from "@/config/axiosClient";
 import type { ApiSuccessResponse } from "@/types/api.types";
 import type {
 	DownloadUrlPayload,
 	FileItemPayload,
+	UploadTicketPayload,
 } from "@/types/directory.types";
 
+const CONFIRM_TIMEOUT_MS = 30000;
+
 /**
- * Uploads a file as a raw binary stream.
- * The backend expects the file body (not multipart) with a `filename` header.
- * Accepts optional onUploadProgress callback and AbortSignal for cancellation.
+ * Step 1 of an upload — reserves quota and mints a presigned R2 PUT target.
+ * The URL is signed to this exact name and size.
  */
-const uploadFile = async (
+const createUploadTicket = async (
 	file: File,
 	parentDirId?: string,
-	onUploadProgress?: (progress: number) => void,
 	signal?: AbortSignal,
 ) => {
 	const url = parentDirId ? `/files/${parentDirId}` : "/files";
-	const { data } = await axiosClient.post<ApiSuccessResponse<FileItemPayload>>(
-		url,
-		file,
-		{
-			headers: {
-				"Content-Type": file.type || "application/octet-stream",
-				filename: encodeURIComponent(file.name), // To handle special characters in file names
-			},
-			onUploadProgress: (event) => {
-				if (event.total && onUploadProgress) {
-					const percent = Math.round((event.loaded / event.total) * 100);
-					onUploadProgress(percent);
-				}
-			},
-			signal,
+	const { data } = await axiosClient.post<
+		ApiSuccessResponse<UploadTicketPayload>
+	>(url, { name: file.name, size: file.size }, { signal });
+	return data;
+};
+
+/**
+ * Step 2 of an upload — sends the bytes straight to R2 on a bare axios call.
+ * axiosClient's cookies, JSON default and interceptor all break the signature.
+ */
+const uploadFileToR2 = async (
+	uploadUrl: string,
+	file: File,
+	options: {
+		contentType: string;
+		onProgress?: (percent: number) => void;
+		signal?: AbortSignal;
+	},
+) => {
+	await axios.put(uploadUrl, file, {
+		headers: { "Content-Type": options.contentType },
+		signal: options.signal,
+		onUploadProgress: (event) => {
+			if (event.total && options.onProgress) {
+				options.onProgress(Math.round((event.loaded / event.total) * 100));
+			}
 		},
+	});
+};
+
+/**
+ * Step 3 of an upload — verifies the stored object and promotes it to ready.
+ * Idempotent, so it is safe to retry after a failed confirm.
+ */
+const confirmUpload = async (fileId: string, signal?: AbortSignal) => {
+	const { data } = await axiosClient.post<ApiSuccessResponse<FileItemPayload>>(
+		`/files/${fileId}/confirm`,
+		undefined,
+		{ signal, timeout: CONFIRM_TIMEOUT_MS },
 	);
 	return data;
 };
@@ -73,4 +99,11 @@ const deleteFile = async (fileId: string) => {
 	return data;
 };
 
-export { uploadFile, getFileDownloadUrl, renameFile, deleteFile };
+export {
+	createUploadTicket,
+	uploadFileToR2,
+	confirmUpload,
+	getFileDownloadUrl,
+	renameFile,
+	deleteFile,
+};
