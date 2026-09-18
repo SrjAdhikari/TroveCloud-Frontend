@@ -402,6 +402,36 @@ describe("useFileUpload", () => {
 		expect(byName("slides.pdf")).toBeUndefined();
 	});
 
+	it("invalidates the directory when a cancel lands during the confirm", async () => {
+		const confirm = deferred<ApiSuccessResponse<FileItemPayload>>();
+
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
+		vi.mocked(confirmUpload).mockReturnValue(confirm.promise);
+
+		const client = new QueryClient();
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+		const { result } = renderUpload(client);
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		expect(result.current.uploads[0].status).toBe("confirming");
+
+		act(() => result.current.cancel(result.current.uploads[0].id));
+
+		// The server committed before the abort landed, so the listing is stale.
+		await act(async () => {
+			confirm.resolve(confirmedFile("file-1"));
+		});
+
+		await waitFor(() =>
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: ["directory"] }),
+		);
+		expect(result.current.uploads).toHaveLength(0);
+	});
+
 	it("retries a rate-limited confirm after a backoff and then succeeds", async () => {
 		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
 		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
@@ -429,6 +459,38 @@ describe("useFileUpload", () => {
 		await waitFor(() =>
 			expect(result.current.uploads[0].status).toBe("success"),
 		);
+	});
+
+	it("retries a confirm lost to a network error and then succeeds", async () => {
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
+		vi.mocked(confirmUpload)
+			.mockRejectedValueOnce({
+				code: "NETWORK_ERROR",
+				message: "Something went wrong. Please try again.",
+			})
+			.mockResolvedValueOnce(confirmedFile("file-1"));
+
+		const client = new QueryClient();
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+		const { result } = renderUpload(client);
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		expect(confirmUpload).toHaveBeenCalledTimes(1);
+		expect(result.current.uploads[0].status).toBe("confirming");
+
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(1000);
+		});
+
+		expect(confirmUpload).toHaveBeenCalledTimes(2);
+		await waitFor(() =>
+			expect(result.current.uploads[0].status).toBe("success"),
+		);
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ["directory"] });
 	});
 
 	it("gives up after three rate-limited confirm attempts and shows the mapped copy", async () => {

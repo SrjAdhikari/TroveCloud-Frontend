@@ -46,7 +46,7 @@ const CONFIRM_ERROR_MESSAGES: Record<string, string> = {
 const CONFIRM_FALLBACK_MESSAGE =
 	"We couldn't finish your upload. Please try again.";
 
-const CONFIRM_RETRY_CODES = ["RATE_LIMITED"];
+const CONFIRM_RETRY_CODES = ["RATE_LIMITED", "NETWORK_ERROR"];
 const CONFIRM_RETRY_DELAYS = [1000, 2000];
 const SUCCESS_DISMISS_DELAY = 2000;
 
@@ -229,7 +229,12 @@ const useFileUpload = (dirId?: string) => {
 						if (controller.signal.aborted) return;
 						await confirmWithRetry(ticket.data.fileId, controller.signal);
 					});
-					if (controller.signal.aborted) return;
+
+					// The server may have committed the upload before the abort landed.
+					if (controller.signal.aborted) {
+						queryClient.invalidateQueries({ queryKey: ["directory"] });
+						return;
+					}
 
 					abortControllers.current.delete(id);
 					patch(id, { status: "success" });
@@ -243,7 +248,12 @@ const useFileUpload = (dirId?: string) => {
 					dismissTimers.current.set(id, timer);
 				} catch (error) {
 					abortControllers.current.delete(id);
-					if (controller.signal.aborted) return;
+					if (controller.signal.aborted) {
+						// An issued confirm may still have committed before the abort landed.
+						if (step === "confirm")
+							queryClient.invalidateQueries({ queryKey: ["directory"] });
+						return;
+					}
 
 					const { message, mapped } = resolveUploadError(step, error);
 
