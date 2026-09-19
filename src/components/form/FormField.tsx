@@ -37,6 +37,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 						ref={ref}
 						type={isPassword && showPassword ? "text" : type}
 						aria-invalid={!!error}
+						className={isPassword ? "pr-11" : undefined}
 						{...props}
 					/>
 
@@ -46,7 +47,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 							aria-label={showPassword ? "Hide password" : "Show password"}
 							aria-pressed={showPassword}
 							onClick={() => setShowPassword(!showPassword)}
-							className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+							className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
 						>
 							{showPassword ? (
 								<EyeOff className="size-4" />

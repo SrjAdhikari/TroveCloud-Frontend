@@ -17,6 +17,7 @@ describe("FilterSelect", () => {
 	it("shows the all-label on the trigger when value is undefined", () => {
 		render(
 			<FilterSelect<Fruit>
+				label="Filter by fruit"
 				value={undefined}
 				onChange={vi.fn()}
 				allLabel="All fruits"
@@ -29,6 +30,7 @@ describe("FilterSelect", () => {
 	it("renders the current value's label when set", () => {
 		render(
 			<FilterSelect<Fruit>
+				label="Filter by fruit"
 				value="banana"
 				onChange={vi.fn()}
 				allLabel="All fruits"
@@ -43,6 +45,7 @@ describe("FilterSelect", () => {
 		const onChange = vi.fn();
 		render(
 			<FilterSelect<Fruit>
+				label="Filter by fruit"
 				value={undefined}
 				onChange={onChange}
 				allLabel="All fruits"
@@ -61,6 +64,7 @@ describe("FilterSelect", () => {
 		const onChange = vi.fn();
 		render(
 			<FilterSelect<Fruit>
+				label="Filter by fruit"
 				value="banana"
 				onChange={onChange}
 				allLabel="All fruits"
@@ -79,6 +83,7 @@ describe("FilterSelect", () => {
 			const user = userEvent.setup();
 			render(
 				<FilterSelect<Fruit>
+					label="Filter by fruit"
 					value="apple"
 					onChange={vi.fn()}
 					options={OPTIONS}
@@ -96,6 +101,7 @@ describe("FilterSelect", () => {
 			const onChange = vi.fn();
 			render(
 				<FilterSelect<Fruit>
+					label="Filter by fruit"
 					value="apple"
 					onChange={onChange}
 					options={OPTIONS}
@@ -106,6 +112,37 @@ describe("FilterSelect", () => {
 			await user.click(screen.getByRole("option", { name: "Cherry" }));
 
 			expect(onChange).toHaveBeenCalledWith("cherry");
+		});
+	});
+
+	describe("accessible name", () => {
+		it("names the trigger from the label prop, not the all-label", () => {
+			render(
+				<FilterSelect<Fruit>
+					label="Filter by fruit"
+					value={undefined}
+					onChange={vi.fn()}
+					allLabel="All fruits"
+					options={OPTIONS}
+				/>,
+			);
+			expect(
+				screen.getByRole("combobox", { name: "Filter by fruit" }),
+			).toBeInTheDocument();
+		});
+
+		it("keeps its accessible name once an option is selected", () => {
+			render(
+				<FilterSelect<Fruit>
+					label="Filter by fruit"
+					value="banana"
+					onChange={vi.fn()}
+					options={OPTIONS}
+				/>,
+			);
+			expect(
+				screen.getByRole("combobox", { name: "Filter by fruit" }),
+			).toBeInTheDocument();
 		});
 	});
 });

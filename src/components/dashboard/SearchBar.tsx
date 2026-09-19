@@ -52,6 +52,7 @@ const SearchBar = () => {
 
 	return (
 		<SearchInput
+			label="Search files and folders"
 			value={query}
 			onChange={setQuery}
 			onClear={() => syncQueryParam("")}

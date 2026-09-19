@@ -54,6 +54,7 @@ const ChangeRoleDialog = ({
 			onConfirm={() => onSubmit(selectedRole)}
 		>
 			<FilterSelect<UserRole>
+				label="New role"
 				value={selectedRole}
 				onChange={setSelectedRole}
 				options={assignableOptions}

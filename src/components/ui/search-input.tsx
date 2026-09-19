@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import cn from "@/lib/utils";
 
 interface SearchInputProps {
+	label: string;
 	value: string;
 	onChange: (value: string) => void;
 	onClear?: () => void;
@@ -21,6 +22,7 @@ interface SearchInputProps {
  * URL state that bypasses upstream debouncing).
  */
 const SearchInput = ({
+	label,
 	value,
 	onChange,
 	onClear,
@@ -36,10 +38,11 @@ const SearchInput = ({
 
 		<Input
 			type="text"
+			aria-label={label}
 			value={value}
 			onChange={(e) => onChange(e.target.value)}
 			placeholder={placeholder}
-			className="h-9 w-full rounded-lg border-border pl-9 pr-9 text-sm placeholder:text-muted-foreground/60 transition-colors"
+			className="h-9 w-full rounded-lg border-border pl-9 pr-9 text-sm placeholder:text-muted-foreground transition-colors"
 		/>
 
 		{value && (
@@ -49,7 +52,7 @@ const SearchInput = ({
 					onChange("");
 					onClear?.();
 				}}
-				className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+				className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
 				aria-label={clearLabel}
 			>
 				<X className="size-4" />
