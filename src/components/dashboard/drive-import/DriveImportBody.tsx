@@ -70,12 +70,7 @@ const IdleState = ({ onConnect }: { onConnect: () => void }) => (
 			<DriveIcon className="size-8 text-primary" aria-hidden="true" />
 		</div>
 
-		<Button
-			onClick={onConnect}
-			className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-		>
-			Connect Google Drive
-		</Button>
+		<Button onClick={onConnect}>Connect Google Drive</Button>
 	</div>
 );
 

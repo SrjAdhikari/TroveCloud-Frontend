@@ -3,9 +3,6 @@
 import { Button } from "@/components/ui/button";
 import type { DriveImportFlow } from "@/hooks/useDriveImportFlow";
 
-const FOCUS_RING =
-	"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
-
 interface DriveImportFooterProps {
 	status: DriveImportFlow["status"];
 	onClose: () => void;
@@ -29,7 +26,7 @@ const DriveImportFooter = ({
 						onReset();
 						onClose();
 					}}
-					className={`cursor-pointer ${FOCUS_RING}`}
+					className="cursor-pointer"
 				>
 					Done
 				</Button>
@@ -43,12 +40,12 @@ const DriveImportFooter = ({
 				<Button
 					variant="outline"
 					onClick={onClose}
-					className={`cursor-pointer ${FOCUS_RING}`}
+					className="cursor-pointer"
 				>
 					Cancel
 				</Button>
 
-				<Button onClick={onRetry} className={`cursor-pointer ${FOCUS_RING}`}>
+				<Button onClick={onRetry} className="cursor-pointer">
 					Try again
 				</Button>
 			</FooterRow>
@@ -63,7 +60,7 @@ const DriveImportFooter = ({
 			<Button
 				variant="outline"
 				onClick={onClose}
-				className={`cursor-pointer ${FOCUS_RING}`}
+				className="cursor-pointer"
 			>
 				{label}
 			</Button>

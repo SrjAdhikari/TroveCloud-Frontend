@@ -48,7 +48,7 @@ const FileDropZone = ({ onFiles }: FileDropZoneProps) => {
 				}}
 				onDrop={handleDrop}
 				onClick={() => fileInputRef.current?.click()}
-				className={`flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+				className={`flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-colors ${
 					isDragging
 						? "bg-muted/20"
 						: "border-border hover:border-muted-foreground/40"
