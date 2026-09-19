@@ -15,6 +15,7 @@ interface FilterSelectOption<T extends string> {
 }
 
 interface FilterSelectBase<T extends string> {
+	label: string;
 	options: ReadonlyArray<FilterSelectOption<T>>;
 	className?: string;
 }
@@ -42,6 +43,7 @@ const ALL = "__all__";
  * an "All" row that emits `undefined`); omit it for required-pick UX.
  */
 const FilterSelect = <T extends string>({
+	label,
 	value,
 	onChange,
 	allLabel,
@@ -63,7 +65,7 @@ const FilterSelect = <T extends string>({
 				}
 			}}
 		>
-			<SelectTrigger className={cn("w-full", className)}>
+			<SelectTrigger aria-label={label} className={cn("w-full", className)}>
 				<SelectValue />
 			</SelectTrigger>
 

@@ -150,6 +150,7 @@ const ForgotPasswordDialog = ({
 				{step === "otp" ? (
 					<div className="flex flex-col items-center gap-6 py-4">
 						<OTPField
+							label="Password reset code"
 							value={otp}
 							onChange={handleChange}
 							errorMessage={otpError}

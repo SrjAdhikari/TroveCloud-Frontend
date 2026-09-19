@@ -55,6 +55,7 @@ const UsersToolbar = ({
 	return (
 		<div className="flex flex-col gap-5 md:flex-row md:flex-wrap md:items-center">
 			<SearchInput
+				label="Search users by name or email"
 				value={localQuery}
 				onChange={onLocalQueryChange}
 				placeholder="Search by name or email"
@@ -62,6 +63,7 @@ const UsersToolbar = ({
 			/>
 
 			<FilterSelect<UserRole>
+				label="Filter by role"
 				value={role}
 				onChange={onRoleChange}
 				allLabel="All roles"
@@ -70,6 +72,7 @@ const UsersToolbar = ({
 			/>
 
 			<FilterSelect<UserStatus>
+				label="Filter by status"
 				value={status}
 				onChange={onStatusChange}
 				allLabel="All statuses"

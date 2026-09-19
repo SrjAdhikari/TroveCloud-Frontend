@@ -1,6 +1,6 @@
 //* src/components/dashboard/directory/DirectoryToolbar.tsx
 
-import { FolderPlus, FolderUp, LayoutGrid, List, Upload } from "lucide-react";
+import { FolderPlus, FolderUp, LayoutGrid, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,8 @@ const DirectoryToolbar = ({
 	onImportFromDrive,
 	onToggleView,
 }: DirectoryToolbarProps) => {
+	const isGrid = view === "grid";
+
 	return (
 		<div className="flex items-center gap-3">
 			<Tooltip>
@@ -37,10 +39,11 @@ const DirectoryToolbar = ({
 					<Button
 						variant="outline"
 						size="icon"
+						aria-label="New Folder"
 						onClick={onNewFolder}
 						className="size-8 cursor-pointer"
 					>
-						<FolderPlus className="size-4" />
+						<FolderPlus aria-hidden="true" className="size-4" />
 					</Button>
 				</TooltipTrigger>
 
@@ -52,10 +55,11 @@ const DirectoryToolbar = ({
 					<Button
 						variant="outline"
 						size="icon"
+						aria-label="Upload Files"
 						onClick={onUploadFiles}
 						className="size-8 cursor-pointer"
 					>
-						<Upload className="size-4" />
+						<Upload aria-hidden="true" className="size-4" />
 					</Button>
 				</TooltipTrigger>
 
@@ -67,9 +71,10 @@ const DirectoryToolbar = ({
 					<Button
 						variant="outline"
 						size="icon"
+						aria-label="Upload Folder — Coming soon"
 						className="size-8 cursor-pointer"
 					>
-						<FolderUp className="size-4" />
+						<FolderUp aria-hidden="true" className="size-4" />
 					</Button>
 				</TooltipTrigger>
 
@@ -81,6 +86,7 @@ const DirectoryToolbar = ({
 					<Button
 						variant="outline"
 						size="icon"
+						aria-label="Import from Drive"
 						onClick={onImportFromDrive}
 						className="size-8 cursor-pointer"
 					>
@@ -96,20 +102,16 @@ const DirectoryToolbar = ({
 					<Button
 						variant="outline"
 						size="icon"
+						aria-label="Grid view"
+						aria-pressed={isGrid}
 						onClick={onToggleView}
-						className="size-8 cursor-pointer"
+						className="size-8 cursor-pointer aria-pressed:bg-muted aria-pressed:text-foreground"
 					>
-						{view === "grid" ? (
-							<List className="size-4" />
-						) : (
-							<LayoutGrid className="size-4" />
-						)}
+						<LayoutGrid aria-hidden="true" className="size-4" />
 					</Button>
 				</TooltipTrigger>
 
-				<TooltipContent>
-					{view === "grid" ? "List view" : "Grid view"}
-				</TooltipContent>
+				<TooltipContent>Grid view</TooltipContent>
 			</Tooltip>
 		</div>
 	);

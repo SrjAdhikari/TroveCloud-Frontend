@@ -45,3 +45,6 @@ docs/superpowers/
 .superpowers/
 
 bash.exe.stackdump
+
+# Playwright CLI output
+.playwright-cli/
