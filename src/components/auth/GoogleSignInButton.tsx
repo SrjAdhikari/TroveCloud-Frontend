@@ -26,7 +26,7 @@ const GoogleSignInButton = ({
 			<button
 				type="button"
 				tabIndex={-1}
-				className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background text-base font-medium text-foreground hover:bg-muted transition-colors cursor-pointer group-focus-within:ring-2 group-focus-within:ring-ring group-focus-within:ring-offset-2"
+				className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background text-base font-medium text-foreground hover:bg-muted transition-colors cursor-pointer group-focus-within:outline-2 group-focus-within:outline-ring"
 			>
 				<GoogleIcon className="size-5" />
 				<span>{label}</span>

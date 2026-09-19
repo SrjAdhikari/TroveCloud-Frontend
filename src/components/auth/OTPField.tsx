@@ -1,5 +1,6 @@
 //* src/components/auth/OTPField.tsx
 
+import { useId } from "react";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 
 import {
@@ -7,8 +8,10 @@ import {
 	InputOTPGroup,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
+import FieldError from "@/components/ui/field-error";
 
 interface OTPFieldProps {
+	label: string;
 	value: string;
 	onChange: (value: string) => void;
 	errorMessage?: string | null;
@@ -19,20 +22,20 @@ interface OTPFieldProps {
 /**
  * A shared 6-slot OTP entry component.
  *
- * Props:
- * - value: The current OTP value.
- * - onChange: A callback function that receives the OTP value when it changes.
- * - errorMessage: An optional error message to display below the OTP input.
- * - disabled: If true, the OTP input will be disabled.
- * - autoFocus: If true, the OTP input will be focused when the component mounts.
+ * `input-otp` renders one real input behind the slots and spreads `InputOTP`
+ * props onto it, so the name, invalid state and error association go there;
+ * the slots keep `aria-invalid` purely to drive their red border.
  */
 const OTPField = ({
+	label,
 	value,
 	onChange,
 	errorMessage,
 	disabled = false,
 	autoFocus = false,
 }: OTPFieldProps) => {
+	const errorId = useId();
+
 	return (
 		<div className="flex flex-col items-center space-y-2">
 			<InputOTP
@@ -42,6 +45,9 @@ const OTPField = ({
 				onChange={onChange}
 				disabled={disabled}
 				autoFocus={autoFocus}
+				aria-label={label}
+				aria-invalid={!!errorMessage}
+				aria-describedby={errorMessage ? errorId : undefined}
 				containerClassName="gap-3"
 			>
 				{Array.from({ length: 6 }, (_, i) => (
@@ -55,11 +61,7 @@ const OTPField = ({
 				))}
 			</InputOTP>
 
-			{errorMessage && (
-				<p role="alert" className="text-center text-sm text-destructive">
-					{errorMessage}
-				</p>
-			)}
+			<FieldError id={errorId} message={errorMessage ?? undefined} />
 		</div>
 	);
 };

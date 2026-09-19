@@ -116,6 +116,7 @@ const OTPDialog = ({
 
 				<div className="flex flex-col items-center gap-6 py-4">
 					<OTPField
+						label="Email verification code"
 						value={otp}
 						onChange={handleChange}
 						errorMessage={error}

@@ -30,7 +30,7 @@ const GitHubSignInButton = ({
 			type="button"
 			onClick={handleClick}
 			disabled={disabled}
-			className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background text-base font-medium text-foreground hover:bg-muted transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+			className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background text-base font-medium text-foreground hover:bg-muted transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
 		>
 			<GitHubIcon className="size-5" />
 			<span>{label}</span>
