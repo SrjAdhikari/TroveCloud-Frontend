@@ -4,6 +4,7 @@ import { useState, forwardRef, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import cn from "@/lib/utils";
 
 interface FormFieldProps extends React.ComponentProps<"input"> {
 	label: string;
@@ -20,7 +21,7 @@ interface FormFieldProps extends React.ComponentProps<"input"> {
  * helpers like "Forgot password?", character counts, or help icons.
  */
 const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
-	({ label, labelExtra, error, type, id, ...props }, ref) => {
+	({ label, labelExtra, error, type, id, className, ...props }, ref) => {
 		const [showPassword, setShowPassword] = useState(false);
 		const isPassword = type === "password";
 
@@ -37,8 +38,8 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 						ref={ref}
 						type={isPassword && showPassword ? "text" : type}
 						aria-invalid={!!error}
-						className={isPassword ? "pr-11" : undefined}
 						{...props}
+						className={cn(isPassword && "pr-11", className)}
 					/>
 
 					{isPassword && (
