@@ -8,12 +8,9 @@ import DriveIcon from "@/components/icons/DriveIcon";
 
 import { pluralize } from "@/lib/formatters";
 import type { DriveImportFlow } from "@/hooks/useDriveImportFlow";
-import type {
-	DriveImportFailureReason,
-	DriveImportResult,
-} from "@/types/drive.types";
+import type { DriveImportResult } from "@/types/drive.types";
 
-const FAILURE_REASON_LABELS: Record<DriveImportFailureReason, string> = {
+const FAILURE_REASON_LABELS: Record<string, string> = {
 	DRIVE_ITEM_NOT_FOUND:
 		"We couldn't find this file — it may have been moved or deleted.",
 	UNSUPPORTED_DRIVE_TYPE:
@@ -21,9 +18,12 @@ const FAILURE_REASON_LABELS: Record<DriveImportFailureReason, string> = {
 	DRIVE_EXPORT_TOO_LARGE:
 		"Google Docs and Slides over 10 MB can't be imported.",
 	DRIVE_IMPORT_LIMIT_EXCEEDED:
-		"Files must be under 100 MB, and the total under 500 MB per import.",
+		"Files must be under 100 MB, and the total under 200 MB per import.",
 	DRIVE_IMPORT_FAILED: "Something went wrong. Please try again.",
 };
+
+const GENERIC_FAILURE_REASON_LABEL =
+	"This item couldn't be imported. Please try again.";
 
 interface DriveImportBodyProps {
 	status: DriveImportFlow["status"];
@@ -180,7 +180,11 @@ const ResultPanel = ({
 									{item.name ?? pickedNames[item.driveId] ?? "Unnamed item"}
 								</p>
 
-								<p>{FAILURE_REASON_LABELS[item.reason]}</p>
+								<p>
+									{Object.hasOwn(FAILURE_REASON_LABELS, item.reason)
+										? FAILURE_REASON_LABELS[item.reason]
+										: GENERIC_FAILURE_REASON_LABEL}
+								</p>
 							</li>
 						))}
 					</ul>
