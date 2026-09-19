@@ -50,7 +50,7 @@ const DashboardLayout = () => {
 						type="button"
 						variant="outline"
 						size="icon"
-						className="size-7 focus-visible:ring-0"
+						className="size-7"
 						aria-label="Notifications"
 					>
 						<Bell className="size-4" />
