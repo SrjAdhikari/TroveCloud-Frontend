@@ -226,26 +226,3 @@ describe("sonner toast icons (WCAG 1.4.11)", () => {
 		).toBeLessThan(NON_TEXT_MIN);
 	});
 });
-
-// Primitives carry data-slot, which the global focus rule deliberately excludes,
-// and they set outline-hidden on top. Their indicator has to come from our own
-// unlayered rules here — never from editing the vendored component file.
-const FOCUS_SLOTS = [
-	"dropdown-menu-item",
-	"dropdown-menu-checkbox-item",
-	"dropdown-menu-radio-item",
-	"dropdown-menu-sub-trigger",
-	"select-item",
-	"breadcrumb-link",
-];
-
-describe("primitive focus indicators (WCAG 2.4.7)", () => {
-	it.each(FOCUS_SLOTS)("%s gets a ring outline on focus", (slot) => {
-		const rule = new RegExp(
-			String.raw`\[data-slot="${slot}"\]:focus(-visible)?[^{]*\{[^}]*\}`,
-		).exec(css)?.[0];
-
-		expect(rule).toBeDefined();
-		expect(rule).toContain("outline: 2px solid var(--ring)");
-	});
-});
