@@ -1,9 +1,10 @@
 //* src/components/form/FormField.tsx
 
-import { useState, forwardRef, type ReactNode } from "react";
+import { useId, useState, forwardRef, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import FieldError from "@/components/ui/field-error";
 import cn from "@/lib/utils";
 
 interface FormFieldProps extends React.ComponentProps<"input"> {
@@ -23,6 +24,7 @@ interface FormFieldProps extends React.ComponentProps<"input"> {
 const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 	({ label, labelExtra, error, type, id, className, ...props }, ref) => {
 		const [showPassword, setShowPassword] = useState(false);
+		const errorId = useId();
 		const isPassword = type === "password";
 
 		return (
@@ -38,6 +40,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 						ref={ref}
 						type={isPassword && showPassword ? "text" : type}
 						aria-invalid={!!error}
+						aria-describedby={error ? errorId : undefined}
 						{...props}
 						className={cn(isPassword && "pr-11", className)}
 					/>
@@ -59,7 +62,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 					)}
 				</div>
 
-				{error && <span className="text-sm text-destructive">{error}</span>}
+				<FieldError id={errorId} message={error} />
 			</div>
 		);
 	},
