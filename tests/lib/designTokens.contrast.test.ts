@@ -34,7 +34,9 @@ const themeVars: Record<Theme, Map<string, string>> = {
 	]),
 };
 
+/** Dereferences a `--token` through any `var()` chain; literals pass through. */
 const valueOf = (theme: Theme, token: string): string => {
+	if (!token.startsWith("--")) return token;
 	const raw = themeVars[theme].get(token);
 	if (raw === undefined) throw new Error(`Missing ${token} in ${theme} theme`);
 	const reference = /^var\((--[\w-]+)\)$/.exec(raw);
@@ -173,5 +175,54 @@ describe("primary (WCAG 1.4.3)", () => {
 		expect(
 			ratio(theme, "--primary-foreground", "--primary"),
 		).toBeGreaterThanOrEqual(TEXT_MIN);
+	});
+});
+
+/** The `color:` a Sonner icon rule declares, as a token spec or a literal. */
+const iconColor = (type: string) => {
+	const rule = new RegExp(
+		String.raw`\[data-sonner-toast\]\[data-type="${type}"\] \[data-icon\] \{[^}]*\}`,
+	).exec(css)?.[0];
+	if (!rule) throw new Error(`Missing ${type} toast icon rule`);
+	const declared = /(?:^|[{;\s])color:\s*([^;!]+)/.exec(rule)?.[1].trim();
+	if (!declared) throw new Error(`No color on the ${type} toast icon rule`);
+	return /^var\((--[\w-]+)\)$/.exec(declared)?.[1] ?? declared;
+};
+
+// Tint per type from sonner.tsx classNames; info is deliberately brand purple
+// so the icon matches its own border-purple/25 bg-purple/5 pairing.
+const toastIcons: [string, string][] = [
+	["success", "--color-success/5"],
+	["error", "--color-danger/5"],
+	["warning", "--color-warning/5"],
+	["info", "--color-purple/5"],
+];
+
+// Dark info rides --primary, which no dark purple text token replaces yet, so
+// it sits under the 1.4.11 floor; excluded here and pinned as a gap below.
+const iconCases = themes.flatMap((theme) =>
+	toastIcons
+		.filter(([type]) => !(theme === "dark" && type === "info"))
+		.map(([type, tint]) => [theme, type, tint] as [Theme, string, string]),
+);
+
+describe("sonner toast icons (WCAG 1.4.11)", () => {
+	it.each(iconCases)(
+		"%s %s icon clears 3:1 on its tinted toast",
+		(theme, type, tint) => {
+			expect(
+				ratio(theme, iconColor(type), "--card", tint),
+			).toBeGreaterThanOrEqual(NON_TEXT_MIN);
+		},
+	);
+
+	// --primary is not theme-split (#7c3aed in both themes), so the dark info icon
+	// lands under the floor. Lifting it needs a dark purple text token — changing
+	// --primary breaks every filled brand button. Pinned so this fails, and gets
+	// retired, the day that token lands.
+	it("dark info icon is a known gap pending a dark purple text token", () => {
+		expect(
+			ratio("dark", iconColor("info"), "--card", "--color-purple/5"),
+		).toBeLessThan(NON_TEXT_MIN);
 	});
 });
