@@ -281,17 +281,17 @@
 }
 
 [data-sonner-toast][data-type="success"] [data-icon] {
-	color: #10b981 !important;
+	color: var(--success) !important;
 }
 
 [data-sonner-toast][data-type="error"] [data-icon] {
-	color: #ef4444 !important;
+	color: var(--danger) !important;
 }
 
 [data-sonner-toast][data-type="info"] [data-icon] {
-	color: #7c3aed !important;
+	color: var(--primary) !important;
 }
 
 [data-sonner-toast][data-type="warning"] [data-icon] {
-	color: #f59e0b !important;
+	color: var(--warning) !important;
 }
