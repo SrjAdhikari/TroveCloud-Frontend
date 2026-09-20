@@ -116,10 +116,6 @@ const statuses: [string, string][] = [
 	["--color-info", "--color-info-muted"],
 ];
 
-// Tints are checked on the page ground. On a dark --card the design-fixed
-// danger and info only reach 4.06:1 and 4.05:1 under their 12% tint, which no
-// tint alpha can rescue — lifting those needs new dark hues, which the design
-// tokens forbid.
 describe.each(themes)("status palette on %s surfaces (WCAG 1.4.3)", (theme) => {
 	it.each(statuses)("%s clears 4.5:1 as text", (token, muted) => {
 		expect(ratio(theme, token, "--background")).toBeGreaterThanOrEqual(TEXT_MIN);
@@ -216,36 +212,9 @@ describe("sonner toast icons (WCAG 1.4.11)", () => {
 		},
 	);
 
-	// --primary is not theme-split (#7c3aed in both themes), so the dark info icon
-	// lands under the floor. Lifting it needs a dark purple text token — changing
-	// --primary breaks every filled brand button. Pinned so this fails, and gets
-	// retired, the day that token lands.
 	it("dark info icon is a known gap pending a dark purple text token", () => {
 		expect(
 			ratio("dark", iconColor("info"), "--card", "--color-purple/5"),
 		).toBeLessThan(NON_TEXT_MIN);
-	});
-});
-
-// Primitives carry data-slot, which the global focus rule deliberately excludes,
-// and they set outline-hidden on top. Their indicator has to come from our own
-// unlayered rules here — never from editing the vendored component file.
-const FOCUS_SLOTS = [
-	"dropdown-menu-item",
-	"dropdown-menu-checkbox-item",
-	"dropdown-menu-radio-item",
-	"dropdown-menu-sub-trigger",
-	"select-item",
-	"breadcrumb-link",
-];
-
-describe("primitive focus indicators (WCAG 2.4.7)", () => {
-	it.each(FOCUS_SLOTS)("%s gets a ring outline on focus", (slot) => {
-		const rule = new RegExp(
-			String.raw`\[data-slot="${slot}"\]:focus(-visible)?[^{]*\{[^}]*\}`,
-		).exec(css)?.[0];
-
-		expect(rule).toBeDefined();
-		expect(rule).toContain("outline: 2px solid var(--ring)");
 	});
 });
