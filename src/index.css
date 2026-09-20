@@ -204,6 +204,22 @@
 	outline-offset: 0;
 }
 
+/* Primitives carry data-slot, excluded above, and set outline-hidden
+   themselves — their indicator has to come from an unlayered rule here. */
+[data-slot="dropdown-menu-item"]:focus,
+[data-slot="dropdown-menu-checkbox-item"]:focus,
+[data-slot="dropdown-menu-radio-item"]:focus,
+[data-slot="dropdown-menu-sub-trigger"]:focus,
+[data-slot="select-item"]:focus {
+	outline: 2px solid var(--ring);
+	outline-offset: -2px;
+}
+
+[data-slot="breadcrumb-link"]:focus-visible {
+	outline: 2px solid var(--ring);
+	outline-offset: 2px;
+}
+
 /* Base styles */
 @layer base {
 	* {
