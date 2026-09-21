@@ -21,7 +21,7 @@ TroveCloud lets authenticated users import files and folders from their Google D
 | ---------------- | ----------------------------------------------------------------------------- |
 | Trigger surfaces | Sidebar `+ New` dropdown, directory toolbar Drive icon                        |
 | Provider         | Google Drive via Google Identity Services (GIS) + Google Picker SDK           |
-| OAuth scope      | `https://www.googleapis.com/auth/drive.file` (per-item access, non-sensitive) |
+| OAuth scope      | `https://www.googleapis.com/auth/drive.readonly` (folder picks need it — §5.4) |
 | Backend endpoint | `POST /api/drive/import` (single round-trip, partial-success contract)        |
 | Status           | ✅ Live — SDK plumbing PR #46, dialog UI PR #47                               |
 
@@ -36,7 +36,7 @@ This document covers the full flow — the architecture, the state machine insid
 ```
 DashboardPage (owns flow state)
   └── useDriveImportFlow              (orchestration hook)
-       ├── useGoogleLogin             (token request via GIS, drive.file scope)
+       ├── useGoogleLogin             (token request via GIS, drive.readonly scope)
        ├── openPicker                 (Google Picker SDK loader + invocation)
        ├── useDriveImport             (React Query mutation wrapper)
        └── fireCompletionToast        (toast variant by outcome)
@@ -101,7 +101,7 @@ sequenceDiagram
     U->>Dlg: Click Connect Google Drive
     Dlg->>H: flow.start()
     H->>H: reset and setStatus picking
-    H->>GIS: requestAccessToken (drive.file scope)
+    H->>GIS: requestAccessToken (drive.readonly scope)
 
     Note over Dlg: Picking phase: parent unmounts dialog (focus-trap workaround)
 
@@ -149,12 +149,12 @@ The user clicks the Drive icon in the directory toolbar (calls `onImportFromDriv
 
 1. `reset()` clears any leftover state (status → idle, error → null, result → null, pickedNames → {}, isBackgroundRef → false).
 2. `setStatus("picking")` — schedules the state transition.
-3. `requestAccessToken()` — function returned by `useGoogleLogin({ flow: "implicit", scope: "drive.file" })`. Opens the Google sign-in popup.
+3. `requestAccessToken()` — function returned by `useGoogleLogin({ flow: "implicit", scope: "drive.readonly" })`. Opens the Google sign-in popup.
 
 After re-render, `status === "picking"` triggers `DashboardPage`'s conditional unmount. The dialog unmounts. The Google popup is now over the dashboard with no dialog underneath.
 
 **Step 4 — Token granted.**
-User authenticates in the Google popup and consents to the `drive.file` scope. GIS fires `onTokenSuccess({ access_token })`. The hook's handler:
+User authenticates in the Google popup and consents to the `drive.readonly` scope. GIS fires `onTokenSuccess({ access_token })`. The hook's handler:
 
 1. Guards against missing `access_token` (would set error and return).
 2. Calls `openPicker({ accessToken, onPicked, onCancel })` — this awaits.
@@ -164,7 +164,7 @@ User authenticates in the Google popup and consents to the `drive.file` scope. G
 
 - `setOAuthToken(accessToken)` — the user's token.
 - `setDeveloperKey(VITE_GOOGLE_API_KEY)` — the API key.
-- `setAppId(<project-number>)` — derived from `GOOGLE_CLIENT_ID`'s numeric prefix. **This is mandatory** for `drive.file` scope to grant the app read access to picked items (see §5.4).
+- `setAppId(<project-number>)` — derived from `GOOGLE_CLIENT_ID`'s numeric prefix. Required under the original `drive.file` scope, and still wired today (see §5.4).
 - `.setSize(width, height)` — capped at 1051×650 (Google's recommended default), scales down on smaller viewports.
 - `.enableFeature(MULTISELECT_ENABLED)` — multi-pick.
 
@@ -188,7 +188,7 @@ If the user clicks Cancel in the Picker, `{ action: "CANCEL" }` fires, `onCancel
 4. `runImport({ accessToken, items, parentDirId }, { onSuccess, onError })` — fires the React Query mutation, which calls `axiosClient.post("/drive/import", payload)`.
 
 **Step 8 — Backend processes.**
-The backend receives the request, fetches each item's metadata from Drive, recurses into folders (up to depth 20), streams bytes from Drive to TroveCloud's storage, applies caps (100 MB/file, 200 MB/request), and returns `200 { imported: [...], failed: [...] }`. Always 200 — partial-success is the model. Top-level errors (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`) come back as 4xx and reject the mutation.
+The backend receives the request, fetches each item's metadata from Drive, recurses into folders (up to depth 20), streams bytes from Drive to TroveCloud's storage, applies caps (100 MB/file, 200 MB/request), and returns `200 { imported: [...], failed: [...] }`. Always 200 — partial-success is the model. Only malformed input rejects the mutation, as `400 VALIDATION_ERROR` from the Zod layer.
 
 **Step 9 — Mutation resolves.**
 `onMutationSuccess`:
@@ -237,7 +237,7 @@ The hook exposes five statuses; the dialog renders a different body for each.
 | `picking`   | Token request OR Picker is open over our app                                      | (dialog is unmounted by parent — see §5.1)                                                                        | (n/a)                           |
 | `importing` | Mutation in flight                                                                | Spinner + headline (`Importing N items from Google Drive…`) + dismissible hint + bordered list of picked files    | Close (signals "background it") |
 | `done`      | Mutation completed                                                                | `ResultPanel` — imported list (bordered card) + failed list (`AlertBanner variant="error"` with friendly reasons) | Done                            |
-| `error`     | Top-level error (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`, 5xx, picker SDK failure) | `AlertBanner variant="error"` with friendly message                                                               | Cancel + Try again              |
+| `error`     | Top-level error (`VALIDATION_ERROR`, 5xx, picker SDK failure)                     | `AlertBanner variant="error"` with friendly message                                                               | Cancel + Try again              |
 
 `done` has one variant: when nothing imported and every `failed[]` reason is
 `INVALID_DRIVE_TOKEN`, the failed list is replaced by a reconnect prompt with its
@@ -252,7 +252,7 @@ own **Reconnect Google Drive** button, alongside the footer's Done — see §7.3
 | `picking`   | `importing` | User picked ≥1 items in Picker                                                                          |
 | `picking`   | `error`     | OAuth error; non-OAuth error other than `popup_closed`; Picker SDK failed to load; missing access token |
 | `importing` | `done`      | Mutation resolved (any outcome — full success / partial / full failure)                                 |
-| `importing` | `error`     | Mutation rejected (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`, 5xx)                                         |
+| `importing` | `error`     | Mutation rejected (`VALIDATION_ERROR`, 5xx)                                                             |
 | `done`      | `idle`      | Dialog auto-closed (full success) → mount effect on next open OR explicit `reset()` from Done button    |
 | `error`     | `idle`      | Mount effect on next open OR Cancel button                                                              |
 | `error`     | `picking`   | Try again button → `start()`                                                                            |
@@ -343,11 +343,13 @@ const fireCompletionToast = (data, isBackground) => {
 
 The completion toast variant depends on the outcome (success / warning / error). The flag is reset on each fresh dialog mount so a subsequent foreground run doesn't inherit stale state.
 
-### 5.4 `setAppId` is mandatory for `drive.file` scope
+### 5.4 `setAppId`, and why the scope moved to `drive.readonly`
 
 **Problem.** First-pass implementation wired the Picker without `setAppId`. Imports succeeded only at the picker-iframe level — every picked file came back as `DRIVE_ITEM_NOT_FOUND` from the backend. The frontend had a working access token, the backend had the right permissions, the API key was valid, and yet Drive's API returned 404 for every picked-item ID.
 
 **Root cause.** Google's `drive.file` scope only grants the _app_ (identified by Cloud project number) access to files the user explicitly picks via the Picker. The Picker associates picked items with an "App ID" which **must be set explicitly** via `setAppId(<projectNumber>)`. Without it, the picker grants access to "no specific app", and the access token (which is tied to _our_ app) can't read the items.
+
+**Scope upgrade (`7093004`).** The scope later moved from `drive.file` to `drive.readonly` so that picking a _folder_ works. The backend recurses a picked folder up to depth 20 and fetches each child by ID, but `drive.file` only ever grants the files the user clicked in the Picker — descendants they never selected are invisible to the token. Under `drive.file` that fails quietly rather than loudly: `files.list` with `'<folderId>' in parents` isn't rejected, it just returns what the token can see, so folders would import empty. `setAppId` is still wired and the problem above is still the reason it exists; whether `drive.readonly` alone would now suffice without it has not been retested.
 
 The "App ID" is the **Cloud project number** (numeric), which is the prefix of the OAuth client ID:
 
@@ -423,13 +425,15 @@ Both must show "API enabled" (green check). If either shows a blue "Enable" butt
 
 **Failure mode if missing:** `"The API developer key is invalid"` shown inside the Picker iframe, or a 403 from the backend's Drive API call.
 
-### 6.2 Step 2 — Add the `drive.file` scope to the OAuth consent screen
+### 6.2 Step 2 — Add the `drive.readonly` scope to the OAuth consent screen
 
 **Cloud Console → APIs & Services → OAuth consent screen → Data access** (in the new console UI it's under the "Data access" sidebar item).
 
 1. Click "Add or remove scopes."
-2. Filter for `drive.file` and select `https://www.googleapis.com/auth/drive.file`.
+2. Filter for `drive.readonly` and select `https://www.googleapis.com/auth/drive.readonly`.
 3. Click Update, then Save on the Data access page.
+
+> `drive.readonly` is a **restricted** scope, unlike the `drive.file` this project started on. Confirm what Google currently requires for it (verification / security assessment) before a production launch — §5.4 covers why the folder-import feature needs it.
 
 **Failure mode if missing:** Google's "Access blocked" hard-error page — "TroveCloud has not completed the Google verification process." User can't proceed.
 
@@ -495,10 +499,13 @@ If any stage fails, the failure mode listed in §6.1–6.4 narrows the misconfig
 
 ### 7.2 Top-level errors (mutation rejected)
 
+The endpoint returns 200 whenever the body validates, so the only top-level code it
+raises is `VALIDATION_ERROR` from the Zod layer. `INVALID_DRIVE_TOKEN` is a per-item
+reason only — see §7.3.
+
 | Code                                | HTTP | Mapped copy                                                          | Surface                                                       |
 | ----------------------------------- | ---- | -------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `INVALID_DRIVE_TOKEN`               | 400  | "Your Google Drive session expired. Please reconnect and try again." | Inline `AlertBanner variant="error"` (no toast in foreground) |
-| `INVALID_INPUT`                     | 400  | "We couldn't process your selection. Please pick the files again."   | Inline (same)                                                 |
+| `VALIDATION_ERROR`                  | 400  | "We couldn't process your selection. Please pick the files again."   | Inline `AlertBanner variant="error"` (no toast in foreground) |
 | Unknown 4xx                         | —    | Generic — "Drive import failed. Please try again."                   | Inline + toast                                                |
 | 5xx / network                       | —    | Generic                                                              | Inline + toast                                                |
 | Background completion (any failure) | —    | Mapped or generic                                                    | Toast only (dialog isn't there)                               |
@@ -516,8 +523,8 @@ The backend always returns 200 even when individual items fail; per-item details
 | `INVALID_DRIVE_TOKEN`         | "Your Google Drive session expired. Please reconnect and try again." |
 | `DRIVE_IMPORT_FAILED`         | "Something went wrong. Please try again."                            |
 
-`INVALID_DRIVE_TOKEN` is both a top-level code (§7.2) and a per-item reason — a
-bad token usually fails every item. When nothing imported and **every** `failed[]`
+`INVALID_DRIVE_TOKEN` is a per-item reason only (§7.2) — but a bad token usually
+fails every item. When nothing imported and **every** `failed[]`
 reason is `INVALID_DRIVE_TOKEN`, `ResultPanel` drops the per-item list for a
 "Google Drive session expired" banner plus a **Reconnect Google Drive** button
 (which calls `start()`, i.e. a fresh token + Picker — so the dialog unmounts on
@@ -555,12 +562,13 @@ Drive Import doesn't have a StrictMode-related bug like the GitHub callback's do
 
 | Term                           | Meaning                                                                                                                                                                                                                                                                                           |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`drive.file` scope**         | OAuth scope that grants per-item access — only files the user explicitly picks via the Google Picker. Non-sensitive (no app verification required). The most permission-minimal scope for Drive integrations.                                                                                     |
+| **`drive.readonly` scope**     | The scope this app requests. Grants read access across the user's Drive, which is what lets a picked folder's descendants be imported. Restricted by Google (see §6.2). Superseded `drive.file` in `7093004`.                                                                                     |
+| **`drive.file` scope**         | OAuth scope that grants per-item access — only files the user explicitly picks via the Google Picker. Non-sensitive (no app verification required), but can't reach folder descendants, which is why this project moved off it.                                                                   |
 | **Google Picker**              | Google's official file-selection UI for Drive. Renders as an iframe. Handles browse / search / recent / shared. Returns `{ id, mimeType, name, ... }` per picked item. SDK lives at `apis.google.com/js/api.js` under `gapi.picker`.                                                              |
-| **App ID (project number)**    | The numeric Cloud project ID. Required by Picker via `setAppId()` for `drive.file` scope to grant our app read access to picked items. Derivable from the OAuth client ID's numeric prefix.                                                                                                       |
+| **App ID (project number)**    | The numeric Cloud project ID, passed to Picker via `setAppId()`. Required under the original `drive.file` scope to grant our app read access to picked items; still wired today. Derivable from the OAuth client ID's numeric prefix.                                                             |
 | **API key (developer key)**    | Distinct from the OAuth client ID. Authenticates the Picker SDK itself (separate from user OAuth). Must have Picker API + Drive API in its allowed-API list. Restrict by HTTP referrer for security.                                                                                              |
 | **Access token**               | Short-lived (~1 hour) token returned by GIS via the `useGoogleLogin` implicit flow. Frontend passes to Picker (`setOAuthToken`) and to backend (in the import payload). Backend uses it server-side to fetch from Drive on behalf of the user. Never stored.                                      |
-| **Partial-success contract**   | The backend always returns 200 for `/drive/import` and returns mixed `imported[]` + `failed[]` arrays. UI must inspect both — never claim "import succeeded" without checking `failed.length === 0`. Top-level 4xx errors (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`) reject the mutation as normal. |
+| **Partial-success contract**   | The backend always returns 200 for `/drive/import` and returns mixed `imported[]` + `failed[]` arrays. UI must inspect both — never claim "import succeeded" without checking `failed.length === 0`. Only malformed input rejects the mutation, as `400 VALIDATION_ERROR`. |
 | **Background import**          | A run where the user closed the dialog while `status === "importing"`. The mutation continues server-side; completion fires a toast (variant by outcome) instead of relying on the (unmounted) result panel. Tracked via `isBackgroundRef`.                                                       |
 | **Conditional unmount**        | The pattern in `DashboardPage` of skipping the dialog render while `status === "picking"` so Radix Dialog's focus trap doesn't block the Picker iframe. The flow state lives in the parent and survives the unmount/remount.                                                                      |
 | **`pickedNames` map**          | `{ driveId → name }` captured from the Picker callback at pick time. Used as a fallback for failed-item naming when the backend returns `failed[].name = null`. Cleared on `reset()`.                                                                                                             |

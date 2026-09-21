@@ -83,6 +83,28 @@ describe("DriveImportBody — failure reason copy", () => {
 		expect(screen.getByText(/200 MB/)).toBeInTheDocument();
 		expect(screen.queryByText(/500 MB/)).toBeNull();
 	});
+
+});
+
+describe("DriveImportBody — failed item naming", () => {
+	it("falls back to the picked name when the backend sends none", () => {
+		render(
+			<DriveImportBody
+				status="done"
+				error={null}
+				result={{
+					imported: [],
+					failed: [
+						{ driveId: "d1", name: null, reason: "UNSUPPORTED_DRIVE_TYPE" },
+					],
+				}}
+				pickedNames={{ d1: "picked-name.pdf" }}
+				onConnect={vi.fn()}
+			/>,
+		);
+
+		expect(screen.getByText("picked-name.pdf")).toBeInTheDocument();
+	});
 });
 
 describe("DriveImportBody — expired Drive token", () => {
