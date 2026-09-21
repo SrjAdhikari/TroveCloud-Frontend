@@ -56,7 +56,7 @@ DashboardPage (owns flow state)
 | API call           | `src/api/drive.api.ts`                                        | `importFromDrive({ accessToken, items, parentDirId })` posts to `/drive/import`.                                                                   |
 | Mutation hook      | `src/hooks/useDriveImport.ts`                                 | Thin `useMutation({ mutationFn: importFromDrive })` wrapper.                                                                                       |
 | Orchestration hook | `src/hooks/useDriveImportFlow.ts`                             | The brain. Owns the state machine, GIS token flow, picker invocation, mutation outcomes, error-code mapping, and the completion-toast logic.       |
-| Types              | `src/types/drive.types.ts`                                    | `DriveImportPayload`, `DriveImportResult`, `DrivePickedItem`, `DriveImportedItem`, `DriveFailedItem`, `DriveImportFailureReason` (5-code union).   |
+| Types              | `src/types/drive.types.ts`                                    | `DriveImportPayload`, `DriveImportResult`, `DrivePickedItem`, `DriveImportedItem`, `DriveFailedItem`, `DriveImportFailureReason` (6-code union).   |
 | Dialog shell       | `src/components/dashboard/dialogs/DriveImportDialog.tsx`      | Parent-conditionally mounted Radix Dialog. Owns mount-time reset, auto-close-on-full-success, and close-mid-import semantics.                      |
 | Body               | `src/components/dashboard/drive-import/DriveImportBody.tsx`   | Renders the right body sub-component for each state. Owns `FAILURE_REASON_LABELS`.                                                                 |
 | Footer             | `src/components/dashboard/drive-import/DriveImportFooter.tsx` | State-driven button row (Done / Try again / Cancel / Close).                                                                                       |
@@ -188,7 +188,7 @@ If the user clicks Cancel in the Picker, `{ action: "CANCEL" }` fires, `onCancel
 4. `runImport({ accessToken, items, parentDirId }, { onSuccess, onError })` — fires the React Query mutation, which calls `axiosClient.post("/drive/import", payload)`.
 
 **Step 8 — Backend processes.**
-The backend receives the request, fetches each item's metadata from Drive, recurses into folders (up to depth 20), streams bytes from Drive to TroveCloud's storage, applies caps (100 MB/file, 500 MB/request), and returns `200 { imported: [...], failed: [...] }`. Always 200 — partial-success is the model. Top-level errors (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`) come back as 4xx and reject the mutation.
+The backend receives the request, fetches each item's metadata from Drive, recurses into folders (up to depth 20), streams bytes from Drive to TroveCloud's storage, applies caps (100 MB/file, 200 MB/request), and returns `200 { imported: [...], failed: [...] }`. Always 200 — partial-success is the model. Top-level errors (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`) come back as 4xx and reject the mutation.
 
 **Step 9 — Mutation resolves.**
 `onMutationSuccess`:
@@ -201,7 +201,7 @@ The backend receives the request, fetches each item's metadata from Drive, recur
 **Step 10 — UI completes.**
 
 - **Full success** (`failed.length === 0`): the dialog's auto-close effect detects this on next render, calls `reset()` + `onClose()`, dialog unmounts. User sees only the toast and the refreshed directory listing.
-- **Partial / full failure**: dialog stays open, `ResultPanel` renders the imported list (bordered card with file icons) + failed list (inside an `AlertBanner variant="error"` with per-item friendly reason copy from `FAILURE_REASON_LABELS`). User clicks "Done" to close.
+- **Partial / full failure**: dialog stays open, `ResultPanel` renders the imported list (bordered card with file icons) + failed list (inside an `AlertBanner variant="error"` with per-item friendly reason copy from `FAILURE_REASON_LABELS`). User clicks "Done" to close. One exception: an all-`INVALID_DRIVE_TOKEN` failure with nothing imported swaps the failed list for a reconnect prompt — see §7.3.
 
 ### 3.3 Files involved
 
@@ -239,6 +239,10 @@ The hook exposes five statuses; the dialog renders a different body for each.
 | `done`      | Mutation completed                                                                | `ResultPanel` — imported list (bordered card) + failed list (`AlertBanner variant="error"` with friendly reasons) | Done                            |
 | `error`     | Top-level error (`INVALID_DRIVE_TOKEN`, `INVALID_INPUT`, 5xx, picker SDK failure) | `AlertBanner variant="error"` with friendly message                                                               | Cancel + Try again              |
 
+`done` has one variant: when nothing imported and every `failed[]` reason is
+`INVALID_DRIVE_TOKEN`, the failed list is replaced by a reconnect prompt with its
+own **Reconnect Google Drive** button, alongside the footer's Done — see §7.3.
+
 ### 4.1 Transitions
 
 | From        | To          | Trigger                                                                                                 |
@@ -252,6 +256,7 @@ The hook exposes five statuses; the dialog renders a different body for each.
 | `done`      | `idle`      | Dialog auto-closed (full success) → mount effect on next open OR explicit `reset()` from Done button    |
 | `error`     | `idle`      | Mount effect on next open OR Cancel button                                                              |
 | `error`     | `picking`   | Try again button → `start()`                                                                            |
+| `done`      | `picking`   | Reconnect Google Drive button → `start()` (all-token failure only — see §7.3)                           |
 
 ### 4.2 Background flag
 
@@ -498,7 +503,7 @@ If any stage fails, the failure mode listed in §6.1–6.4 narrows the misconfig
 | 5xx / network                       | —    | Generic                                                              | Inline + toast                                                |
 | Background completion (any failure) | —    | Mapped or generic                                                    | Toast only (dialog isn't there)                               |
 
-### 7.3 Per-item failures (the 5 reason codes)
+### 7.3 Per-item failures (the 6 reason codes)
 
 The backend always returns 200 even when individual items fail; per-item details land in `failed[]`. Each gets a friendly label from `FAILURE_REASON_LABELS` in `DriveImportBody.tsx`:
 
@@ -507,8 +512,19 @@ The backend always returns 200 even when individual items fail; per-item details
 | `DRIVE_ITEM_NOT_FOUND`        | "We couldn't find this file — it may have been moved or deleted."    |
 | `UNSUPPORTED_DRIVE_TYPE`      | "This file type isn't supported yet (Forms, Drawings, etc.)."        |
 | `DRIVE_EXPORT_TOO_LARGE`      | "Google Docs and Slides over 10 MB can't be imported."               |
-| `DRIVE_IMPORT_LIMIT_EXCEEDED` | "Files must be under 100 MB, and the total under 500 MB per import." |
+| `DRIVE_IMPORT_LIMIT_EXCEEDED` | "Files must be under 100 MB, and the total under 200 MB per import." |
+| `INVALID_DRIVE_TOKEN`         | "Your Google Drive session expired. Please reconnect and try again." |
 | `DRIVE_IMPORT_FAILED`         | "Something went wrong. Please try again."                            |
+
+`INVALID_DRIVE_TOKEN` is both a top-level code (§7.2) and a per-item reason — a
+bad token usually fails every item. When nothing imported and **every** `failed[]`
+reason is `INVALID_DRIVE_TOKEN`, `ResultPanel` drops the per-item list for a
+"Google Drive session expired" banner plus a **Reconnect Google Drive** button
+(which calls `start()`, i.e. a fresh token + Picker — so the dialog unmounts on
+click via the skipped `picking` state, and the user re-picks their files). A
+mixed result, or one where
+some files did import, keeps the per-item list — reconnecting resets the flow and
+would discard the imported receipt.
 
 ### 7.4 Folder picks
 

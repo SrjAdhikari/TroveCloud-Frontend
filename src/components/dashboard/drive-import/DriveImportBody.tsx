@@ -19,6 +19,8 @@ const FAILURE_REASON_LABELS: Record<string, string> = {
 		"Google Docs and Slides over 10 MB can't be imported.",
 	DRIVE_IMPORT_LIMIT_EXCEEDED:
 		"Files must be under 100 MB, and the total under 200 MB per import.",
+	INVALID_DRIVE_TOKEN:
+		"Your Google Drive session expired. Please reconnect and try again.",
 	DRIVE_IMPORT_FAILED: "Something went wrong. Please try again.",
 };
 
@@ -50,7 +52,13 @@ const DriveImportBody = ({
 	}
 
 	if (status === "done" && result) {
-		return <ResultPanel result={result} pickedNames={pickedNames} />;
+		return (
+			<ResultPanel
+				result={result}
+				pickedNames={pickedNames}
+				onConnect={onConnect}
+			/>
+		);
 	}
 
 	if (status === "error" && error) {
@@ -127,15 +135,23 @@ const ImportingState = ({
 	);
 };
 
+/** Panel displaying the results of the drive import operation. */
 const ResultPanel = ({
 	result,
 	pickedNames,
+	onConnect,
 }: {
 	result: DriveImportResult;
 	pickedNames: Record<string, string>;
+	onConnect: () => void;
 }) => {
 	const importedCount = result.imported.length;
 	const failedCount = result.failed.length;
+
+	const isTokenExpired =
+		importedCount === 0 &&
+		failedCount > 0 &&
+		result.failed.every((item) => item.reason === "INVALID_DRIVE_TOKEN");
 
 	return (
 		<div className="space-y-4 p-5" role="status">
@@ -163,27 +179,49 @@ const ResultPanel = ({
 			)}
 
 			{failedCount > 0 && (
-				<AlertBanner variant="error">
-					<p className="font-medium">
-						{pluralize(failedCount, "file")} couldn't be imported
-					</p>
+				<>
+					<AlertBanner variant="error">
+						{isTokenExpired ? (
+							<>
+								<p className="font-medium">Google Drive session expired</p>
 
-					<ul className="mt-2 space-y-2 text-xs max-h-40 overflow-y-auto">
-						{result.failed.map((item) => (
-							<li key={item.driveId}>
-								<p className="truncate font-medium">
-									{item.name ?? pickedNames[item.driveId] ?? "Unnamed item"}
+								<p className="mt-1 text-xs">
+									{pluralize(failedCount, "file")} couldn't be imported.
+								</p>
+							</>
+						) : (
+							<>
+								<p className="font-medium">
+									{pluralize(failedCount, "file")} couldn't be imported
 								</p>
 
-								<p>
-									{Object.hasOwn(FAILURE_REASON_LABELS, item.reason)
-										? FAILURE_REASON_LABELS[item.reason]
-										: GENERIC_FAILURE_REASON_LABEL}
-								</p>
-							</li>
-						))}
-					</ul>
-				</AlertBanner>
+								<ul className="mt-2 space-y-2 text-xs max-h-40 overflow-y-auto">
+									{result.failed.map((item) => (
+										<li key={item.driveId}>
+											<p className="truncate font-medium">
+												{item.name ??
+													pickedNames[item.driveId] ??
+													"Unnamed item"}
+											</p>
+
+											<p>
+												{Object.hasOwn(FAILURE_REASON_LABELS, item.reason)
+													? FAILURE_REASON_LABELS[item.reason]
+													: GENERIC_FAILURE_REASON_LABEL}
+											</p>
+										</li>
+									))}
+								</ul>
+							</>
+						)}
+					</AlertBanner>
+
+					{isTokenExpired && (
+						<Button size="sm" onClick={onConnect} className="cursor-pointer">
+							Reconnect Google Drive
+						</Button>
+					)}
+				</>
 			)}
 		</div>
 	);
