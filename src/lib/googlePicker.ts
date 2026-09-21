@@ -120,11 +120,6 @@ const loadPickerApi = (): Promise<void> => {
 
 interface OpenPickerOptions {
 	accessToken: string;
-	/**
-	 * `names` is a {driveId → name} map captured from the Picker — backend
-	 * sometimes returns `failed[].name = null`, so callers can fall back to
-	 * this map to identify failed items by their original Drive name.
-	 */
 	onPicked: (items: DrivePickedItem[], names: Record<string, string>) => void;
 	onCancel?: () => void;
 }
@@ -143,10 +138,7 @@ const openPicker = async ({
 }: OpenPickerOptions): Promise<void> => {
 	await loadPickerApi();
 
-	// Cloud project number — required by Picker so the drive.file scope grants
-	// our app read access to picked items. It's the numeric prefix of the OAuth
-	// client ID. Without setAppId, picked items return DRIVE_ITEM_NOT_FOUND when
-	// the backend tries to fetch them with the access token.
+	// The PickerBuilder requires the app ID (the first part of the OAuth client ID).
 	const appId = GOOGLE_CLIENT_ID.split("-")[0];
 
 	// Cap Picker dimensions so it doesn't overflow on large monitors

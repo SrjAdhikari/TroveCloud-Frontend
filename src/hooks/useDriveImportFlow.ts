@@ -17,12 +17,8 @@ type DriveImportStatus = "idle" | "picking" | "importing" | "done" | "error";
 
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
-// Backend 4xx codes → inline friendly copy.
-// Anything outside this map falls back to GENERIC_ERROR
 const TOP_LEVEL_ERROR_MESSAGES: Record<string, string> = {
-	INVALID_DRIVE_TOKEN:
-		"Your Google Drive session expired. Please reconnect and try again.",
-	INVALID_INPUT:
+	VALIDATION_ERROR:
 		"We couldn't process your selection. Please pick the files again.",
 };
 

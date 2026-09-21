@@ -35,7 +35,7 @@ export interface DriveImportedItem {
 
 export interface DriveFailedItem {
 	driveId: string;
-	name: string;
+	name: string | null;
 	reason: DriveImportFailureReason;
 }
 
