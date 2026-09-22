@@ -81,9 +81,32 @@ const buildBreakdown = (usage: StorageUsage): BreakdownRow[] => {
 	});
 };
 
+interface QuotaCheck {
+	blocked: boolean;
+	remaining: number;
+}
+
+/** Checks whether an incoming upload would exceed the user's storage quota */
+const checkUploadQuota = (
+	incomingBytes: number,
+	usage: StorageUsage | undefined,
+): QuotaCheck => {
+	if (
+		!usage ||
+		!Number.isFinite(usage.used) ||
+		!Number.isFinite(usage.total)
+	) {
+		return { blocked: false, remaining: 0 };
+	}
+
+	const remaining = Math.max(0, usage.total - usage.used);
+	return { blocked: incomingBytes > remaining, remaining };
+};
+
 export {
 	getUsagePercent,
 	getUsageBarColor,
 	buildBreakdown,
 	STORAGE_CATEGORY_META,
+	checkUploadQuota,
 };

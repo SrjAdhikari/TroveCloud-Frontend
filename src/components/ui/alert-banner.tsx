@@ -11,6 +11,7 @@ interface AlertBannerProps {
 	variant: Variant;
 	children: ReactNode;
 	className?: string;
+	id?: string;
 }
 
 const variantStyles: Record<Variant, string> = {
@@ -36,8 +37,9 @@ const variantRoles: Record<Variant, "alert" | "status"> = {
  * Use above forms for: wrong credentials, account locked, email-not-verified,
  * OAuth provider mismatch, storage-quota warnings, etc.
  */
-const AlertBanner = ({ variant, children, className }: AlertBannerProps) => (
+const AlertBanner = ({ variant, children, className, id }: AlertBannerProps) => (
 	<div
+		id={id}
 		role={variantRoles[variant]}
 		className={cn(
 			"flex items-start gap-3 p-3 rounded-lg border text-sm",

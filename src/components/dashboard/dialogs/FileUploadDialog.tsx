@@ -3,7 +3,9 @@
 import { useState } from "react";
 
 import splitFilesBySize from "@/lib/fileSize";
+import { checkUploadQuota } from "@/lib/storage";
 import useFileSelection from "@/hooks/useFileSelection";
+import useStorageUsage from "@/hooks/useStorageUsage";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -16,11 +18,14 @@ import { Separator } from "@/components/ui/separator";
 import FileDropZone from "@/components/dashboard/upload/FileDropZone";
 import FileLimitAlert from "@/components/dashboard/upload/FileLimitAlert";
 import SelectedFileList from "@/components/dashboard/upload/SelectedFileList";
+import StorageQuotaAlert from "@/components/dashboard/upload/StorageQuotaAlert";
 
 interface FileUploadDialogProps {
 	onClose: () => void;
 	onUpload: (files: FileList) => void;
 }
+
+const QUOTA_ALERT_ID = "upload-quota-alert";
 
 /**
  * Custom upload dialog with drag-and-drop zone and file preview list.
@@ -30,6 +35,11 @@ interface FileUploadDialogProps {
 const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 	const [oversizedNames, setOversizedNames] = useState<string[]>([]);
 	const { selectedFiles, addFiles, removeFile, totalSize } = useFileSelection();
+	const { data: storageResponse } = useStorageUsage();
+	const { blocked, remaining } = checkUploadQuota(
+		totalSize,
+		storageResponse?.data,
+	);
 
 	/** Reject oversized files at add-time so the backend never sees them. */
 	const acceptFiles = (incoming: FileList | File[]) => {
@@ -46,7 +56,7 @@ const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 
 	/** Converts the File[] back to a FileList-like object and triggers upload */
 	const handleUpload = () => {
-		if (selectedFiles.length === 0) return;
+		if (selectedFiles.length === 0 || blocked) return;
 
 		const dataTransfer = new DataTransfer();
 		selectedFiles.forEach((file) => dataTransfer.items.add(file));
@@ -72,6 +82,13 @@ const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 
 					<FileLimitAlert names={oversizedNames} />
 
+					<StorageQuotaAlert
+						id={QUOTA_ALERT_ID}
+						blocked={blocked}
+						remaining={remaining}
+						selectedSize={totalSize}
+					/>
+
 					<SelectedFileList
 						files={selectedFiles}
 						totalSize={totalSize}
@@ -93,7 +110,9 @@ const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 					<Button
 						onClick={handleUpload}
 						disabled={selectedFiles.length === 0}
-						className="cursor-pointer"
+						aria-disabled={blocked}
+						aria-describedby={blocked ? QUOTA_ALERT_ID : undefined}
+						className="cursor-pointer aria-disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:hover:bg-primary"
 					>
 						Upload {selectedFiles.length > 0 && `(${selectedFiles.length})`}
 					</Button>
