@@ -49,4 +49,17 @@ describe("usePostLogout", () => {
 		expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ROOT);
 		expect(toast.success).toHaveBeenCalledWith("Logged out successfully");
 	});
+
+	it("also clears the storageUsage cache", () => {
+		const client = new QueryClient();
+		client.setQueryData(["storageUsage"], { usedBytes: 100 });
+
+		const { result } = renderHook(() => usePostLogout(), {
+			wrapper: makeWrapper(client),
+		});
+
+		result.current("Logged out successfully");
+
+		expect(client.getQueryData(["storageUsage"])).toBeUndefined();
+	});
 });

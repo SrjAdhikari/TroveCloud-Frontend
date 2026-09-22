@@ -10,6 +10,7 @@ import useDriveImportFlow from "@/hooks/useDriveImportFlow";
 import importFromDrive from "@/api/drive.api";
 import { openPicker } from "@/lib/googlePicker";
 import type { ApiError } from "@/types/api.types";
+import type { DriveImportResult } from "@/types/drive.types";
 
 vi.mock("@/api/drive.api");
 vi.mock("@/lib/googlePicker");
@@ -38,11 +39,11 @@ const makeWrapper = (client: QueryClient) => {
 	);
 };
 
-const renderFlow = () =>
+const renderFlow = (
+	client = new QueryClient({ defaultOptions: { mutations: { retry: false } } }),
+) =>
 	renderHook(() => useDriveImportFlow(), {
-		wrapper: makeWrapper(
-			new QueryClient({ defaultOptions: { mutations: { retry: false } } }),
-		),
+		wrapper: makeWrapper(client),
 	});
 
 const rejectImportWith = (code: string) => {
@@ -68,6 +69,32 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	vi.mocked(openPicker).mockImplementation(async ({ onPicked }) => {
 		onPicked([{ id: "d1", mimeType: "application/pdf" }], { d1: "report.pdf" });
+	});
+});
+
+describe("useDriveImportFlow — cache invalidation", () => {
+	it("invalidates storageUsage as well as directory after a successful import", async () => {
+		const result: DriveImportResult = {
+			imported: [{ driveId: "d1", troveId: "t1", name: "report.pdf", kind: "file" }],
+			failed: [],
+		};
+		vi.mocked(importFromDrive).mockResolvedValue({
+			success: true,
+			message: "Import completed successfully",
+			data: result,
+		});
+
+		const client = new QueryClient({
+			defaultOptions: { mutations: { retry: false } },
+		});
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+		const { result: hook } = renderFlow(client);
+
+		act(() => hook.current.start());
+
+		await waitFor(() => expect(hook.current.status).toBe("done"));
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ["storageUsage"] });
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ["directory"] });
 	});
 });
 

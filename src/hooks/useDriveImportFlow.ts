@@ -62,24 +62,15 @@ interface DriveImportFlow {
 	status: DriveImportStatus;
 	error: string | null;
 	result: DriveImportResult | null;
-	/**
-	 * {driveId → name} captured from the Picker. Used as a fallback when the
-	 * backend returns `failed[].name = null` so failed items can still be
-	 * identified by their original Drive name.
-	 */
 	pickedNames: Record<string, string>;
 	start: () => void;
 	reset: () => void;
-	/**
-	 * Dialog calls setBackground(true) when closing mid-import so completion
-	 * fires a toast instead of relying on the (unmounted) result panel.
-	 */
 	setBackground: (value: boolean) => void;
 }
 
 /**
  * Drive Import Flow hook.
- * Orchestrates: GIS token (drive.readonly) → Picker → POST /api/drive/import → invalidate ["directory"].
+ * Orchestrates: GIS token (drive.readonly) → Picker → POST /api/drive/import → invalidate ["directory"] + ["storageUsage"].
  * State machine: idle → picking → importing → done | error.
  */
 const useDriveImportFlow = ({
@@ -114,6 +105,7 @@ const useDriveImportFlow = ({
 		setResult(data);
 		setStatus("done");
 		queryClient.invalidateQueries({ queryKey: ["directory"] });
+		queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 		fireCompletionToast(data, isBackgroundRef.current);
 	};
 
