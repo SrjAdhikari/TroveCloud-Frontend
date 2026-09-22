@@ -7,6 +7,7 @@ import {
 	getUsageBarColor,
 	buildBreakdown,
 	STORAGE_CATEGORY_META,
+	checkUploadQuota,
 } from "@/lib/storage";
 import type { StorageCategory, StorageUsage } from "@/types/storage.types";
 
@@ -99,5 +100,59 @@ describe("STORAGE_CATEGORY_META", () => {
 			STORAGE_CATEGORY_META.Archives.barColor,
 		];
 		expect(new Set(tokens).size).toBe(5);
+	});
+});
+
+describe("checkUploadQuota", () => {
+	const usage = (used: number, total: number): StorageUsage => ({
+		used,
+		total,
+		breakdown: [],
+	});
+
+	it("allows a selection that fits inside the remaining quota", () => {
+		expect(checkUploadQuota(100, usage(400, 1000))).toEqual({
+			blocked: false,
+			remaining: 600,
+		});
+	});
+
+	it("allows a selection that exactly fills the quota", () => {
+		expect(checkUploadQuota(600, usage(400, 1000))).toEqual({
+			blocked: false,
+			remaining: 600,
+		});
+	});
+
+	it("blocks a selection one byte over the remaining quota", () => {
+		expect(checkUploadQuota(601, usage(400, 1000))).toEqual({
+			blocked: true,
+			remaining: 600,
+		});
+	});
+
+	it("clamps remaining to zero when used exceeds total", () => {
+		expect(checkUploadQuota(1, usage(1200, 1000))).toEqual({
+			blocked: true,
+			remaining: 0,
+		});
+	});
+
+	it("allows a zero-byte selection with no quota left", () => {
+		expect(checkUploadQuota(0, usage(1000, 1000))).toEqual({
+			blocked: false,
+			remaining: 0,
+		});
+	});
+
+	it("fails open when usage has not loaded", () => {
+		expect(checkUploadQuota(999_999, undefined).blocked).toBe(false);
+	});
+
+	it("fails open when the payload carries non-finite numbers", () => {
+		expect(checkUploadQuota(999, usage(Number.NaN, 1000)).blocked).toBe(false);
+		expect(checkUploadQuota(999, usage(0, Number.POSITIVE_INFINITY)).blocked).toBe(
+			false,
+		);
 	});
 });

@@ -156,6 +156,26 @@ describe("useFileUpload", () => {
 		);
 	});
 
+	it("invalidates storageUsage as well as directory after a confirmed upload", async () => {
+		const client = new QueryClient();
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
+		vi.mocked(confirmUpload).mockResolvedValue(confirmedFile("file-1"));
+
+		const { result } = renderUpload(client);
+
+		act(() => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		await waitFor(() => {
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: ["storageUsage"] });
+		});
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ["directory"] });
+	});
+
 	it("maps R2 transfer progress onto the row that is transferring", async () => {
 		const notes = makeFile("notes.pdf");
 		const slides = makeFile("slides.pdf");
@@ -566,7 +586,8 @@ describe("useFileUpload", () => {
 			errorMessage:
 				"This upload was already finished and the stored file no longer matches. Please upload it again.",
 		});
-		expect(invalidate).not.toHaveBeenCalled();
+		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ["directory"] });
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ["storageUsage"] });
 	});
 
 	it("toasts as well as filling the row when the failure is unmapped", async () => {
@@ -701,5 +722,72 @@ describe("useFileUpload", () => {
 		expect(vi.getTimerCount()).toBe(0);
 		expect(confirmUpload).toHaveBeenCalledTimes(1);
 		expect(result.current.uploads).toHaveLength(0);
+	});
+});
+
+describe("useFileUpload — storage usage after a reservation", () => {
+
+	it("refreshes storage usage when the transfer fails after the mint", async () => {
+		const client = new QueryClient();
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockRejectedValue(new Error("Network Error"));
+
+		const { result } = renderUpload(client);
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		await waitFor(() =>
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: ["storageUsage"] }),
+		);
+	});
+
+	it("refreshes storage usage when the user cancels mid-transfer", async () => {
+		const client = new QueryClient();
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+
+		const put = deferred<void>();
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockReturnValue(put.promise);
+
+		const { result } = renderUpload(client);
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		await act(async () => {
+			result.current.cancel(result.current.uploads[0].id);
+			put.reject(Object.assign(new Error("canceled"), { code: "ERR_CANCELED" }));
+			await Promise.resolve();
+		});
+
+		await waitFor(() =>
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: ["storageUsage"] }),
+		);
+	});
+
+	it("leaves storage usage alone when the mint itself fails", async () => {
+		const client = new QueryClient();
+		const invalidate = vi.spyOn(client, "invalidateQueries");
+
+		vi.mocked(createUploadTicket).mockRejectedValue({
+			code: "STORAGE_LIMIT_EXCEEDED",
+			message: "Storage limit exceeded",
+		});
+
+		const { result } = renderUpload(client);
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		await waitFor(() =>
+			expect(result.current.uploads[0].status).toBe("error"),
+		);
+		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ["storageUsage"] });
 	});
 });

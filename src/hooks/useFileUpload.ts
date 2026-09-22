@@ -210,7 +210,12 @@ const useFileUpload = (dirId?: string) => {
 						dirId,
 						controller.signal,
 					);
-					if (controller.signal.aborted) return;
+
+					// Quota commits at mint, not confirm.
+					if (controller.signal.aborted) {
+						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
+						return;
+					}
 
 					step = "put";
 					patch(id, { status: "uploading" });
@@ -220,7 +225,11 @@ const useFileUpload = (dirId?: string) => {
 						onProgress: (progress) => patch(id, { progress }),
 						signal: controller.signal,
 					});
-					if (controller.signal.aborted) return;
+
+					if (controller.signal.aborted) {
+						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
+						return;
+					}
 
 					step = "confirm";
 					patch(id, { status: "confirming", progress: 100 });
@@ -233,6 +242,7 @@ const useFileUpload = (dirId?: string) => {
 					// The server may have committed the upload before the abort landed.
 					if (controller.signal.aborted) {
 						queryClient.invalidateQueries({ queryKey: ["directory"] });
+						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 						return;
 					}
 
@@ -240,6 +250,7 @@ const useFileUpload = (dirId?: string) => {
 					patch(id, { status: "success" });
 
 					queryClient.invalidateQueries({ queryKey: ["directory"] });
+					queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 
 					const timer = setTimeout(() => {
 						dismissTimers.current.delete(id);
@@ -248,10 +259,16 @@ const useFileUpload = (dirId?: string) => {
 					dismissTimers.current.set(id, timer);
 				} catch (error) {
 					abortControllers.current.delete(id);
+
+					if (step !== "mint" || controller.signal.aborted) {
+						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
+					}
+
 					if (controller.signal.aborted) {
 						// An issued confirm may still have committed before the abort landed.
-						if (step === "confirm")
+						if (step === "confirm") {
 							queryClient.invalidateQueries({ queryKey: ["directory"] });
+						}
 						return;
 					}
 

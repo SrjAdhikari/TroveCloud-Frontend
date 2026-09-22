@@ -18,6 +18,7 @@ const usePostLogout = () => {
 	return (message: string) => {
 		queryClient.removeQueries({ queryKey: ["currentUser"] });
 		queryClient.removeQueries({ queryKey: ["directory"] });
+		queryClient.removeQueries({ queryKey: ["storageUsage"] });
 		navigate(ROUTES.ROOT);
 		toast.success(message);
 	};

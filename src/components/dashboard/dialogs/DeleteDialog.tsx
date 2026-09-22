@@ -46,6 +46,7 @@ const DeleteDialog = ({
 			onSuccess: () => {
 				toast.success(`${type === "folder" ? "Folder" : "File"} deleted`);
 				queryClient.invalidateQueries({ queryKey: ["directory"] });
+				queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 				onClose();
 			},
 			onError: () => {
@@ -55,7 +56,10 @@ const DeleteDialog = ({
 	};
 
 	return (
-		<AlertDialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
+		<AlertDialog
+			open
+			onOpenChange={(isOpen) => !isOpen && !isPending && onClose()}
+		>
 			<AlertDialogContent
 				size="sm"
 				className="min-w-xs max-w-xs p-5 gap-4 max-sm:min-w-[calc(100%-2rem)] bg-background"
@@ -79,12 +83,19 @@ const DeleteDialog = ({
 				</AlertDialogHeader>
 
 				<AlertDialogFooter className="grid grid-cols-2 sm:grid sm:grid-cols-2 sm:justify-stretch">
-					<AlertDialogCancel size="sm" className="cursor-pointer">
+					<AlertDialogCancel
+						size="sm"
+						disabled={isPending}
+						className="cursor-pointer"
+					>
 						Cancel
 					</AlertDialogCancel>
 
 					<AlertDialogAction
-						onClick={handleDelete}
+						onClick={(event) => {
+							event.preventDefault();
+							handleDelete();
+						}}
 						variant="destructive"
 						size="sm"
 						disabled={isPending}
