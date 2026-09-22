@@ -94,7 +94,7 @@ sequenceDiagram
     participant P as Google Picker
     participant API as Backend (/api/drive/import)
     participant Drive as Google Drive API
-    participant RQ as React Query (directory cache)
+    participant RQ as React Query (directory + storage cache)
 
     U->>D: Click sidebar or toolbar Import from Drive
     D->>Dlg: showDriveImport true, mount in idle state
@@ -122,7 +122,7 @@ sequenceDiagram
     Drive-->>API: metadata and bytes
     API-->>H: 200 with imported and failed arrays
 
-    H->>RQ: invalidateQueries directory
+    H->>RQ: invalidateQueries directory and storageUsage
     H->>H: setStatus done, setResult, fireCompletionToast
 
     alt Full success
@@ -196,7 +196,8 @@ The backend receives the request, fetches each item's metadata from Drive, recur
 1. `setResult(data)` — stores the imported/failed arrays.
 2. `setStatus("done")`.
 3. `queryClient.invalidateQueries({ queryKey: ["directory"] })` — refetches the current directory listing so newly imported items appear.
-4. `fireCompletionToast(data, isBackgroundRef.current)` — variant depends on outcome and whether the dialog was open (see §5.3).
+4. `queryClient.invalidateQueries({ queryKey: ["storageUsage"] })` — imported bytes count against the quota, so the sidebar and Settings figures refresh too.
+5. `fireCompletionToast(data, isBackgroundRef.current)` — variant depends on outcome and whether the dialog was open (see §5.3).
 
 **Step 10 — UI completes.**
 
@@ -224,6 +225,7 @@ The backend receives the request, fetches each item's metadata from Drive, recur
 | Brand icon                | `src/components/icons/DriveIcon.tsx`                          | Inline-SVG, `currentColor`-aware, shared across 3 callers                                                                                                      |
 | Format helpers            | `src/lib/formatters.ts`                                       | `pluralize(count, word)` used by counts in headlines                                                                                                           |
 | Cache invalidation target | `src/hooks/useDirectoryContents.ts`                           | Reads the `["directory"]` query that gets invalidated post-import                                                                                              |
+| Cache invalidation target | `src/hooks/useStorageUsage.ts`                                | Reads the `["storageUsage"]` query, invalidated alongside it — imported bytes count against the quota                                                          |
 
 ---
 
@@ -548,8 +550,8 @@ When the user picks a folder, the backend recurses up to depth 20, importing eac
 
 ### 7.6 Multi-tab and navigation
 
-- **Multi-tab.** Each tab has its own `useDriveImportFlow` instance. Two simultaneous imports in two tabs don't interfere (separate state, separate mutations, separate Picker iframes). Both directory queries get invalidated independently.
-- **Navigation away during import.** If the user navigates from `/my-files` to `/settings` mid-import, `DashboardPage` unmounts → `useDriveImportFlow` unmounts → mutation continues server-side (TanStack Query keeps it alive), but completion callbacks fire on an unmounted hook (React 19 silently ignores `setState` on unmounted components). The toast won't fire. The directory query gets invalidated; if the user returns to `/my-files`, the listing reflects the import.
+- **Multi-tab.** Each tab has its own `useDriveImportFlow` instance. Two simultaneous imports in two tabs don't interfere (separate state, separate mutations, separate Picker iframes). Both directory and storage queries get invalidated independently.
+- **Navigation away during import.** If the user navigates from `/my-files` to `/settings` mid-import, `DashboardPage` unmounts → `useDriveImportFlow` unmounts → mutation continues server-side (TanStack Query keeps it alive), but completion callbacks fire on an unmounted hook (React 19 silently ignores `setState` on unmounted components). The toast won't fire. The directory and storage queries get invalidated; if the user returns to `/my-files`, the listing reflects the import, and `/settings` shows the new storage figure.
 - **Page refresh during import.** Mutation aborts. No frontend handling — the server may have committed some items partially before connection broke. User would need to re-pick.
 
 ### 7.7 React StrictMode
