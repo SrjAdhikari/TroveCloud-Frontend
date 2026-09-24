@@ -7,6 +7,7 @@ import server from "../server";
 import axiosClient from "@/config/axiosClient";
 import { API_BASE_URL } from "@/lib/constants";
 import {
+	cancelUpload,
 	confirmUpload,
 	createUploadTicket,
 	getFileDownloadUrl,
@@ -121,6 +122,27 @@ describe("confirmUpload", () => {
 
 		expect(config?.timeout).toBe(30000);
 		expect(config?.signal).toBe(controller.signal);
+	});
+});
+
+describe("cancelUpload", () => {
+	it("posts an empty body to the file's cancel endpoint", async () => {
+		let body = "unset";
+		server.use(
+			http.post(`${API_BASE_URL}/files/file1/cancel`, async ({ request }) => {
+				body = await request.text();
+				return HttpResponse.json({
+					success: true,
+					message: "Upload cancelled successfully",
+					data: { _id: "file1", status: "pending" },
+				});
+			}),
+		);
+
+		const response = await cancelUpload("file1");
+
+		expect(body).toBe("");
+		expect(response.message).toBe("Upload cancelled successfully");
 	});
 });
 

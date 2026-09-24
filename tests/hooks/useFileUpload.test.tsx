@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import toast from "@/lib/toast";
 import useFileUpload from "@/hooks/useFileUpload";
 import {
+	cancelUpload,
 	confirmUpload,
 	createUploadTicket,
 	uploadFileToR2,
@@ -89,6 +90,11 @@ const deferred = <T,>() => {
 
 beforeEach(() => {
 	vi.clearAllMocks();
+	vi.mocked(cancelUpload).mockResolvedValue({
+		success: true,
+		message: "Upload cancelled successfully",
+		data: undefined,
+	});
 	vi.useFakeTimers({ shouldAdvanceTime: true });
 });
 
@@ -204,7 +210,7 @@ describe("useFileUpload", () => {
 		expect(byName("notes.pdf")?.progress).toBe(0);
 	});
 
-	it("hands the mint the destination directory and the row's abort signal", async () => {
+	it("hands the mint the destination directory but no abort signal", async () => {
 		vi.mocked(createUploadTicket).mockReturnValue(
 			deferred<ApiSuccessResponse<UploadTicketPayload>>().promise,
 		);
@@ -213,17 +219,7 @@ describe("useFileUpload", () => {
 
 		act(() => result.current.upload(asFileList(makeFile("report.pdf"))));
 
-		expect(createUploadTicket).toHaveBeenCalledWith(
-			expect.any(File),
-			"dir-1",
-			expect.any(AbortSignal),
-		);
-
-		const [, , signal] = vi.mocked(createUploadTicket).mock.calls[0];
-
-		act(() => result.current.cancel(result.current.uploads[0].id));
-
-		expect(signal?.aborted).toBe(true);
+		expect(createUploadTicket).toHaveBeenCalledWith(expect.any(File), "dir-1");
 	});
 
 	it("aborts the R2 request and drops the row when the user cancels", async () => {
@@ -259,6 +255,7 @@ describe("useFileUpload", () => {
 			mint.resolve(ticketFor("file-1"));
 		});
 
+		await waitFor(() => expect(cancelUpload).toHaveBeenCalledWith("file-1"));
 		expect(uploadFileToR2).not.toHaveBeenCalled();
 		expect(result.current.uploads).toHaveLength(0);
 	});
@@ -590,6 +587,28 @@ describe("useFileUpload", () => {
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: ["storageUsage"] });
 	});
 
+	it("keeps a confirm refused because a cancel landed first inline", async () => {
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
+		vi.mocked(confirmUpload).mockRejectedValue({
+			code: "UPLOAD_CANCELLED",
+			message: "This upload was cancelled. Please start a new upload.",
+		});
+
+		const { result } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		expect(confirmUpload).toHaveBeenCalledTimes(1);
+		expect(result.current.uploads[0]).toMatchObject({
+			status: "error",
+			errorMessage: "This upload was cancelled. Please start a new upload.",
+		});
+		expect(toast.error).not.toHaveBeenCalled();
+	});
+
 	it("toasts as well as filling the row when the failure is unmapped", async () => {
 		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
 		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
@@ -789,5 +808,178 @@ describe("useFileUpload — storage usage after a reservation", () => {
 			expect(result.current.uploads[0].status).toBe("error"),
 		);
 		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ["storageUsage"] });
+	});
+});
+
+describe("useFileUpload — releasing an aborted reservation", () => {
+	it("cancels the reservation when the user aborts mid-transfer", async () => {
+		const put = deferred<void>();
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockReturnValue(put.promise);
+
+		const { result } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		await act(async () => {
+			result.current.cancel(result.current.uploads[0].id);
+			put.reject(Object.assign(new Error("canceled"), { code: "ERR_CANCELED" }));
+			await Promise.resolve();
+		});
+
+		await waitFor(() => expect(cancelUpload).toHaveBeenCalledWith("file-1"));
+	});
+
+	it("cancels the reservation when the hook unmounts mid-transfer", async () => {
+		const put = deferred<void>();
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockReturnValue(put.promise);
+
+		const { result, unmount } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		unmount();
+		put.reject(Object.assign(new Error("canceled"), { code: "ERR_CANCELED" }));
+
+		await waitFor(() => expect(cancelUpload).toHaveBeenCalledWith("file-1"));
+	});
+
+	it.each([
+		[
+			"a mapped code",
+			{ code: "STORAGE_LIMIT_EXCEEDED", message: "Storage limit exceeded" },
+		],
+		[
+			"an unmapped code",
+			{ code: "INTERNAL_SERVER_ERROR", message: "Something went wrong" },
+		],
+	])(
+		"stays silent when a mint the user cancelled fails with %s",
+		async (_label, failure) => {
+			const mint = deferred<ApiSuccessResponse<UploadTicketPayload>>();
+			vi.mocked(createUploadTicket).mockReturnValue(mint.promise);
+
+			const { result } = renderUpload();
+
+			act(() => result.current.upload(asFileList(makeFile("report.pdf"))));
+			act(() => result.current.cancel(result.current.uploads[0].id));
+
+			await act(async () => {
+				mint.reject(failure);
+			});
+
+			expect(cancelUpload).not.toHaveBeenCalled();
+			expect(toast.error).not.toHaveBeenCalled();
+			expect(result.current.uploads).toHaveLength(0);
+		},
+	);
+
+	it("cancels the reservation when the abort lands after the confirm was issued", async () => {
+		const confirm = deferred<ApiSuccessResponse<FileItemPayload>>();
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
+		vi.mocked(confirmUpload).mockReturnValue(confirm.promise);
+
+		const { result } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		expect(result.current.uploads[0].status).toBe("confirming");
+
+		act(() => result.current.cancel(result.current.uploads[0].id));
+
+		await act(async () => {
+			confirm.resolve(confirmedFile("file-1"));
+		});
+
+		await waitFor(() => expect(cancelUpload).toHaveBeenCalledWith("file-1"));
+	});
+
+	it("cancels the reservation when the transfer finishes after the abort", async () => {
+		const put = deferred<void>();
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockReturnValue(put.promise);
+
+		const { result } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		act(() => result.current.cancel(result.current.uploads[0].id));
+
+		await act(async () => {
+			put.resolve();
+		});
+
+		await waitFor(() => expect(cancelUpload).toHaveBeenCalledWith("file-1"));
+		expect(confirmUpload).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		["a server error", { code: "INTERNAL_SERVER_ERROR", message: "Boom" }],
+		["a network error", { code: "NETWORK_ERROR", message: "Offline" }],
+	])(
+		"stays silent when the cancel fails with %s",
+		async (_label, failure) => {
+			const put = deferred<void>();
+			vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+			vi.mocked(uploadFileToR2).mockReturnValue(put.promise);
+			vi.mocked(cancelUpload).mockRejectedValue(failure);
+
+			const { result } = renderUpload();
+
+			await act(async () => {
+				result.current.upload(asFileList(makeFile("report.pdf")));
+			});
+
+			await act(async () => {
+				result.current.cancel(result.current.uploads[0].id);
+				put.reject(
+					Object.assign(new Error("canceled"), { code: "ERR_CANCELED" }),
+				);
+				await Promise.resolve();
+			});
+
+			await waitFor(() => expect(cancelUpload).toHaveBeenCalledWith("file-1"));
+			expect(toast.error).not.toHaveBeenCalled();
+			expect(result.current.uploads).toHaveLength(0);
+		},
+	);
+
+	it("leaves the reservation alone for an upload that succeeds", async () => {
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockResolvedValue(undefined);
+		vi.mocked(confirmUpload).mockResolvedValue(confirmedFile("file-1"));
+
+		const { result } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		expect(result.current.uploads[0].status).toBe("success");
+		expect(cancelUpload).not.toHaveBeenCalled();
+	});
+
+	it("leaves the reservation alone when the transfer fails without an abort", async () => {
+		vi.mocked(createUploadTicket).mockResolvedValue(ticketFor("file-1"));
+		vi.mocked(uploadFileToR2).mockRejectedValue(new Error("Network Error"));
+
+		const { result } = renderUpload();
+
+		await act(async () => {
+			result.current.upload(asFileList(makeFile("report.pdf")));
+		});
+
+		expect(result.current.uploads[0].status).toBe("error");
+		expect(cancelUpload).not.toHaveBeenCalled();
 	});
 });

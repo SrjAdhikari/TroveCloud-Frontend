@@ -16,15 +16,11 @@ const CONFIRM_TIMEOUT_MS = 30000;
  * Step 1 of an upload — reserves quota and mints a presigned R2 PUT target.
  * The URL is signed to this exact name and size.
  */
-const createUploadTicket = async (
-	file: File,
-	parentDirId?: string,
-	signal?: AbortSignal,
-) => {
+const createUploadTicket = async (file: File, parentDirId?: string) => {
 	const url = parentDirId ? `/files/${parentDirId}` : "/files";
 	const { data } = await axiosClient.post<
 		ApiSuccessResponse<UploadTicketPayload>
-	>(url, { name: file.name, size: file.size }, { signal });
+	>(url, { name: file.name, size: file.size });
 	return data;
 };
 
@@ -61,6 +57,16 @@ const confirmUpload = async (fileId: string, signal?: AbortSignal) => {
 		`/files/${fileId}/confirm`,
 		undefined,
 		{ signal, timeout: CONFIRM_TIMEOUT_MS },
+	);
+	return data;
+};
+
+/** 
+ * Cancels an upload in progress, deleting the R2 object and freeing the quota.
+ */
+const cancelUpload = async (fileId: string) => {
+	const { data } = await axiosClient.post<ApiSuccessResponse>(
+		`/files/${fileId}/cancel`,
 	);
 	return data;
 };
@@ -103,6 +109,7 @@ export {
 	createUploadTicket,
 	uploadFileToR2,
 	confirmUpload,
+	cancelUpload,
 	getFileDownloadUrl,
 	renameFile,
 	deleteFile,

@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import toast from "@/lib/toast";
 import { MAX_FILE_SIZE_LABEL } from "@/lib/constants";
 import {
+	cancelUpload,
 	confirmUpload,
 	createUploadTicket,
 	uploadFileToR2,
@@ -39,6 +40,7 @@ const CONFIRM_ERROR_MESSAGES: Record<string, string> = {
 		"This upload was already finished and the stored file no longer matches. Please upload it again.",
 	FILE_NOT_FOUND:
 		"We couldn't find this upload any more. Please upload the file again.",
+	UPLOAD_CANCELLED: "This upload was cancelled. Please start a new upload.",
 	RATE_LIMITED:
 		"You've started too many uploads at once. Please wait a moment and try again.",
 };
@@ -104,6 +106,10 @@ const confirmWithRetry = async (fileId: string, signal: AbortSignal) => {
 			await sleep(CONFIRM_RETRY_DELAYS[attempt], signal);
 		}
 	}
+};
+
+const cancelPendingFile = (fileId: string) => {
+	cancelUpload(fileId).catch(() => undefined);
 };
 
 const resolveUploadError = (step: UploadStep, error: unknown) => {
@@ -203,16 +209,15 @@ const useFileUpload = (dirId?: string) => {
 				]);
 
 				let step: UploadStep = "mint";
+				let fileId: string | undefined;
 
 				try {
-					const ticket = await createUploadTicket(
-						file,
-						dirId,
-						controller.signal,
-					);
+					const ticket = await createUploadTicket(file, dirId);
+					fileId = ticket.data.fileId;
 
 					// Quota commits at mint, not confirm.
 					if (controller.signal.aborted) {
+						cancelPendingFile(fileId);
 						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 						return;
 					}
@@ -227,6 +232,7 @@ const useFileUpload = (dirId?: string) => {
 					});
 
 					if (controller.signal.aborted) {
+						cancelPendingFile(fileId);
 						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 						return;
 					}
@@ -241,6 +247,7 @@ const useFileUpload = (dirId?: string) => {
 
 					// The server may have committed the upload before the abort landed.
 					if (controller.signal.aborted) {
+						cancelPendingFile(fileId);
 						queryClient.invalidateQueries({ queryKey: ["directory"] });
 						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
 						return;
@@ -265,6 +272,8 @@ const useFileUpload = (dirId?: string) => {
 					}
 
 					if (controller.signal.aborted) {
+						if (fileId) cancelPendingFile(fileId);
+
 						// An issued confirm may still have committed before the abort landed.
 						if (step === "confirm") {
 							queryClient.invalidateQueries({ queryKey: ["directory"] });
