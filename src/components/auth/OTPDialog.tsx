@@ -28,14 +28,9 @@ interface OTPDialogProps {
 }
 
 /**
- * Email-verification OTP dialog used by register (post-signup) and login
- * (when an unverified user tries to sign in). Verifies the 6-digit code via
- * the register/verify-otp endpoint; on success the parent handles the
- * post-verify flow (login: prompt re-auth; register: navigate to dashboard).
- *
- * Mounting model: parent renders this conditionally (`{showOTP && <Dialog/>}`)
- * so internal state initialises fresh on every open via `useState` defaults —
- * no reset-on-open effect needed.
+ * Asks for the 6-digit code sent by email to verify the account. Used after
+ * sign-up and when an unverified user tries to log in; the parent decides
+ * what happens next. Only shown while open, so it starts fresh each time.
  */
 const OTPDialog = ({
 	email,
@@ -60,21 +55,14 @@ const OTPDialog = ({
 		initialCooldown,
 	});
 
-	/**
-	 * Update OTP state and auto-submit when all 6 digits are entered.
-	 * Clears any prior error first so the retry path isn't blocked by stale
-	 * state when the user starts retyping.
-	 */
+	/** Clears any old error and checks the code once all 6 digits are in. */
 	const handleChange = (value: string) => {
 		setOtp(value);
 		if (error) setError(null);
 		if (value.length === 6) handleVerify(value);
 	};
 
-	/**
-	 * Verify the OTP code. Maps backend error codes to inline messages —
-	 * never toasts auth failures (per `reference_feedback_patterns.md`).
-	 */
+	/** Checks the code. Errors show under the field, never as a toast. */
 	const handleVerify = (code: string) => {
 		if (code.length !== 6 || isVerifying) return;
 

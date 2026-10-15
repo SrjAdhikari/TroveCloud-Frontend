@@ -36,18 +36,10 @@ interface ForgotPasswordDialogProps {
 }
 
 /**
- * Two-step dialog that completes the forgot-password flow.
- *
- * Step 1 — collect the 6-digit OTP that was sent to the user's email.
- * Step 2 — collect the new password and submit {email, otp, newPassword}
- * to /auth/reset-password atomically.
- *
- * The OTP is not server-validated until Step 2 submits, so an INVALID_OTP /
- * OTP_EXPIRED response sends the user back to Step 1 with the password
- * fields preserved (avoiding a full re-entry).
- *
- * Resend re-fires /auth/forgot-password — the same endpoint as the initial
- * request — relying on the backend's 60-second OTP_COOLDOWN guardrail.
+ * Second half of "forgot password". Step 1 asks for the 6-digit code from the
+ * email; step 2 asks for the new password and sends both together. The code is
+ * only checked in step 2, so a wrong or expired code goes back to step 1 and
+ * keeps the typed password.
  */
 const ForgotPasswordDialog = ({
 	email,
@@ -81,17 +73,11 @@ const ForgotPasswordDialog = ({
 		resolver: zodResolver(resetPasswordSchema),
 	});
 
-	/**
-	 * Handles the change event of the OTP input field.
-	 */
 	const handleChange = (value: string) => {
 		setOtp(value);
 		if (otpError) setOtpError(null);
 	};
 
-	/**
-	 * Handles the continue button click event.
-	 */
 	const handleContinue = () => {
 		if (otp.length !== 6) return;
 		setOtpError(null);
