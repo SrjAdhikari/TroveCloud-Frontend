@@ -16,7 +16,10 @@ interface WrapperOptions extends Omit<RenderOptions, "wrapper"> {
  * components that render <Link>, call useNavigate / useSearchParams, or
  * mount a shadcn Tooltip anywhere in the tree.
  */
-const renderWithRouter = (ui: ReactElement, options: WrapperOptions = {}) => {
+export const renderWithRouter = (
+	ui: ReactElement,
+	options: WrapperOptions = {},
+) => {
 	const { initialEntries = ["/"], ...rest } = options;
 	return render(
 		<MemoryRouter initialEntries={initialEntries}>
@@ -31,7 +34,7 @@ const renderWithRouter = (ui: ReactElement, options: WrapperOptions = {}) => {
  * (retries disabled so tests fail fast). Use for components that call
  * useQuery / useMutation.
  */
-const renderWithProviders = (
+export const renderWithProviders = (
 	ui: ReactElement,
 	options: WrapperOptions = {},
 ) => {
@@ -49,5 +52,3 @@ const renderWithProviders = (
 		rest,
 	);
 };
-
-export { renderWithRouter, renderWithProviders };
