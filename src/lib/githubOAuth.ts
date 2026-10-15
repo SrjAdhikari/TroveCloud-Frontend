@@ -22,7 +22,7 @@ const AUTHORIZE_URL = "https://github.com/login/oauth/authorize";
  * Generates a cryptographically random CSRF state token, persists it in
  * sessionStorage, and returns it for the authorize URL.
  */
-const generateState = (): string => {
+export const generateState = (): string => {
 	const state = crypto.randomUUID();
 	sessionStorage.setItem(STATE_STORAGE_KEY, state);
 	return state;
@@ -33,7 +33,7 @@ const generateState = (): string => {
  * (e.g. user navigated directly to the callback URL or reloaded after
  * the state was already consumed).
  */
-const consumeState = (): string | null => {
+export const consumeState = (): string | null => {
 	const stored = sessionStorage.getItem(STATE_STORAGE_KEY);
 	sessionStorage.removeItem(STATE_STORAGE_KEY);
 	return stored;
@@ -50,7 +50,7 @@ const getRedirectUri = (): string =>
 /**
  * Builds the GitHub authorize URL the browser should be redirected to.
  */
-const buildAuthorizeUrl = (clientId: string, state: string): string => {
+export const buildAuthorizeUrl = (clientId: string, state: string): string => {
 	const params = new URLSearchParams({
 		client_id: clientId,
 		redirect_uri: getRedirectUri(),
@@ -59,5 +59,3 @@ const buildAuthorizeUrl = (clientId: string, state: string): string => {
 	});
 	return `${AUTHORIZE_URL}?${params.toString()}`;
 };
-
-export { generateState, consumeState, buildAuthorizeUrl };

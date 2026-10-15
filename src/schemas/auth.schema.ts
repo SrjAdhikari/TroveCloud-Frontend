@@ -18,7 +18,7 @@ const strongPasswordSchema = z
 /**
  * Validation schema for the register form.
  */
-const registerSchema = z.object({
+export const registerSchema = z.object({
 	name: z
 		.string()
 		.trim()
@@ -33,7 +33,7 @@ const registerSchema = z.object({
 /**
  * Validation schema for the login form.
  */
-const loginSchema = z.object({
+export const loginSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 	password: z.string().trim().nonempty("Password is required"),
 });
@@ -41,7 +41,7 @@ const loginSchema = z.object({
 /**
  * Validation schema for the OTP verification form.
  */
-const verifyOTPSchema = z.object({
+export const verifyOTPSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 	otp: z
 		.string()
@@ -53,14 +53,14 @@ const verifyOTPSchema = z.object({
 /**
  * Validation schema for the resend OTP form and Forgot Password form.
  */
-const resendOTPSchema = z.object({
+export const resendOTPSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 });
 
 /**
  * Validation schema for the reset password form.
  */
-const resetPasswordSchema = z
+export const resetPasswordSchema = z
 	.object({
 		newPassword: strongPasswordSchema,
 		confirmPassword: z.string().trim().nonempty("Please confirm your password"),
@@ -74,7 +74,7 @@ const resetPasswordSchema = z
  * Validation schema for the change-password form. The reuse check preempts the
  * backend's PASSWORD_REUSE rejection so the user gets it inline.
  */
-const changePasswordSchema = z
+export const changePasswordSchema = z
 	.object({
 		currentPassword: z.string().trim().nonempty("Current password is required"),
 		newPassword: strongPasswordSchema,
@@ -90,27 +90,9 @@ const changePasswordSchema = z
 	});
 
 /** Inferred types from schemas — use these as form types */
-type RegisterFormData = z.infer<typeof registerSchema>;
-type LoginFormData = z.infer<typeof loginSchema>;
-type VerifyOTPFormData = z.infer<typeof verifyOTPSchema>;
-type ResendOTPFormData = z.infer<typeof resendOTPSchema>;
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
-type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
-
-export type {
-	RegisterFormData,
-	LoginFormData,
-	VerifyOTPFormData,
-	ResendOTPFormData,
-	ResetPasswordFormData,
-	ChangePasswordFormData,
-};
-
-export {
-	registerSchema,
-	loginSchema,
-	verifyOTPSchema,
-	resendOTPSchema,
-	resetPasswordSchema,
-	changePasswordSchema,
-};
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type VerifyOTPFormData = z.infer<typeof verifyOTPSchema>;
+export type ResendOTPFormData = z.infer<typeof resendOTPSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;

@@ -5,7 +5,7 @@ import {
 	MAX_PROFILE_PICTURE_BYTES,
 } from "@/lib/constants";
 
-type ImageValidationResult =
+export type ImageValidationResult =
 	| { ok: true }
 	| { ok: false; code: "INVALID_IMAGE_TYPE" | "IMAGE_TOO_LARGE" };
 
@@ -25,5 +25,4 @@ const validateImageFile = (file: File): ImageValidationResult => {
 	return { ok: true };
 };
 
-export type { ImageValidationResult };
 export default validateImageFile;

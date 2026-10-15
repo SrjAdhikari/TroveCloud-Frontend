@@ -12,7 +12,7 @@ import {
  * Query hook for fetching the contents of a directory.
  * Defaults to the user's root directory when no dirId is provided.
  */
-const useCurrentDirectory = (dirId?: string) => {
+export const useCurrentDirectory = (dirId?: string) => {
 	return useQuery({
 		queryKey: ["directory", dirId],
 		queryFn: () => getDirectory(dirId),
@@ -22,7 +22,7 @@ const useCurrentDirectory = (dirId?: string) => {
 /**
  * Mutation hook for creating a new directory.
  */
-const useCreateDirectory = () => {
+export const useCreateDirectory = () => {
 	return useMutation({
 		mutationFn: ({
 			name,
@@ -37,7 +37,7 @@ const useCreateDirectory = () => {
 /**
  * Mutation hook for renaming a directory.
  */
-const useRenameDirectory = () => {
+export const useRenameDirectory = () => {
 	return useMutation({
 		mutationFn: ({
 			dirId,
@@ -52,15 +52,8 @@ const useRenameDirectory = () => {
 /**
  * Mutation hook for deleting a directory and all its contents.
  */
-const useDeleteDirectory = () => {
+export const useDeleteDirectory = () => {
 	return useMutation({
 		mutationFn: deleteDirectory,
 	});
-};
-
-export {
-	useCurrentDirectory,
-	useCreateDirectory,
-	useRenameDirectory,
-	useDeleteDirectory,
 };

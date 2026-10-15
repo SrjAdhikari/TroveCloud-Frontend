@@ -16,11 +16,7 @@ const itemNameSchema = (label: string) =>
 			.max(50, `${label} name must be at most 50 characters`),
 	});
 
-const folderNameSchema = itemNameSchema("Folder");
-const fileNameSchema = itemNameSchema("File");
+export const folderNameSchema = itemNameSchema("Folder");
+export const fileNameSchema = itemNameSchema("File");
 
-type NameFormData = z.infer<typeof folderNameSchema>;
-
-export type { NameFormData };
-
-export { folderNameSchema, fileNameSchema };
+export type NameFormData = z.infer<typeof folderNameSchema>;

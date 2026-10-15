@@ -7,7 +7,7 @@ import type { UserPayload } from "@/types/auth.types";
 /**
  * Updates the signed-in user's display name.
  */
-const updateProfileName = async (name: string) => {
+export const updateProfileName = async (name: string) => {
 	const { data } = await axiosClient.patch<ApiSuccessResponse<UserPayload>>(
 		"/users/profile",
 		{ name },
@@ -18,7 +18,7 @@ const updateProfileName = async (name: string) => {
 /**
  * Uploads (or replaces) the signed-in user's profile picture.
  */
-const uploadProfilePicture = async (file: File) => {
+export const uploadProfilePicture = async (file: File) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse<UserPayload>>(
 		"/users/profile-picture",
 		file,
@@ -26,5 +26,3 @@ const uploadProfilePicture = async (file: File) => {
 	);
 	return data;
 };
-
-export { updateProfileName, uploadProfilePicture };

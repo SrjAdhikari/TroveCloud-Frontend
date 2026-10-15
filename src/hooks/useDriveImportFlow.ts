@@ -58,7 +58,7 @@ const fireCompletionToast = (
 	);
 };
 
-interface DriveImportFlow {
+export interface DriveImportFlow {
 	status: DriveImportStatus;
 	error: string | null;
 	result: DriveImportResult | null;
@@ -202,5 +202,4 @@ const useDriveImportFlow = ({
 	};
 };
 
-export type { DriveImportFlow };
 export default useDriveImportFlow;

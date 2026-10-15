@@ -18,7 +18,7 @@ import type {
 /**
  * Fetches the currently authenticated user's profile.
  */
-const getCurrentUser = async () => {
+export const getCurrentUser = async () => {
 	const { data } =
 		await axiosClient.get<ApiSuccessResponse<UserPayload>>("/auth/me");
 	return data;
@@ -28,7 +28,7 @@ const getCurrentUser = async () => {
  * Registers a new user and triggers an OTP email.
  * If the email already exists but is unverified, the backend re-sends the OTP.
  */
-const register = async (payload: RegisterPayload) => {
+export const register = async (payload: RegisterPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/register",
 		payload,
@@ -39,7 +39,7 @@ const register = async (payload: RegisterPayload) => {
 /**
  * Verifies the 6-digit OTP sent to the user's email during registration.
  */
-const verifyOTP = async (payload: VerifyOTPPayload) => {
+export const verifyOTP = async (payload: VerifyOTPPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/register/verify-otp",
 		payload,
@@ -50,7 +50,7 @@ const verifyOTP = async (payload: VerifyOTPPayload) => {
 /**
  * Resends the OTP to an unverified user's email.
  */
-const resendOTP = async (payload: ResendOTPPayload) => {
+export const resendOTP = async (payload: ResendOTPPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/register/resend-otp",
 		payload,
@@ -61,7 +61,7 @@ const resendOTP = async (payload: ResendOTPPayload) => {
 /**
  * Logs in a user with email and password.
  */
-const login = async (payload: LoginPayload) => {
+export const login = async (payload: LoginPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/login",
 		payload,
@@ -72,7 +72,7 @@ const login = async (payload: LoginPayload) => {
 /**
  * Sends a password-reset OTP to the user's email.
  */
-const forgotPassword = async (payload: ForgotPasswordPayload) => {
+export const forgotPassword = async (payload: ForgotPasswordPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/forgot-password",
 		payload,
@@ -84,7 +84,7 @@ const forgotPassword = async (payload: ForgotPasswordPayload) => {
  * Resets the user's password by verifying the OTP and
  * updating the password in a single atomic call.
  */
-const resetPassword = async (payload: ResetPasswordPayload) => {
+export const resetPassword = async (payload: ResetPasswordPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/reset-password",
 		payload,
@@ -96,7 +96,7 @@ const resetPassword = async (payload: ResetPasswordPayload) => {
  * Changes the signed-in user's password. The backend revokes every other
  * session but keeps this one, so the caller stays signed in.
  */
-const changePassword = async (payload: ChangePasswordPayload) => {
+export const changePassword = async (payload: ChangePasswordPayload) => {
 	const { data } = await axiosClient.patch<ApiSuccessResponse>(
 		"/auth/change-password",
 		payload,
@@ -107,7 +107,7 @@ const changePassword = async (payload: ChangePasswordPayload) => {
 /**
  * Signs in (or signs up) a user using a Google ID token.
  */
-const signInWithGoogle = async (payload: GoogleSignInPayload) => {
+export const signInWithGoogle = async (payload: GoogleSignInPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/google",
 		payload,
@@ -118,7 +118,7 @@ const signInWithGoogle = async (payload: GoogleSignInPayload) => {
 /**
  * Signs in (or signs up) a user using a GitHub authorization code.
  */
-const signInWithGitHub = async (payload: GitHubSignInPayload) => {
+export const signInWithGitHub = async (payload: GitHubSignInPayload) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		"/auth/github",
 		payload,
@@ -129,7 +129,7 @@ const signInWithGitHub = async (payload: GitHubSignInPayload) => {
 /**
  * Logs out the current session by clearing the cookie and deleting the session.
  */
-const logout = async () => {
+export const logout = async () => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>("/auth/logout");
 	return data;
 };
@@ -137,23 +137,8 @@ const logout = async () => {
 /**
  * Logs out all sessions across all devices for the current user.
  */
-const logoutAll = async () => {
+export const logoutAll = async () => {
 	const { data } =
 		await axiosClient.post<ApiSuccessResponse>("/auth/logout-all");
 	return data;
-};
-
-export {
-	getCurrentUser,
-	register,
-	verifyOTP,
-	resendOTP,
-	login,
-	forgotPassword,
-	resetPassword,
-	changePassword,
-	signInWithGoogle,
-	signInWithGitHub,
-	logout,
-	logoutAll,
 };

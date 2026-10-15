@@ -10,7 +10,7 @@ import type { UsersListParams } from "@/types/admin.types";
  * automatically. `keepPreviousData` keeps the prior page visible during
  * a refetch so pagination doesn't flash a skeleton between page flips.
  */
-const useUsersList = (params: UsersListParams) => {
+export const useUsersList = (params: UsersListParams) => {
 	return useQuery({
 		queryKey: ["admin", "users", params],
 		queryFn: () => listUsers(params),
@@ -23,7 +23,7 @@ const useUsersList = (params: UsersListParams) => {
  * `skipToken` keeps the query inert (no fetch, no error) until `id` is
  * present — cleaner than a non-null assertion gated by `enabled`.
  */
-const useUserDetail = (id: string | undefined) => {
+export const useUserDetail = (id: string | undefined) => {
 	return useQuery({
 		queryKey: ["admin", "users", id],
 		queryFn: id ? () => getUserById(id) : skipToken,
@@ -34,12 +34,10 @@ const useUserDetail = (id: string | undefined) => {
  * Query hook for system-wide admin dashboard aggregates.
  * Cached for 30s — point-in-time numbers tolerate brief staleness.
  */
-const useSystemOverview = () => {
+export const useSystemOverview = () => {
 	return useQuery({
 		queryKey: ["admin", "overview"],
 		queryFn: getSystemOverview,
 		staleTime: 30_000,
 	});
 };
-
-export { useUsersList, useUserDetail, useSystemOverview };

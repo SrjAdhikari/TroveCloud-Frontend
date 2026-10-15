@@ -14,7 +14,7 @@ import {
 import type { UserPayload, UserRole } from "@/types/auth.types";
 import type { UserDetailPayload, UserItemPayload, UserStatus } from "@/types/admin.types";
 
-type AdminAction =
+export type AdminAction =
 	| "suspend"
 	| "unsuspend"
 	| "changeRole"
@@ -50,7 +50,7 @@ const statePreconditionMet = (action: AdminAction, status: UserStatus): boolean 
  * True when the caller may perform `action` on `target`. Mirrors the backend's
  * role + state + self/peer gates — defense in depth for UI gating only.
  */
-const canPerformAdminAction = (
+export const canPerformAdminAction = (
 	caller: UserPayload,
 	target: UserItemPayload | UserDetailPayload,
 	action: AdminAction,
@@ -63,13 +63,13 @@ const canPerformAdminAction = (
 	return caller.role === "superadmin";
 };
 
-interface ActionMeta {
+export interface ActionMeta {
 	label: string;
 	variant: "default" | "destructive";
 	icon: LucideIcon;
 }
 
-const ACTION_META: Record<AdminAction, ActionMeta> = {
+export const ACTION_META: Record<AdminAction, ActionMeta> = {
 	suspend: { label: "Suspend", variant: "destructive", icon: Ban },
 	unsuspend: { label: "Unsuspend", variant: "default", icon: UserRoundCheck },
 	restore: { label: "Restore", variant: "default", icon: RotateCcw },
@@ -83,24 +83,16 @@ const ACTION_META: Record<AdminAction, ActionMeta> = {
 	},
 };
 
-const PRIMARY_BY_STATUS: Record<UserStatus, AdminAction> = {
+export const PRIMARY_BY_STATUS: Record<UserStatus, AdminAction> = {
 	active: "suspend",
 	suspended: "unsuspend",
 	deleted: "restore",
 };
 
 // Order matters — these render top-to-bottom in any "More" / row dropdown.
-const MORE_ACTIONS: AdminAction[] = [
+export const MORE_ACTIONS: AdminAction[] = [
 	"changeRole",
 	"forceLogout",
 	"softDelete",
 	"hardDelete",
 ];
-
-export {
-	canPerformAdminAction,
-	ACTION_META,
-	PRIMARY_BY_STATUS,
-	MORE_ACTIONS,
-};
-export type { AdminAction, ActionMeta };

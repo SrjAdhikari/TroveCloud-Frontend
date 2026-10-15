@@ -7,7 +7,7 @@ import { getFileDownloadUrl, renameFile, deleteFile } from "@/api/file.api";
  * Query hook for creating a signed URL to preview a file inline.
  * Never cached — the URL expires in an hour, so each mount creates a fresh one.
  */
-const useFilePreviewUrl = (fileId: string) => {
+export const useFilePreviewUrl = (fileId: string) => {
 	return useQuery({
 		queryKey: ["filePreviewUrl", fileId],
 		queryFn: () => getFileDownloadUrl(fileId),
@@ -21,7 +21,7 @@ const useFilePreviewUrl = (fileId: string) => {
  * Mutation hook for creating a signed download URL.
  * Returns the URL for the caller to hand to the browser.
  */
-const useDownloadFile = () => {
+export const useDownloadFile = () => {
 	return useMutation({
 		mutationFn: (fileId: string) => getFileDownloadUrl(fileId, "download"),
 	});
@@ -30,7 +30,7 @@ const useDownloadFile = () => {
 /**
  * Mutation hook for renaming a file.
  */
-const useRenameFile = () => {
+export const useRenameFile = () => {
 	return useMutation({
 		mutationFn: ({
 			fileId,
@@ -45,13 +45,6 @@ const useRenameFile = () => {
 /**
  * Mutation hook for deleting a file.
  */
-const useDeleteFile = () => {
+export const useDeleteFile = () => {
 	return useMutation({ mutationFn: deleteFile });
-};
-
-export {
-	useFilePreviewUrl,
-	useDownloadFile,
-	useRenameFile,
-	useDeleteFile,
 };

@@ -22,7 +22,7 @@ interface CategoryMeta {
  * FE owns presentation (color isn't in the payload). Unknown / future
  * categories fall back to the neutral `Other` entry.
  */
-const STORAGE_CATEGORY_META: Record<StorageCategory, CategoryMeta> = {
+export const STORAGE_CATEGORY_META: Record<StorageCategory, CategoryMeta> = {
 	Documents: { icon: FileText, barColor: "bg-chart-4" },
 	Images: { icon: Image, barColor: "bg-chart-2" },
 	Videos: { icon: Video, barColor: "bg-chart-1" },
@@ -40,7 +40,7 @@ interface BreakdownRow {
 }
 
 /** Used/total as a whole-number percent, clamped to 0–100. */
-const getUsagePercent = (used: number, total: number): number => {
+export const getUsagePercent = (used: number, total: number): number => {
 	if (!Number.isFinite(total) || total <= 0) return 0;
 
 	const percent = Math.round((used / total) * 100);
@@ -52,7 +52,7 @@ const getUsagePercent = (used: number, total: number): number => {
  * brand `primary` below 75%, `warning` from 75%, `danger` from 90%.
  * `danger` (not `destructive`) — this is a status, not a destructive action.
  */
-const getUsageBarColor = (percent: number): string => {
+export const getUsageBarColor = (percent: number): string => {
 	if (percent >= 90) return "bg-danger";
 	if (percent >= 75) return "bg-warning";
 	return "bg-primary";
@@ -62,7 +62,7 @@ const getUsageBarColor = (percent: number): string => {
  * Maps the API breakdown into render-ready rows. Bar widths are relative to
  * `used` so the category bars compose the used portion.
  */
-const buildBreakdown = (usage: StorageUsage): BreakdownRow[] => {
+export const buildBreakdown = (usage: StorageUsage): BreakdownRow[] => {
 	const { used, breakdown } = usage;
 
 	return breakdown.map((item) => {
@@ -87,7 +87,7 @@ interface QuotaCheck {
 }
 
 /** Checks whether an incoming upload would exceed the user's storage quota */
-const checkUploadQuota = (
+export const checkUploadQuota = (
 	incomingBytes: number,
 	usage: StorageUsage | undefined,
 ): QuotaCheck => {
@@ -101,12 +101,4 @@ const checkUploadQuota = (
 
 	const remaining = Math.max(0, usage.total - usage.used);
 	return { blocked: incomingBytes > remaining, remaining };
-};
-
-export {
-	getUsagePercent,
-	getUsageBarColor,
-	buildBreakdown,
-	STORAGE_CATEGORY_META,
-	checkUploadQuota,
 };

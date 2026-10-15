@@ -6,7 +6,7 @@ import { z } from "zod/v4";
  * Validation schema for the profile name form. Mirrors the register form's
  * name rule (trim, 3–50) so a user can't set a weaker name here than at signup.
  */
-const profileNameSchema = z.object({
+export const profileNameSchema = z.object({
 	name: z
 		.string()
 		.trim()
@@ -15,7 +15,4 @@ const profileNameSchema = z.object({
 		.max(50, "Name must be at most 50 characters"),
 });
 
-type ProfileNameFormData = z.infer<typeof profileNameSchema>;
-
-export type { ProfileNameFormData };
-export { profileNameSchema };
+export type ProfileNameFormData = z.infer<typeof profileNameSchema>;

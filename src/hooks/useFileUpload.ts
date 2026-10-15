@@ -140,7 +140,7 @@ type UploadStatus =
 	| "success"
 	| "error";
 
-interface UploadItem {
+export interface UploadItem {
 	id: string;
 	fileName: string;
 	progress: number;
@@ -294,7 +294,5 @@ const useFileUpload = (dirId?: string) => {
 
 	return { uploads, upload, dismiss, cancel };
 };
-
-export type { UploadItem };
 
 export default useFileUpload;
