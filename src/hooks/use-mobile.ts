@@ -7,10 +7,8 @@ const MOBILE_BREAKPOINT = 1024;
 const isNarrowViewport = () => window.innerWidth < MOBILE_BREAKPOINT;
 
 /**
- * Tracks whether the viewport is below the mobile breakpoint.
- * Seeded during the first render — shadcn's generated version started at
- * `undefined` to stay SSR-safe, which in this client-only app just meant one
- * desktop-layout frame before the effect corrected it.
+ * Starts with the real screen width. shadcn's version started empty, which
+ * showed the desktop layout for a moment on phones.
  */
 const useIsMobile = () => {
 	const [isMobile, setIsMobile] = React.useState(isNarrowViewport);

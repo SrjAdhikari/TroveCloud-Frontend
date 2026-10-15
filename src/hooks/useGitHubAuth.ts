@@ -11,9 +11,8 @@ interface UseGitHubAuthOptions {
 }
 
 /**
- * Backend error codes whose `message` is curated for direct user display.
- * Anything outside this set falls back to GENERIC_ERROR_MESSAGE so we never
- * leak transport / 500 / unknown error strings into the UI.
+ * Errors whose server message is safe to show. Anything else shows the
+ * generic message, so users never see raw server errors.
  */
 const SHOWABLE_ERROR_CODES = new Set([
 	"PROVIDER_MISMATCH",
@@ -24,38 +23,28 @@ const GENERIC_ERROR_MESSAGE =
 	"GitHub sign-in failed. Please try again or continue with email.";
 
 /**
- * Encapsulates the GitHub sign-in flow used by the callback page —
- * mutation invocation, query invalidation, and standardized error messaging.
- *
- * Uses `mutateAsync` + `try`/`catch` (instead of scoped `mutate(vars, {
- * onSuccess, onError })` callbacks) because this hook is invoked from a
- * `useEffect` that re-renders many times before the response lands —
- * scoped callbacks can be lost in that churn with React Query v5.
- * Awaiting a real Promise can't be lost.
- *
- * Returns:
- * - `handleCode(code)` — call once the callback URL has been parsed and the CSRF state verified.
- * - `isPending` — true while the backend exchange is in flight.
+ * Uses `mutateAsync` with try/catch instead of `mutate` callbacks. This runs
+ * inside a `useEffect` that re-renders a lot before the reply arrives, and
+ * React Query can lose `mutate` callbacks then. An awaited call can't be lost.
  */
 const useGitHubAuth = ({ setError, onSuccess }: UseGitHubAuthOptions) => {
 	const queryClient = useQueryClient();
 	const { mutateAsync, isPending } = useGitHubSignIn();
 
-	// Memoized to prevent callback page's useEffect from re-running on every render.
+	// Stays the same between renders so the callback page's effect doesn't re-run.
 	const handleCode = useCallback(
 		async (code: string) => {
 			setError(null);
 			try {
 				await mutateAsync({ code });
 
-				// Refetch "/me" with the freshly-set cookie BEFORE navigating, so the
-				// destination route's ProtectedRoute guard sees the new user state on
-				// mount instead of the cached 401 from app startup.
+				// Reload the current user before leaving this page, so the next page
+				// sees them as signed in instead of the old signed-out result.
 				await queryClient.refetchQueries({ queryKey: ["currentUser"] });
 
 				onSuccess?.();
 			} catch (err) {
-				// Axios interceptor guarantees ApiError shape on rejection.
+				// Our Axios setup turns every failed request into an ApiError.
 				const apiErr = err as ApiError;
 				setError(
 					SHOWABLE_ERROR_CODES.has(apiErr.code)

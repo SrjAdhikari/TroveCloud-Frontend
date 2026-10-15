@@ -14,7 +14,7 @@ import toast from "@/lib/toast";
 import type { AdminAction } from "@/lib/adminAction";
 import type { UserDetailPayload, UserItemPayload } from "@/types/admin.types";
 
-// Actions that share the same confirm-then-mutate-then-feedback shape.
+// Actions that all work the same way: confirm, run, then show the result.
 export type SimpleAdminAction = Exclude<
 	AdminAction,
 	"changeRole" | "hardDelete"
@@ -26,10 +26,7 @@ interface AdminUserActions {
 	invalidateUsersAndOverview: () => Promise<void>;
 }
 
-/**
- * Shared mutation + invalidation handlers for the 5 simple admin actions.
- * Consumed by UserActions (detail page) and UserActionOptions (row dropdown).
- */
+/** Shared handlers for the simple admin actions. */
 const useAdminUserActions = (
 	user: UserDetailPayload | UserItemPayload,
 ): AdminUserActions => {

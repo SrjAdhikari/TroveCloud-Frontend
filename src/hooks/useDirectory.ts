@@ -9,8 +9,8 @@ import {
 } from "@/api/directory.api";
 
 /**
- * Query hook for fetching the contents of a directory.
- * Defaults to the user's root directory when no dirId is provided.
+ * Gets the files and folders inside a folder.
+ * With no `dirId`, gets the user's top-level folder.
  */
 export const useCurrentDirectory = (dirId?: string) => {
 	return useQuery({
@@ -19,9 +19,6 @@ export const useCurrentDirectory = (dirId?: string) => {
 	});
 };
 
-/**
- * Mutation hook for creating a new directory.
- */
 export const useCreateDirectory = () => {
 	return useMutation({
 		mutationFn: ({
@@ -34,9 +31,6 @@ export const useCreateDirectory = () => {
 	});
 };
 
-/**
- * Mutation hook for renaming a directory.
- */
 export const useRenameDirectory = () => {
 	return useMutation({
 		mutationFn: ({
@@ -49,9 +43,7 @@ export const useRenameDirectory = () => {
 	});
 };
 
-/**
- * Mutation hook for deleting a directory and all its contents.
- */
+/** Deletes a folder and everything inside it. */
 export const useDeleteDirectory = () => {
 	return useMutation({
 		mutationFn: deleteDirectory,

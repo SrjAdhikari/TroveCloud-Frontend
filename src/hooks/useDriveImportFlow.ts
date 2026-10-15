@@ -28,11 +28,8 @@ const TOKEN_ERROR =
 const PICKER_ERROR = "Couldn't open Google Drive. Please try again.";
 
 /**
- * Fires the right toast variant for a completion result.
- * - Full success: always toast (foreground dialog auto-closes; background
- *   never had a dialog to begin with).
- * - Partial / full failure: only toast in background — the dialog's result
- *   panel handles foreground feedback.
+ * Always shows a toast when everything imported. When some items failed,
+ * shows one only if the dialog was closed; an open dialog shows the result.
  */
 const fireCompletionToast = (
 	data: DriveImportResult,
@@ -69,9 +66,9 @@ export interface DriveImportFlow {
 }
 
 /**
- * Drive Import Flow hook.
- * Orchestrates: GIS token (drive.readonly) → Picker → POST /api/drive/import → invalidate ["directory"] + ["storageUsage"].
- * State machine: idle → picking → importing → done | error.
+ * Steps: get Google access, let the user pick files, import them, then refresh
+ * the folder and storage usage.
+ * Status: idle → picking → importing → done | error.
  */
 const useDriveImportFlow = ({
 	parentDirId,
@@ -84,7 +81,7 @@ const useDriveImportFlow = ({
 	const queryClient = useQueryClient();
 	const { mutate: runImport } = useDriveImport();
 
-	// Ref so dialog open/close transitions don't trigger re-renders.
+	// Stored in a ref so opening or closing the dialog doesn't cause a re-render.
 	const isBackgroundRef = useRef(false);
 
 	const setBackground = useCallback((value: boolean) => {
@@ -167,7 +164,7 @@ const useDriveImportFlow = ({
 	};
 
 	const onTokenNonOAuthError = (error: { type: string }) => {
-		// popup_closed = user dismissed the Google popup. Silent.
+		// The user closed the Google popup, so there's nothing to report.
 		if (error.type === "popup_closed") {
 			setStatus("idle");
 			return;
