@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/card";
 
 /**
- * Account settings tab — data export and danger zone actions.
- * All actions are placeholder until backend endpoints are available.
+ * Account tab: export data, and disable or delete the account. None of these
+ * work yet; they're waiting on the server.
  */
 const AccountTab = () => {
 	return (

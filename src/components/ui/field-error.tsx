@@ -11,11 +11,9 @@ interface FieldErrorProps {
 }
 
 /**
- * Inline field-level error shown directly below an input. Renders nothing when
- * `message` is falsy, so it's safe to mount unconditionally next to any field.
- *
- * Pass `id` to wire it via `aria-describedby` on the corresponding input so
- * screen readers announce the error in context.
+ * Error text shown under a field. Shows nothing if there's no `message`.
+ * Pass `id` and point the input's `aria-describedby` at it so screen readers
+ * read the error.
  */
 const FieldError = ({ id, message, className }: FieldErrorProps) => {
 	if (!message) return null;

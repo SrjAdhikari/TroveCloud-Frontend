@@ -20,8 +20,8 @@ interface FilterSelectBase<T extends string> {
 	className?: string;
 }
 
-// Discriminated union on `allLabel`: when present, undefined is a valid value
-// (mapped to the "All" row); when absent, the pick is required.
+// With `allLabel`, an "All" option is added and no pick (`undefined`) is
+// allowed. Without it, a value must be picked.
 type FilterSelectProps<T extends string> =
 	| (FilterSelectBase<T> & {
 			value: T | undefined;
@@ -34,13 +34,12 @@ type FilterSelectProps<T extends string> =
 			allLabel?: undefined;
 	  });
 
-// Radix Select rejects an empty-string value, so we map the unfiltered state
-// (`undefined`) to a unique sentinel for the "All" item.
+// Radix Select doesn't allow an empty value, so "All" uses this stand-in.
 const ALL = "__all__";
 
 /**
- * Select over `{ value, label }` options. Pass `allLabel` for filter UX (adds
- * an "All" row that emits `undefined`); omit it for required-pick UX.
+ * A dropdown of `{ value, label }` options. Pass `allLabel` to add an "All"
+ * option for filters.
  */
 const FilterSelect = <T extends string>({
 	label,
@@ -50,8 +49,7 @@ const FilterSelect = <T extends string>({
 	options,
 	className,
 }: FilterSelectProps<T>) => {
-	// Explicit undefined check — `""` is a valid allLabel string and must
-	// route through the filter branch, not the required-pick branch.
+	// Check for undefined on purpose: an empty `allLabel` still counts.
 	const hasAllLabel = allLabel !== undefined;
 
 	return (

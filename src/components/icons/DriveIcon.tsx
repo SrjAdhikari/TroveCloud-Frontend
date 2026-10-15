@@ -2,9 +2,6 @@
 
 import type { SVGProps } from "react";
 
-/**
- * Google Drive brand icon.
- */
 const DriveIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => (
 	<svg
 		viewBox="0 0 48 48"

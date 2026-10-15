@@ -22,7 +22,7 @@ import {
 	buildBreakdown,
 } from "@/lib/storage";
 
-/** Storage settings tab — real usage overview, per-category breakdown */
+/** Storage tab: how much space is used, split by file type. */
 const StorageTab = () => {
 	const { data: storageResponse, isLoading, isError } = useStorageUsage();
 	const usage = storageResponse?.data;

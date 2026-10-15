@@ -13,10 +13,7 @@ import {
 } from "@/components/ui/card";
 import LogoutAllDialog from "@/components/settings/LogoutAllDialog";
 
-/**
- * Placeholder session data to preview the active sessions UI.
- * Will be replaced with real data once the backend supports it.
- */
+/** Sample sessions to show the layout until the server supports this. */
 const placeholderSessions = [
 	{
 		id: 1,
@@ -45,8 +42,8 @@ const placeholderSessions = [
 ];
 
 /**
- * Sessions settings tab — active-device list (placeholder until backend
- * support) plus the live "log out of all devices" action.
+ * Sessions tab: a list of signed-in devices (sample data for now) and a
+ * working "log out of all devices" button.
  */
 const SessionsTab = () => {
 	const [showLogoutAll, setShowLogoutAll] = useState(false);

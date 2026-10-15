@@ -20,10 +20,7 @@ interface LogoutAllDialogProps {
 	onClose: () => void;
 }
 
-/**
- * Confirmation before logging out of every device. High-impact (it ends the
- * current session too), so it always confirms. Parent-conditionally mounted.
- */
+/** Asks before logging out of every device, including this one. */
 const LogoutAllDialog = ({ onClose }: LogoutAllDialogProps) => {
 	const { mutate, isPending } = useLogoutAll();
 	const handlePostLogout = usePostLogout();

@@ -16,7 +16,7 @@ import {
 } from "@/schemas/profile.schema";
 import { useUpdateProfileName } from "@/hooks/useUser";
 
-/** Inline copy for name-update failures, keyed on the backend error code. */
+/** Our messages for name-change errors, by error code. */
 const NAME_ERROR_COPY: Record<string, string> = {
 	VALIDATION_ERROR: "Name must be 3–50 characters.",
 };
@@ -28,9 +28,8 @@ interface ProfileNameFormProps {
 }
 
 /**
- * Editable display-name field. The Save button surfaces inside the input's
- * right edge only once the value changes; the bare hook's side effect (cache
- * write) is owned here at the call site.
+ * The editable name field. A Save button appears inside the field once the
+ * name changes.
  */
 const ProfileNameForm = ({ currentName }: ProfileNameFormProps) => {
 	const { mutate, isPending } = useUpdateProfileName();
@@ -52,7 +51,7 @@ const ProfileNameForm = ({ currentName }: ProfileNameFormProps) => {
 		setServerError(null);
 		mutate(name, {
 			onSuccess: (response) => {
-				// Cache the returned user so the sidebar avatar/name update without a refetch
+				// Save the new user data so the name updates everywhere at once.
 				queryClient.setQueryData(["currentUser"], response);
 				reset({ name: response.data.name });
 			},
@@ -78,7 +77,7 @@ const ProfileNameForm = ({ currentName }: ProfileNameFormProps) => {
 					{...register("name")}
 				/>
 
-				{/* Inline Save — only mounts once the value differs from the saved name. */}
+				{/* Save button, shown only once the name has changed */}
 				{isDirty && (
 					<Button
 						type="submit"

@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/card";
 
 /**
- * Display names for the providers that own the password instead of us. Keyed
- * by every non-email provider, so adding one to `AuthProvider` fails to
- * compile here rather than silently showing them a password form.
+ * Names of the sign-in providers that manage the password instead of us.
+ * Every non-email provider must be listed, so adding a new one without a
+ * name here is a type error.
  */
 const OAUTH_PROVIDER_NAMES = {
 	google: "Google",
@@ -24,13 +24,9 @@ const OAUTH_PROVIDER_NAMES = {
 } as const;
 
 /**
- * Security settings tab — change password.
- *
- * OAuth accounts have no TroveCloud password (the backend rejects them with
- * PROVIDER_MISMATCH), so the card explains that instead of rendering a form
- * that could never succeed. An unknown provider withholds the form rather
- * than defaulting to it — ProtectedRoute makes that unreachable today, but
- * this component shouldn't depend on a guard two levels up.
+ * Security tab: change password. Google and GitHub accounts have no password
+ * here, so they see a note instead of the form. An unknown provider also gets
+ * no form, just to be safe.
  */
 const SecurityTab = () => {
 	const { data: userResponse } = useCurrentUser();

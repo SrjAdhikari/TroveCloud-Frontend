@@ -15,8 +15,8 @@ interface SaveButtonProps {
 }
 
 /**
- * Stateful save button that confirms its action through its own UI states instead of a toast.
- * Cycles: idle → saving → saved (✓ for 2s) → idle, or idle → saving → error → idle.
+ * Save button that shows its own result instead of a toast: saving, then a
+ * check mark for 2 seconds, or an error, then back to normal.
  */
 const SaveButton = ({
 	onSave,
@@ -26,8 +26,8 @@ const SaveButton = ({
 	const [state, setState] = useState<State>("idle");
 	const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// Cancel any pending state-reset timer if the button unmounts mid-cycle
-	// (e.g., user navigates away during the saved/error display window).
+	// Stop the reset timer if the button goes away mid-way (e.g. the user
+	// leaves the page).
 	useEffect(() => {
 		return () => {
 			if (resetTimer.current !== null) {

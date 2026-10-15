@@ -17,9 +17,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
-/**
- * Profile settings tab — avatar, editable name, read-only email, member-since.
- */
+/** Profile tab: photo, name, email (can't be changed), and join date. */
 const ProfileTab = () => {
 	const { data: userResponse } = useCurrentUser();
 	const user = userResponse?.data;

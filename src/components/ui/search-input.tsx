@@ -16,10 +16,8 @@ interface SearchInputProps {
 }
 
 /**
- * Search input with an embedded search icon and a clear button that appears
- * when there's text. The clear button always calls `onChange("")` to reset
- * the value; pass `onClear` to run an additional side-effect (e.g. flushing
- * URL state that bypasses upstream debouncing).
+ * Search box with an icon and a clear (X) button that shows when there's
+ * text. Clearing calls `onChange("")`, and also `onClear` if you pass it.
  */
 const SearchInput = ({
 	label,

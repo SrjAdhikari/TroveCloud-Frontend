@@ -28,8 +28,8 @@ interface ProfileAvatarUploadProps {
 }
 
 /**
- * Avatar with click-to-upload. On pick the file is validated client-side
- * (type/size) before any request; a valid file uploads immediately.
+ * Profile picture you can click to change. The file's type and size are
+ * checked first; a valid file uploads right away.
  */
 const ProfileAvatarUpload = ({ user }: ProfileAvatarUploadProps) => {
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +56,7 @@ const ProfileAvatarUpload = ({ user }: ProfileAvatarUploadProps) => {
 
 		mutate(file, {
 			onSuccess: (response) => {
-				// Cache the returned user so the avatar/sidebar swap without a refetch
+				// Save the new user data so the photo updates everywhere at once.
 				queryClient.setQueryData(["currentUser"], response);
 			},
 			onError: (error) => {
@@ -81,9 +81,8 @@ const ProfileAvatarUpload = ({ user }: ProfileAvatarUploadProps) => {
 					</AvatarFallback>
 				</Avatar>
 
-				{/* Mouse-only enhancement: click-the-avatar mirrors the "Upload photo"
-				  button. tabIndex=-1 keeps it out of the keyboard tab order so
-				  keyboard/SR users get a single control (the button below). */}
+				{/* Clicking the photo does the same as the "Upload photo" button. It's
+				  skipped by Tab so keyboard users only get the button below. */}
 				<button
 					type="button"
 					tabIndex={-1}

@@ -11,9 +11,8 @@ interface EmptyStatePlaceholderProps {
 }
 
 /**
- * Shared layout for full-page empty-state placeholders (no-data, no-search-
- * results, load-error, access-denied, etc.). Renders an icon-in-frame visual
- * with a heading + description, and an optional CTA slot below.
+ * Shared layout for empty or error pages: an icon, a title, a description,
+ * and an optional button below.
  */
 const EmptyStatePlaceholder = ({
 	icon: Icon,

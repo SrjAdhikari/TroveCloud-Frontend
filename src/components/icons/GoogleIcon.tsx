@@ -2,10 +2,7 @@
 
 import type { SVGProps } from "react";
 
-/**
- * Google's official 4-color "G" mark. Hardcoded fills (not `currentColor`)
- * preserve the brand palette across light and dark themes.
- */
+/** Google's 4-color "G". The colors are fixed to match Google's logo. */
 const GoogleIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
