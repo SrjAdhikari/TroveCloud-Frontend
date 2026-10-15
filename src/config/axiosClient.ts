@@ -17,11 +17,9 @@ if (!API_BASE_URL) {
 }
 
 /**
- * Backend codes that mean the current session can no longer access the page
- * it's on — role revoked, account suspended, or session invalidated server-
- * side. The cached `currentUser` query is optimistic and won't reflect these
- * changes until refetched, so the interceptor evicts the user out of any
- * guarded surface (admin, dashboard) and forces a refetch.
+ * Error codes meaning the user can no longer see this page: their role
+ * changed, their account was suspended, or their session ended. The saved
+ * user data doesn't know yet, so the app reloads it and moves them out.
  */
 const EVICTION_CODES = new Set([
 	"INSUFFICIENT_ROLE",
@@ -45,12 +43,9 @@ const axiosClient = axios.create({
 });
 
 /**
- * Response interceptor — converts backend errors into a consistent { code, message }
- * shape so every catch block in the app gets the same predictable error object.
- *
- * On eviction codes, invalidate the cached `currentUser` then hard-redirect
- * to /my-files so the destination bootstraps a fresh auth state from the
- * server. Skip when already on a public path (no logged-in session to evict).
+ * Turns every server error into the same { code, message } shape.
+ * For the codes above, it clears the saved user and fully reloads /my-files
+ * so the app checks again who's signed in. Skipped on public pages.
  */
 axiosClient.interceptors.response.use(
 	(response) => response,

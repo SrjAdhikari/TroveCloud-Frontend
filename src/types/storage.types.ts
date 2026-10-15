@@ -1,6 +1,6 @@
 //* src/types/storage.types.ts
 
-/** Categories the backend derives from file extensions */
+/** Categories the server sorts files into, based on their extension. */
 export type StorageCategory =
 	| "Documents"
 	| "Images"

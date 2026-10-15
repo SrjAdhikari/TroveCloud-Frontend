@@ -15,8 +15,8 @@ import { useUserDetail } from "@/hooks/useAdmin";
 import { formatDate } from "@/lib/formatters";
 
 /**
- * Read-only detail page for a single user in the admin console.
- * Shows the user's profile and activity info in two cards, with a header
+ * Admin page for one user: their name and action buttons at the top, then
+ * their profile and activity.
  */
 const AdminUserDetailPage = () => {
 	const { id } = useParams<{ id: string }>();
@@ -25,9 +25,7 @@ const AdminUserDetailPage = () => {
 	if (isLoading) return <LoadingSpinner fullScreen />;
 	if (error) return <UserDetailLoadFailed error={error} />;
 
-	// Type narrower, not a runtime branch — `data.data` is non-optional per
-	// ApiSuccessResponse<T>, but useQuery types `data` as `T | undefined`
-	// across its discriminated states.
+	// Only here for TypeScript: `data.data` is always set once `data` exists.
 	const user = data?.data;
 	if (!user) return null;
 

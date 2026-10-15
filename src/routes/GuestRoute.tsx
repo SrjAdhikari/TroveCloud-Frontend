@@ -6,9 +6,8 @@ import ROUTES from "@/routes/paths";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
- * Route guard for unauthenticated users (login, register, etc.).
- * Redirects to /my-files if already authenticated.
- * Shows a full-screen spinner while the auth check is in progress.
+ * For signed-out pages like login. Signed-in users go to /my-files. Shows a
+ * spinner while checking.
  */
 const GuestRoute = () => {
 	const { data, isLoading } = useCurrentUser();

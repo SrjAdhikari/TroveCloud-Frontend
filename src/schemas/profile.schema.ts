@@ -2,10 +2,7 @@
 
 import { z } from "zod/v4";
 
-/**
- * Validation schema for the profile name form. Mirrors the register form's
- * name rule (trim, 3–50) so a user can't set a weaker name here than at signup.
- */
+/** Same name rules as sign-up: trimmed, 3–50 characters. */
 export const profileNameSchema = z.object({
 	name: z
 		.string()

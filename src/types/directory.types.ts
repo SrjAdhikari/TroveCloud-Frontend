@@ -31,7 +31,7 @@ export interface FileItemPayload {
 	updatedAt: string;
 }
 
-// A single breadcrumb crumb — one node on the root → current trail
+// One folder in the path from the top folder to the current one
 export interface DirectoryCrumbPayload {
 	_id: string;
 	name: string;
@@ -51,7 +51,7 @@ export interface DirectoryContentsPayload {
 	childDirectories: DirectoryItemPayload[];
 }
 
-// POST /api/files/:parentDirId? — Creates a presigned PUT target
+// POST /api/files/:parentDirId? — gets a link to upload the file to
 export interface UploadTicketPayload {
 	fileId: string;
 	uploadUrl: string;
@@ -60,7 +60,7 @@ export interface UploadTicketPayload {
 	uploadExpiresAt: string;
 }
 
-// GET /api/files/:id/download-url — Creates a presigned GET target
+// GET /api/files/:id/download-url — gets a short-lived link to the file
 export interface DownloadUrlPayload {
 	url: string;
 	expiresAt: string;

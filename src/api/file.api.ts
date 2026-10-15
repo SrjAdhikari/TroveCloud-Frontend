@@ -13,8 +13,8 @@ import type {
 const CONFIRM_TIMEOUT_MS = 30000;
 
 /**
- * Step 1 of an upload — reserves quota and mints a presigned R2 PUT target.
- * The URL is signed to this exact name and size.
+ * Upload step 1: reserves space and gets a link to upload the file to.
+ * The link only works for this exact file name and size.
  */
 export const createUploadTicket = async (file: File, parentDirId?: string) => {
 	const url = parentDirId ? `/files/${parentDirId}` : "/files";
@@ -25,8 +25,8 @@ export const createUploadTicket = async (file: File, parentDirId?: string) => {
 };
 
 /**
- * Step 2 of an upload — sends the bytes straight to R2 on a bare axios call.
- * axiosClient's cookies, JSON default and interceptor all break the signature.
+ * Upload step 2: sends the file straight to storage using plain axios.
+ * Our axiosClient adds cookies and settings that would make the link fail.
  */
 export const uploadFileToR2 = async (
 	uploadUrl: string,
@@ -49,8 +49,8 @@ export const uploadFileToR2 = async (
 };
 
 /**
- * Step 3 of an upload — verifies the stored object and promotes it to ready.
- * Idempotent, so it is safe to retry after a failed confirm.
+ * Upload step 3: checks the stored file and marks it ready. Safe to retry
+ * if it fails.
  */
 export const confirmUpload = async (fileId: string, signal?: AbortSignal) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse<FileItemPayload>>(
@@ -61,9 +61,7 @@ export const confirmUpload = async (fileId: string, signal?: AbortSignal) => {
 	return data;
 };
 
-/** 
- * Cancels an upload in progress, deleting the R2 object and freeing the quota.
- */
+/** Cancels an upload, deleting the stored file and freeing its space. */
 export const cancelUpload = async (fileId: string) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse>(
 		`/files/${fileId}/cancel`,
@@ -72,8 +70,8 @@ export const cancelUpload = async (fileId: string) => {
 };
 
 /**
- * Creates a short-lived signed URL served directly by R2.
- * Pass "download" to force an attachment; omit it to preview inline.
+ * Gets a short-lived link to the file. Pass "download" to save it, or leave
+ * it out to view it in the browser.
  */
 export const getFileDownloadUrl = async (
 	fileId: string,
@@ -87,9 +85,6 @@ export const getFileDownloadUrl = async (
 	return data;
 };
 
-/**
- * Renames a file by its ID.
- */
 export const renameFile = async (fileId: string, newFileName: string) => {
 	const { data } = await axiosClient.patch<ApiSuccessResponse<FileItemPayload>>(
 		`/files/${fileId}`,
@@ -98,9 +93,6 @@ export const renameFile = async (fileId: string, newFileName: string) => {
 	return data;
 };
 
-/**
- * Deletes a file by its ID.
- */
 export const deleteFile = async (fileId: string) => {
 	const { data } = await axiosClient.delete<ApiSuccessResponse>(
 		`/files/${fileId}`,

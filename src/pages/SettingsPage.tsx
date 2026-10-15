@@ -7,11 +7,7 @@ import SessionsTab from "@/components/settings/SessionsTab";
 import StorageTab from "@/components/settings/StorageTab";
 import AccountTab from "@/components/settings/AccountTab";
 
-/**
- * Settings page with vertical sidebar nav and content area.
- * Page layout — left nav, right content.
- * Built on shadcn Tabs (vertical orientation) for keyboard accessibility.
- */
+/** Settings page: tabs on the left, the open tab on the right. */
 const SettingsPage = () => {
 	const tabsClass =
 		"cursor-pointer justify-start text-base font-medium rounded-lg px-3 py-2 after:hidden hover:bg-muted/50 data-active:bg-muted! data-active:text-foreground!";

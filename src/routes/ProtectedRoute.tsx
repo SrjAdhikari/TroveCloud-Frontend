@@ -6,9 +6,8 @@ import ROUTES from "@/routes/paths";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
- * Route guard for authenticated users.
- * Renders child routes if authenticated, redirects to / (sign in) otherwise.
- * Shows a full-screen spinner while the auth check is in progress.
+ * For signed-in pages. Signed-out users go to sign-in. Shows a spinner
+ * while checking.
  */
 const ProtectedRoute = () => {
 	const { data, isLoading } = useCurrentUser();

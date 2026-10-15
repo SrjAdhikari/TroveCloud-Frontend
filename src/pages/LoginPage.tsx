@@ -49,10 +49,8 @@ const GENERIC_LOGIN_ERROR: LoginErrorEntry = {
 };
 
 /**
- * Login page — email and password form inside the shared AuthLayout.
- * On success, navigates to dashboard via query invalidation.
- * On USER_NOT_VERIFIED, opens OTP dialog.
- * Other errors render inline as an AlertBanner above the form.
+ * Email and password sign-in. If the account isn't verified yet, opens the
+ * code dialog. Other errors show in a banner above the form.
  */
 const LoginPage = () => {
 	const [showOTP, setShowOTP] = useState(false);
@@ -87,8 +85,7 @@ const LoginPage = () => {
 		mutate(data, {
 			onSuccess: () => {
 				reset();
-				// Invalidate cached auth state so GuestRoute redirects to /my-files
-				// immediately, rather than waiting for the cache to go stale.
+				// Reload the current user so the app moves to /my-files right away.
 				queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 			},
 			onError: (error) => {

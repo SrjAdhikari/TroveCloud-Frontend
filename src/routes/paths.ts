@@ -1,8 +1,6 @@
 //* src/routes/paths.ts
 
-/**
- * Centralized route paths.
- */
+/** All route paths in one place. */
 const ROUTES = {
 	ROOT: "/",
 
@@ -21,9 +19,6 @@ const ROUTES = {
 	ADMIN_USER_DETAIL: "/admin/users/:id",
 } as const;
 
-/**
- * Builds the concrete URL for the admin user-detail route.
- */
 export const adminUserDetailPath = (id: string) => `/admin/users/${id}`;
 
 export default ROUTES;

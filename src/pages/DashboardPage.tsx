@@ -22,8 +22,8 @@ import FileUploadProgress from "@/components/dashboard/upload/FileUploadProgress
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
- * Main dashboard page — fetches and displays the contents of the current directory.
- * Reads the directory ID from the `dir` search param (defaults to root if absent).
+ * The My Files page. Shows the folder named by `dir` in the URL, or the
+ * top-level folder if there's none.
  */
 const DashboardPage = () => {
 	const { view, toggleView } = useViewToggle();
@@ -50,8 +50,7 @@ const DashboardPage = () => {
 	const { uploads, upload, dismiss, cancel } = useFileUpload(dirId);
 	const driveImportFlow = useDriveImportFlow({ parentDirId: dirId });
 
-	// Stable reference so DriveImportDialog's auto-close effect doesn't re-fire
-	// on every parent render.
+	// Stays the same between renders so the dialog's auto-close doesn't re-run.
 	const handleCloseDriveImport = useCallback(
 		() => setShowDriveImport(false),
 		[setShowDriveImport],
@@ -90,7 +89,7 @@ const DashboardPage = () => {
 				</div>
 			</div>
 
-			{/* Page content — re-add the layout's p-6 padding + vertical rhythm */}
+			{/* Page content, with the layout's usual padding and spacing */}
 			<div className="space-y-6 p-6">
 				{isEmpty ? (
 					searchQuery ? (

@@ -21,9 +21,8 @@ import AdminUsersPage from "@/pages/AdminUsersPage";
 import AdminUserDetailPage from "@/pages/AdminUserDetailPage";
 
 /**
- * Central route definitions for the app.
- * Guest routes (auth pages) redirect to /my-files if already logged in.
- * Protected routes redirect to / (sign in) if not authenticated.
+ * All the app's pages. Sign-in pages send logged-in users to /my-files;
+ * the other pages send logged-out users to sign-in.
  */
 const AppRoutes = () => {
 	return (
@@ -40,9 +39,8 @@ const AppRoutes = () => {
 				</Route>
 			</Route>
 
-			{/* OAuth callback — must process the auth code regardless of current
-			    auth state, so it lives outside GuestRoute (which would otherwise
-			    redirect already-authenticated users away before the code is used). */}
+			{/* GitHub's return page must run even for signed-in users, so it's
+			    not inside GuestRoute, which would send them away too early. */}
 			<Route element={<AuthLayout />}>
 				<Route path={ROUTES.GITHUB_CALLBACK} element={<GitHubCallbackPage />} />
 			</Route>
