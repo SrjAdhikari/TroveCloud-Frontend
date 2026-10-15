@@ -16,9 +16,7 @@ interface LoadFailedProps {
 	fallback: ErrorCopy;
 }
 
-/**
- * Displays a user-friendly error message when loading admin page data fails.
- */
+/** Shows a friendly error when an admin page fails to load. */
 const LoadFailed = ({ error, errorCopy, fallback }: LoadFailedProps) => {
 	const { title, description } = errorCopy[error.code] ?? fallback;
 

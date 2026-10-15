@@ -22,9 +22,6 @@ interface ActivityInfoRowProps {
 	value: string;
 }
 
-/**
- * Helper component for a single row of user activity info
- */
 const ActivityInfoRow = ({
 	icon: Icon,
 	label,
@@ -39,10 +36,7 @@ const ActivityInfoRow = ({
 	</div>
 );
 
-/**
- * Card displaying a user's activity stats: storage used, 
- * file/directory count, active sessions, and last login time. 
- */
+/** Shows a user's storage, file and folder counts, sessions, and last login. */
 const UserActivityCard = ({ stats }: UserActivityCardProps) => {
 	return (
 		<Card className="bg-background">

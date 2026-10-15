@@ -16,9 +16,8 @@ const tabs: AdminTab[] = [
 ];
 
 /**
- * In-page tab strip for navigating between admin console screens.
- * Active tab is derived from `location.pathname` — exact match on the
- * Overview route so `/admin/users` doesn't light up both tabs.
+ * Tabs for moving between admin pages. Overview only counts as active on its
+ * exact path, so `/admin/users` doesn't highlight both tabs.
  */
 const AdminTabs = () => {
 	const location = useLocation();

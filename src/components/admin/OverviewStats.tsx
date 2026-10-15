@@ -17,11 +17,7 @@ interface OverviewStatsProps {
 	overview: SystemOverviewPayload;
 }
 
-/**
- * Renders the populated admin overview as a single-row responsive grid of
- * stat cards. Every card uses the same header + row-list structure so they
- * read as a uniform scannable block.
- */
+/** Shows the admin overview numbers as a row of matching cards. */
 const OverviewStats = ({ overview }: OverviewStatsProps) => {
 	const { users, storage, signups, sessions } = overview;
 

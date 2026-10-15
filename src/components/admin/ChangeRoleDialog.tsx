@@ -17,7 +17,7 @@ interface ChangeRoleDialogProps {
 	onSubmit: (role: UserRole) => Promise<void>;
 }
 
-/** Low → high rank. Used to slice the Select to roles ≤ the caller's own rank */
+/** Roles from lowest to highest. */
 const ROLES_BY_RANK: UserRole[] = ["user", "admin", "superadmin"];
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -26,7 +26,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
 	superadmin: "Superadmin",
 };
 
-/** Change-role dialog — owns selectedRole so parent-conditional mount resets it. */
+/** Keeps the picked role here, so it resets each time the dialog opens. */
 const ChangeRoleDialog = ({
 	user,
 	caller,
@@ -35,7 +35,7 @@ const ChangeRoleDialog = ({
 }: ChangeRoleDialogProps) => {
 	const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
 
-	/** Extract roles the caller can assign: those strictly below them in ROLES_BY_RANK. */	
+	// Roles the admin can give: up to and including their own role.
 	const assignableOptions = ROLES_BY_RANK.slice(
 		0,
 		ROLES_BY_RANK.indexOf(caller.role) + 1,

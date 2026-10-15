@@ -18,9 +18,6 @@ interface ProfileInfoRowProps {
 	valueClassName?: string;
 }
 
-/**
- * Helper component for a single row of user profile info
- */
 const ProfileInfoRow = ({
 	label,
 	value,
@@ -32,10 +29,7 @@ const ProfileInfoRow = ({
 	</div>
 );
 
-/**
- * Card displaying a user's profile information. Shows their avatar,
- * name, email, sign-up provider, verification status, and join date.
- */
+/** Shows a user's profile: photo, name, email, sign-up method, and more. */
 const UserProfileCard = ({ user }: UserProfileCardProps) => {
 	return (
 		<Card className="bg-background">
