@@ -75,7 +75,10 @@ export const cancelUpload = async (fileId: string) => {
  * Creates a short-lived signed URL served directly by R2.
  * Pass "download" to force an attachment; omit it to preview inline.
  */
-export const getFileDownloadUrl = async (fileId: string, action?: "download") => {
+export const getFileDownloadUrl = async (
+	fileId: string,
+	action?: "download",
+) => {
 	const { data } = await axiosClient.get<
 		ApiSuccessResponse<DownloadUrlPayload>
 	>(`/files/${fileId}/download-url`, {
