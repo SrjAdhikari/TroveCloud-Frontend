@@ -15,7 +15,10 @@ import type { AdminAction } from "@/lib/adminAction";
 import type { UserDetailPayload, UserItemPayload } from "@/types/admin.types";
 
 // Actions that share the same confirm-then-mutate-then-feedback shape.
-type SimpleAdminAction = Exclude<AdminAction, "changeRole" | "hardDelete">;
+export type SimpleAdminAction = Exclude<
+	AdminAction,
+	"changeRole" | "hardDelete"
+>;
 
 interface AdminUserActions {
 	simpleActionHandlers: Record<SimpleAdminAction, () => Promise<void>>;
@@ -75,4 +78,3 @@ const useAdminUserActions = (
 };
 
 export default useAdminUserActions;
-export type { SimpleAdminAction };

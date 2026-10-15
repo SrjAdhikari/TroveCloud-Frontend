@@ -15,21 +15,21 @@ import type { UserRole } from "@/types/auth.types";
 /**
  * Mutation hook for suspending a user.
  */
-const useSuspendUser = () => {
+export const useSuspendUser = () => {
 	return useMutation({ mutationFn: suspendUser });
 };
 
 /**
  * Mutation hook for lifting a user's suspension.
  */
-const useUnsuspendUser = () => {
+export const useUnsuspendUser = () => {
 	return useMutation({ mutationFn: unsuspendUser });
 };
 
 /**
  * Mutation hook for changing a user's role.
  */
-const useChangeUserRole = () => {
+export const useChangeUserRole = () => {
 	return useMutation({
 		mutationFn: ({ id, role }: { id: string; role: UserRole }) =>
 			changeUserRole(id, role),
@@ -39,37 +39,27 @@ const useChangeUserRole = () => {
 /**
  * Mutation hook for force-logging-out a user (revokes all active sessions).
  */
-const useForceLogoutUser = () => {
+export const useForceLogoutUser = () => {
 	return useMutation({ mutationFn: forceLogoutUser });
 };
 
 /**
  * Mutation hook for soft-deleting a user.
  */
-const useSoftDeleteUser = () => {
+export const useSoftDeleteUser = () => {
 	return useMutation({ mutationFn: softDeleteUser });
 };
 
 /**
  * Mutation hook for restoring a soft-deleted user.
  */
-const useRestoreUser = () => {
+export const useRestoreUser = () => {
 	return useMutation({ mutationFn: restoreUser });
 };
 
 /**
  * Mutation hook for permanently deleting a user (irreversible).
  */
-const useHardDeleteUser = () => {
+export const useHardDeleteUser = () => {
 	return useMutation({ mutationFn: hardDeleteUser });
-};
-
-export {
-	useSuspendUser,
-	useUnsuspendUser,
-	useChangeUserRole,
-	useForceLogoutUser,
-	useSoftDeleteUser,
-	useRestoreUser,
-	useHardDeleteUser,
 };

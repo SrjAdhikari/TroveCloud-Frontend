@@ -22,7 +22,7 @@ const CURRENT_USER_STALE_TIME = 45 * 60 * 1000;
  * Query hook for fetching the current authenticated user.
  * Used by auth guards to determine if the user is logged in.
  */
-const useCurrentUser = () => {
+export const useCurrentUser = () => {
 	return useQuery({
 		queryKey: ["currentUser"],
 		queryFn: getCurrentUser,
@@ -34,91 +34,76 @@ const useCurrentUser = () => {
 /**
  * Mutation hook for user registration.
  */
-const useRegister = () => {
+export const useRegister = () => {
 	return useMutation({ mutationFn: register });
 };
 
 /**
  * Mutation hook for OTP verification during registration.
  */
-const useVerifyOTP = () => {
+export const useVerifyOTP = () => {
 	return useMutation({ mutationFn: verifyOTP });
 };
 
 /**
  * Mutation hook for resending OTP to an unverified user.
  */
-const useResendOTP = () => {
+export const useResendOTP = () => {
 	return useMutation({ mutationFn: resendOTP });
 };
 
 /**
  * Mutation hook for user login.
  */
-const useLogin = () => {
+export const useLogin = () => {
 	return useMutation({ mutationFn: login });
 };
 
 /**
  * Mutation hook for requesting a password-reset OTP.
  */
-const useForgotPassword = () => {
+export const useForgotPassword = () => {
 	return useMutation({ mutationFn: forgotPassword });
 };
 
 /**
  * Mutation hook for completing the password reset (OTP + new password).
  */
-const useResetPassword = () => {
+export const useResetPassword = () => {
 	return useMutation({ mutationFn: resetPassword });
 };
 
 /**
  * Mutation hook for changing the signed-in user's password.
  */
-const useChangePassword = () => {
+export const useChangePassword = () => {
 	return useMutation({ mutationFn: changePassword });
 };
 
 /**
  * Mutation hook for signing in with a Google ID token.
  */
-const useGoogleSignIn = () => {
+export const useGoogleSignIn = () => {
 	return useMutation({ mutationFn: signInWithGoogle });
 };
 
 /**
  * Mutation hook for signing in with a GitHub authorization code.
  */
-const useGitHubSignIn = () => {
+export const useGitHubSignIn = () => {
 	return useMutation({ mutationFn: signInWithGitHub });
 };
 
 /**
  * Mutation hook for logging out the current session.
  */
-const useLogout = () => {
+export const useLogout = () => {
 	return useMutation({ mutationFn: logout });
 };
 
 /**
  * Mutation hook for logging out all sessions across all devices.
  */
-const useLogoutAll = () => {
+export const useLogoutAll = () => {
 	return useMutation({ mutationFn: logoutAll });
-};
-
-export {
-	useCurrentUser,
-	useRegister,
-	useVerifyOTP,
-	useResendOTP,
-	useLogin,
-	useForgotPassword,
-	useResetPassword,
-	useChangePassword,
-	useGoogleSignIn,
-	useGitHubSignIn,
-	useLogout,
-	useLogoutAll,
 };
