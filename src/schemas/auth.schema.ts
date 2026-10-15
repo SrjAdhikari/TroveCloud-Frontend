@@ -3,8 +3,8 @@
 import { z } from "zod/v4";
 
 /**
- * Shared password-strength policy, mirroring what the backend enforces.
- * Login deliberately opts out — you sign in with whatever you already have.
+ * Password rules, matching the server's. Login doesn't use them, since you
+ * sign in with the password you already have.
  */
 const strongPasswordSchema = z
 	.string()
@@ -15,9 +15,6 @@ const strongPasswordSchema = z
 	.regex(/[0-9]/, "Password must contain at least one number")
 	.regex(/[^a-zA-Z0-9]/, "Password must contain at least one special character");
 
-/**
- * Validation schema for the register form.
- */
 export const registerSchema = z.object({
 	name: z
 		.string()
@@ -30,17 +27,11 @@ export const registerSchema = z.object({
 	password: strongPasswordSchema,
 });
 
-/**
- * Validation schema for the login form.
- */
 export const loginSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 	password: z.string().trim().nonempty("Password is required"),
 });
 
-/**
- * Validation schema for the OTP verification form.
- */
 export const verifyOTPSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 	otp: z
@@ -50,16 +41,11 @@ export const verifyOTPSchema = z.object({
 		.regex(/^\d+$/, "OTP must contain only numbers"),
 });
 
-/**
- * Validation schema for the resend OTP form and Forgot Password form.
- */
+/** Also used by Forgot Password, which has the same single email field. */
 export const resendOTPSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 });
 
-/**
- * Validation schema for the reset password form.
- */
 export const resetPasswordSchema = z
 	.object({
 		newPassword: strongPasswordSchema,
@@ -71,8 +57,8 @@ export const resetPasswordSchema = z
 	});
 
 /**
- * Validation schema for the change-password form. The reuse check preempts the
- * backend's PASSWORD_REUSE rejection so the user gets it inline.
+ * Also blocks reusing the current password, so the user sees that error
+ * right away instead of from the server.
  */
 export const changePasswordSchema = z
 	.object({
@@ -89,7 +75,7 @@ export const changePasswordSchema = z
 		path: ["newPassword"],
 	});
 
-/** Inferred types from schemas — use these as form types */
+/** Form data types, taken from the schemas above. */
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type VerifyOTPFormData = z.infer<typeof verifyOTPSchema>;

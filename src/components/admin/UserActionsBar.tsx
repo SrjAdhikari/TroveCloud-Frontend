@@ -28,8 +28,8 @@ interface UserActionsBarProps {
 }
 
 /**
- * Trigger buttons for admin user actions. Visibility per (caller, target)
- * gated by canPerformAdminAction; renders nothing when no action is allowed.
+ * Action buttons for a user. Shows only the actions the admin is allowed to
+ * do, or nothing if there are none.
  */
 const UserActionsBar = ({ user, caller, onSelect }: UserActionsBarProps) => {
 	const primaryAction = PRIMARY_BY_STATUS[user.status];
@@ -82,8 +82,8 @@ const UserActionsBar = ({ user, caller, onSelect }: UserActionsBarProps) => {
 		);
 	}
 
-	// No primary available. If exactly one fallback action remains (admin → user-role
-	// force-logout), surface it as a single button without the "More" dropdown.
+	// No main action. If only one other action is left, show it as a plain
+	// button instead of a "More" menu.
 	if (moreActions.length === 1) {
 		const fallbackAction = moreActions[0];
 		const {

@@ -14,8 +14,8 @@
 import { GOOGLE_API_KEY, GOOGLE_CLIENT_ID } from "@/lib/constants";
 import type { DrivePickedItem } from "@/types/drive.types";
 
-// Minimal type surface for what we use from window.gapi / window.google.picker.
-// Keeps the call site type-safe without pulling in @types/gapi.picker.
+// Types for just the parts of Google's Picker we use, so we don't need the
+// @types/gapi.picker package.
 declare global {
 	interface Window {
 		gapi?: {
@@ -64,15 +64,13 @@ interface PickerResponse {
 
 const PICKER_SCRIPT_URL = "https://apis.google.com/js/api.js";
 
-// Module-level cache so repeated openPicker() calls only load the SDK once.
+// Saved so Google's Picker script is only loaded once.
 let pickerLoadPromise: Promise<void> | null = null;
 
 /**
- * Loads the Google Picker SDK on demand.
- * Idempotent — repeated calls return the same cached promise.
- * Rejects with a clear, actionable message if VITE_GOOGLE_API_KEY is missing.
- * (Drive Import needs an API key with Picker API + Drive API enabled, separate from the OAuth client ID).
- * On load failure the cache is cleared so a future call can retry.
+ * Loads Google's Picker script once, the first time it's needed.
+ * Fails with a clear message if VITE_GOOGLE_API_KEY is missing. This key needs
+ * the Picker and Drive APIs turned on. If loading fails, the next call retries.
  */
 export const loadPickerApi = (): Promise<void> => {
 	if (pickerLoadPromise) return pickerLoadPromise;
@@ -94,7 +92,7 @@ export const loadPickerApi = (): Promise<void> => {
 			});
 		};
 
-		// gapi may already be present if loaded by another flow.
+		// Google's script may already be loaded by another part of the app.
 		if (window.gapi) {
 			loadPickerModule();
 			return;
@@ -110,7 +108,7 @@ export const loadPickerApi = (): Promise<void> => {
 		document.head.appendChild(script);
 	});
 
-	// Reset cache on failure so a retry can re-attempt the load.
+	// If loading failed, forget it so the next call tries again.
 	pickerLoadPromise.catch(() => {
 		pickerLoadPromise = null;
 	});
@@ -125,11 +123,9 @@ interface OpenPickerOptions {
 }
 
 /**
- * Opens the Google Picker UI.
- * Awaits the SDK load if not yet ready.
- * Shows files + folders with multi-select enabled.
- * Hands picked items back as {id, mimeType}[] — exactly what POST /api/drive/import expects.
- * Folder picks are imported recursively server-side.
+ * Opens Google's file picker, where the user can pick many files and folders.
+ * Returns them as {id, mimeType}[], ready to send to the import API.
+ * Picked folders are imported with everything inside them.
  */
 export const openPicker = async ({
 	accessToken,
@@ -138,10 +134,10 @@ export const openPicker = async ({
 }: OpenPickerOptions): Promise<void> => {
 	await loadPickerApi();
 
-	// The PickerBuilder requires the app ID (the first part of the OAuth client ID).
+	// The Picker needs the app ID, which is the first part of the OAuth client ID.
 	const appId = GOOGLE_CLIENT_ID.split("-")[0];
 
-	// Cap Picker dimensions so it doesn't overflow on large monitors
+	// Fit the Picker inside the window, with a maximum size for large screens.
 	const width = Math.min(window.innerWidth - 64, 1051);
 	const height = Math.min(window.innerHeight - 64, 650);
 

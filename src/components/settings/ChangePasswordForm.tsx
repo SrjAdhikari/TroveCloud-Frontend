@@ -16,9 +16,8 @@ import {
 import { useChangePassword } from "@/hooks/useAuth";
 
 /**
- * Backend error codes that belong to a specific field, with the copy shown
- * beneath it. Every code is mapped explicitly — backend messages are never
- * rendered.
+ * Error codes shown under a specific field, with our own message for each.
+ * The server's text is never shown.
  */
 const FIELD_ERRORS = {
 	INVALID_CREDENTIALS: {
@@ -28,9 +27,8 @@ const FIELD_ERRORS = {
 } as const;
 
 /**
- * Account-level codes shown in a banner above the form rather than under a
- * field. `PROVIDER_MISMATCH` is unreachable — SecurityTab only mounts this
- * form for email accounts — so it falls through to the generic copy.
+ * Error codes shown in a banner above the form. `PROVIDER_MISMATCH` can't
+ * happen (only email accounts see this form), so it gets the general message.
  */
 const BANNER_ERRORS = {
 	RATE_LIMITED: {
@@ -41,10 +39,7 @@ const BANNER_ERRORS = {
 
 const GENERIC_ERROR = "Couldn't change your password. Please try again.";
 
-/**
- * Change-password form for email-provider accounts. Rendered only when the
- * user has a password to change — SecurityTab owns the provider branch.
- */
+/** Change-password form. Only shown to accounts that sign in with email. */
 const ChangePasswordForm = () => {
 	const { mutate, isPending } = useChangePassword();
 	const [serverError, setServerError] = useState<{

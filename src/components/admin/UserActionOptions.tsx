@@ -35,8 +35,8 @@ const ROW_ACTIONS: SimpleAdminAction[] = [
 ];
 
 /**
- * Row-level admin action dropdown. Filters ROW_ACTIONS via
- * canPerformAdminAction; renders nothing when no action is allowed.
+ * Action menu for one row in the users table. Shows only the actions the
+ * admin is allowed to do, or nothing if there are none.
  */
 const UserActionOptions = ({ user }: UserActionOptionsProps) => {
 	const { data: callerResponse } = useCurrentUser();

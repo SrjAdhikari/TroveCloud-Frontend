@@ -7,10 +7,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-/**
- * Sidebar header showing the TroveCloud logo and brand name.
- * Non-interactive — hover/active backgrounds are disabled.
- */
+/** The logo and app name at the top of the sidebar. It isn't clickable. */
 const SidebarLogo = () => {
 	return (
 		<SidebarHeader>

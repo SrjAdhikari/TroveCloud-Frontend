@@ -22,10 +22,7 @@ interface FileCardProps {
 	view?: "grid" | "list";
 }
 
-/**
- * Renders a single file as a card with an icon based on its extension.
- * Includes a three-dot menu for rename, download, and delete actions.
- */
+/** A file shown as a card, with an icon for its type and an actions menu. */
 const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 	const [showPreview, setShowPreview] = useState(false);
 	const [showRename, setShowRename] = useState(false);
@@ -38,10 +35,7 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 	const sizeText = file.size != null ? formatBytes(file.size) : null;
 	const baseName = file.name.slice(0, -file.extension.length) || file.name;
 
-	/**
-	 * Creates a signed URL and points the browser at it. R2 serves the bytes
-	 * with Content-Disposition, so the saved filename comes from the server.
-	 */
+	/** Gets a download link and opens it. The file name comes from the server. */
 	const handleDownload = () => {
 		download(file._id, {
 			onSuccess: (response) => {
@@ -66,7 +60,7 @@ const FileCard = ({ file, currentPath, view = "grid" }: FileCardProps) => {
 
 	const name =
 		view === "grid" ? (
-			// Split the name so end-truncation keeps the extension visible.
+			// Split so a long name gets cut off but the extension stays visible.
 			<p
 				title={file.name}
 				className="flex w-full justify-center text-sm font-medium"

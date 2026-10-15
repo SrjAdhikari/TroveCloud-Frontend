@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import FormField from "@/components/form/FormField";
 
-/** Visual and text content for the dialog */
+/** The dialog's icon and text. */
 export interface NameDialogContent {
 	icon: LucideIcon;
 	title: string;
@@ -39,10 +39,9 @@ interface NameDialogProps {
 }
 
 /**
- * Reusable dialog for entering a name — used for creating and renaming files/folders.
- * Handles form state and Zod validation (3–50 chars). Parent-conditionally mounted,
- * so the form initialises fresh from defaultValue on every open.
- * The parent controls the mutation via onSubmit and isPending props.
+ * Shared dialog for typing a name, used to create and rename files and
+ * folders. Only shown while open, so the form starts fresh each time. The
+ * parent does the actual save through `onSubmit`.
  */
 const NameDialog = ({
 	onClose,

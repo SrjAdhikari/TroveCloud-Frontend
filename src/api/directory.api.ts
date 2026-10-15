@@ -8,8 +8,8 @@ import type {
 } from "@/types/directory.types";
 
 /**
- * Fetches the contents of a directory (files + child directories).
- * Defaults to the user's root directory if no ID is provided.
+ * Gets a folder's files and folders. With no `dirId`, gets the top-level
+ * folder.
  */
 export const getDirectory = async (dirId?: string) => {
 	const url = dirId ? `/directories/${dirId}` : "/directories";
@@ -18,10 +18,7 @@ export const getDirectory = async (dirId?: string) => {
 	return data;
 };
 
-/**
- * Creates a new directory inside the given parent.
- * Defaults to root if no parentDirId is provided.
- */
+/** Creates a folder. With no `parentDirId`, it goes in the top-level folder. */
 export const createDirectory = async (name: string, parentDirId?: string) => {
 	const url = parentDirId ? `/directories/${parentDirId}` : "/directories";
 	const { data } = await axiosClient.post<
@@ -30,9 +27,6 @@ export const createDirectory = async (name: string, parentDirId?: string) => {
 	return data;
 };
 
-/**
- * Renames a directory by its ID.
- */
 export const renameDirectory = async (dirId: string, newDirName: string) => {
 	const { data } = await axiosClient.patch<
 		ApiSuccessResponse<DirectoryItemPayload>
@@ -40,9 +34,7 @@ export const renameDirectory = async (dirId: string, newDirName: string) => {
 	return data;
 };
 
-/**
- * Deletes a directory and all its contents recursively.
- */
+/** Deletes a folder and everything inside it. */
 export const deleteDirectory = async (dirId: string) => {
 	const { data } = await axiosClient.delete<ApiSuccessResponse>(
 		`/directories/${dirId}`,

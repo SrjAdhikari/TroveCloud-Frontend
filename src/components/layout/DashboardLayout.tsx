@@ -18,10 +18,8 @@ import SidebarNav from "@/components/dashboard/sidebar/SidebarNav";
 import SidebarUserMenu from "@/components/dashboard/sidebar/SidebarUserMenu";
 
 /**
- * Main dashboard layout — sidebar + content area.
- * Used as a layout route in React Router — pages render via <Outlet />.
- * On mobile, the sidebar collapses into a slide-out sheet.
- * On desktop, the sidebar is always visible (non-collapsible).
+ * Dashboard layout: sidebar plus the page. On phones the sidebar slides in
+ * from the side; on desktop it's always shown.
  */
 const DashboardLayout = () => {
 	return (

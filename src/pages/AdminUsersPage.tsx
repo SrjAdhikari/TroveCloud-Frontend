@@ -18,10 +18,7 @@ import type { UsersListParams, UserStatus } from "@/types/admin.types";
 const VALID_ROLES = new Set<UserRole>(["user", "admin", "superadmin"]);
 const VALID_STATUSES = new Set<UserStatus>(["active", "suspended", "deleted"]);
 
-/**
- * Reads `useSearchParams` snapshot into a typed UsersListParams.
- * Garbage values are silently dropped — direct URL editing won't error.
- */
+/** Reads the users-list filters from the URL. Invalid values are ignored. */
 const parseUsersParams = (searchParams: URLSearchParams): UsersListParams => {
 	const q = searchParams.get("q")?.trim() || undefined;
 
@@ -48,11 +45,7 @@ const AdminUsersPage = () => {
 	const [localQuery, setLocalQuery] = useState(params.q ?? "");
 	const debouncedQuery = useDebounce(localQuery, 300);
 
-	/**
-	 * Sync localQuery with URL `q` param changes. This covers
-	 * back/forward navigation and external links, while ignoring
-	 * localQuery changes which are already in sync with the URL.
-	 */
+	// Update the search box when the URL's `q` changes, like on Back or Forward.
 	useEffect(() => {
 		const urlQuery = params.q ?? "";
 		// eslint-disable-next-line react-hooks/set-state-in-effect

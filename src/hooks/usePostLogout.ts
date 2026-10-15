@@ -7,9 +7,8 @@ import toast from "@/lib/toast";
 import ROUTES from "@/routes/paths";
 
 /**
- * Shared cleanup run after any successful logout. Clears the auth/data caches
- * BEFORE navigating to the guest sign-in route so the guest guard doesn't read
- * a stale authenticated user (feedback_invalidate_before_navigate).
+ * Clears saved user data before going to sign-in. Otherwise the sign-in page
+ * could still think the user is logged in and send them back.
  */
 const usePostLogout = () => {
 	const queryClient = useQueryClient();

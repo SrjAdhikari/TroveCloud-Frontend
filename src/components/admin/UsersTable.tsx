@@ -35,14 +35,13 @@ const TABLE_GRID =
 const ROW_WRAPPER =
 	"col-span-full grid grid-cols-subgrid items-center gap-3 md:gap-4 px-4 py-3 group border-b border-border transition-colors hover:bg-muted";
 
-// Link spans cells 1..N-1 (everything except the trailing action cell)
+// The row link covers every cell except the last one (the actions menu).
 const ROW_LINK_CELLS =
 	"col-span-3 md:col-span-6 lg:col-span-7 grid grid-cols-subgrid items-center gap-3 md:gap-4 cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
 
 /**
- * Header + body grid for the admin users list. Renders three empty-state
- * variants (cold / filtered / out-of-range) and dims the table while a
- * background refetch is in flight (via `isFetching`).
+ * The admin users table. Shows a different empty message for no users, no
+ * filter matches, or a page past the end, and fades while new data loads.
  */
 const UsersTable = ({
 	items,

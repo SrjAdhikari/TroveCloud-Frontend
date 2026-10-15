@@ -41,8 +41,8 @@ const isSimpleAction = (action: AdminAction): action is SimpleAdminAction =>
 	SIMPLE_ACTIONS.has(action);
 
 /**
- * Owns the open-dialog state and dispatches mutation + invalidation + feedback
- * on confirm. Triggers in UserActionsBar; cache invalidates at the call site.
+ * Opens the right dialog when an action button is clicked, and runs the action
+ * once it's confirmed. The buttons themselves are in UserActionsBar.
  */
 const UserActions = ({ user }: UserActionsProps) => {
 	const { data: callerResponse } = useCurrentUser();

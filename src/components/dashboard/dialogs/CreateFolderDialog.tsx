@@ -24,10 +24,7 @@ const dialogContent: NameDialogContent = {
 	pendingLabel: "Creating...",
 };
 
-/**
- * Dialog for creating a new folder in the current directory.
- * Delegates UI to NameDialog and handles the create mutation.
- */
+/** Creates a folder in the current folder, using NameDialog for the form. */
 const CreateFolderDialog = ({
 	onClose,
 	parentDirId,

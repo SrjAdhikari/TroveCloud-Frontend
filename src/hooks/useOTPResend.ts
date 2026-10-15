@@ -17,20 +17,9 @@ interface UseOTPResendOptions {
 }
 
 /**
- * Bundles the OTP-resend cooldown + mutation invocation pattern that
- * OTPDialog (register flow) and ForgotPasswordDialog (password-reset flow) both need.
- *
- * Owns:
- * - `cooldown` state and the per-second ticker (with cleanup on unmount)
- * - the resend network call, gated by `cooldown > 0 || isPending`
- * - error-code mapping for `OTP_COOLDOWN` → friendly inline message
- *
- * The parent owns the OTP value + inline error state; the hook just calls
- * back via `onResendSuccess` / `onResendError` when the network resolves.
- *
- * Cooldown starts at `initialCooldown` on mount (defaults to `cooldownSeconds`
- * for the common "parent just sent an OTP" case) and resets to
- * `cooldownSeconds` after every successful resend.
+ * Handles "Resend code" and its wait timer for both OTP dialogs (sign-up and
+ * password reset). The dialog keeps the code and error text; this hook reports
+ * back through `onResendSuccess` / `onResendError`.
  */
 const useOTPResend = ({
 	email,

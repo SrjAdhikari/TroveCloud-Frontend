@@ -7,11 +7,7 @@ import useTheme from "@/hooks/useTheme";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
 
-/**
- * TroveCloud-themed Sonner Toaster. Reads the active theme from the
- * useTheme hook so toasts visually match the app's light/dark mode.
- * Variant tints use semantic tokens so both modes work automatically.
- */
+/** The app's toasts, styled to match the light or dark theme. */
 const Toaster = ({
 	toastOptions: callerToastOptions,
 	...restProps

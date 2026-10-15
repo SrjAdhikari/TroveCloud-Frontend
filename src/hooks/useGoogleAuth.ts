@@ -9,9 +9,8 @@ interface UseGoogleAuthOptions {
 }
 
 /**
- * Backend error codes whose `message` is curated for direct user display.
- * Anything outside this set falls back to GENERIC_ERROR_MESSAGE so we never
- * leak transport / 500 / unknown error strings into the UI.
+ * Errors whose server message is safe to show. Anything else shows the
+ * generic message, so users never see raw server errors.
  */
 const SHOWABLE_ERROR_CODES = new Set([
 	"PROVIDER_MISMATCH",
@@ -21,20 +20,11 @@ const SHOWABLE_ERROR_CODES = new Set([
 const GENERIC_ERROR_MESSAGE =
 	"Google sign-in failed. Please try again or continue with email.";
 
-/**
- * Encapsulates the Google sign-in flow shared by Login and Register pages —
- * mutation invocation, query invalidation, and standardized error messaging.
- *
- * Returns three pieces:
- * - `handleSuccess(idToken)` — pass to `<GoogleSignInButton onSuccess={...}>`
- * - `handleError()` — pass to `<GoogleSignInButton onError={...}>`
- * - `isPending` — for disabling the email/password submit while Google is in flight
- */
 const useGoogleAuth = ({ setError, onSuccess }: UseGoogleAuthOptions) => {
 	const queryClient = useQueryClient();
 	const { mutate, isPending } = useGoogleSignIn();
 
-	// Called when Google returns an ID token; posts it to /auth/google.
+	// Runs when Google signs the user in; sends Google's token to our server.
 	const handleSuccess = (idToken: string) => {
 		setError(null);
 		mutate(
@@ -42,8 +32,7 @@ const useGoogleAuth = ({ setError, onSuccess }: UseGoogleAuthOptions) => {
 			{
 				onSuccess: () => {
 					onSuccess?.();
-					// Invalidate cached auth state so GuestRoute redirects to /my-files
-					// immediately, rather than waiting for the cache to go stale.
+					// Reload the current user so the app moves to /my-files right away.
 					queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 				},
 				onError: (error) => {
@@ -57,7 +46,7 @@ const useGoogleAuth = ({ setError, onSuccess }: UseGoogleAuthOptions) => {
 		);
 	};
 
-	// Called when Google's flow itself fails (popup blocked, user canceled, etc.).
+	// Runs when Google's own sign-in fails (popup blocked, user cancelled, etc.).
 	const handleError = () => {
 		setError(GENERIC_ERROR_MESSAGE);
 	};

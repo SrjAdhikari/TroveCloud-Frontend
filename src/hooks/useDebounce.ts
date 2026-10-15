@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Returns `value` debounced by `delayMs`. The debounced value updates
- * only after the input has been stable for `delayMs` continuous ms.
- */
+/** Returns `value` after it stops changing for `delayMs` milliseconds. */
 const useDebounce = <T>(value: T, delayMs: number): T => {
 	const [debounced, setDebounced] = useState(value);
 

@@ -25,9 +25,8 @@ interface DeleteDialogProps {
 }
 
 /**
- * Confirmation dialog before deleting a file or folder.
- * Centered layout with a trash icon, item name, and side-by-side buttons.
- * Folders are deleted recursively (all nested contents).
+ * Asks before deleting a file or folder. Deleting a folder also deletes
+ * everything inside it.
  */
 const DeleteDialog = ({
 	onClose,

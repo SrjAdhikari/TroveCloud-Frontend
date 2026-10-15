@@ -11,10 +11,8 @@ interface GoogleSignInButtonProps {
 }
 
 /**
- * Fully styleable Google sign-in button.
- *
- * NOTE: The hit-area is sized to the visual button; if you change the
- * button height, the overlay width="100%" follows the wrapper width.
+ * Our own styled Google button. Google's real button sits invisibly on top,
+ * stretched to cover ours, so it catches every click.
  */
 const GoogleSignInButton = ({
 	onSuccess,
@@ -32,7 +30,7 @@ const GoogleSignInButton = ({
 				<span>{label}</span>
 			</button>
 
-			{/* Invisible Google widget — catches clicks and triggers ID-token popup */}
+			{/* Google's real button, hidden on top; it opens the Google popup */}
 			<div className="absolute inset-0 opacity-0 [&>div]:h-full!">
 				<GoogleLogin
 					onSuccess={(credentialResponse) => {

@@ -20,25 +20,22 @@ interface DriveImportDialogProps {
 }
 
 /**
- * Drive Import dialog shell
- * - Parent-conditionally mounted: internal state resets naturally on every open.
- * - The flow lives in the parent so closing mid-import doesn't cancel the in-flight request.
+ * The Google Drive import dialog. The import itself runs in the parent, so
+ * closing the dialog mid-import doesn't stop it.
  */
 const DriveImportDialog = ({ flow, onClose }: DriveImportDialogProps) => {
 	const { status, error, result, pickedNames, start, reset, setBackground } =
 		flow;
 
-	// Clear stale background flag, and reset any leftover done or error state 
-	// from a previous run so the dialog opens fresh
+	// Start fresh: clear the background flag and any result from the last run.
 	useEffect(() => {
 		setBackground(false);
 		if (status === "done" || status === "error") reset();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Auto-close on full success — the directory listing already refreshed via
-	// query invalidation, and a completion toast fired from the hook
-	// The result panel only earns its place when there's something failed to show
+	// Close by itself when everything imported. The list has already refreshed
+	// and a toast has shown, so the result panel is only needed for failures.
 	useEffect(() => {
 		if (status === "done" && result && result.failed.length === 0) {
 			reset();
@@ -49,8 +46,8 @@ const DriveImportDialog = ({ flow, onClose }: DriveImportDialogProps) => {
 	const handleOpenChange = (open: boolean) => {
 		if (open) return;
 
-		// Closing mid-import → finish in background, fire toast on completion.
-		// Otherwise reset so the next open starts fresh.
+		// Closing during an import lets it finish in the background, with a toast
+		// at the end. Otherwise reset so the next open starts fresh.
 		if (status === "importing") setBackground(true);
 		else reset();
 		onClose();

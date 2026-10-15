@@ -14,12 +14,9 @@ interface FormFieldProps extends React.ComponentProps<"input"> {
 }
 
 /**
- * Reusable form field — renders a label, input, and error message.
- * When type is "password", adds a show/hide toggle automatically.
- * Uses forwardRef so React Hook Form's register() can attach its ref.
- *
- * `labelExtra` renders to the right of the label — useful for inline
- * helpers like "Forgot password?", character counts, or help icons.
+ * A label, input, and error message. Password fields get a show/hide button.
+ * `labelExtra` goes to the right of the label, e.g. a "Forgot password?" link.
+ * Uses forwardRef so React Hook Form's register() can reach the input.
  */
 const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 	({ label, labelExtra, error, type, id, className, ...props }, ref) => {

@@ -15,9 +15,8 @@ import type {
 } from "@/types/admin.types";
 
 /**
- * Fetches a paginated, optionally filtered list of users.
- * `undefined` and empty-string values are stripped from `params`
- * so the URL stays clean and React Query keys don't change when filters are cleared.
+ * Gets a page of users, with optional filters. Empty filters are left out
+ * so the URL stays clean.
  */
 export const listUsers = async (params: UsersListParams) => {
 	const cleanedParams = Object.fromEntries(
@@ -34,9 +33,7 @@ export const listUsers = async (params: UsersListParams) => {
 	return data;
 };
 
-/**
- * Fetches a single user with derived storage / file / directory / session metrics
- */
+/** Gets one user, plus their storage, file, folder, and session counts. */
 export const getUserById = async (id: string) => {
 	const { data } = await axiosClient.get<ApiSuccessResponse<UserDetailPayload>>(
 		`/admin/users/${id}`,
@@ -44,9 +41,7 @@ export const getUserById = async (id: string) => {
 	return data;
 };
 
-/**
- * Fetches system-wide aggregates for the admin dashboard.
- */
+/** Gets the site-wide totals for the admin overview page. */
 export const getSystemOverview = async () => {
 	const { data } =
 		await axiosClient.get<ApiSuccessResponse<SystemOverviewPayload>>(
@@ -55,9 +50,6 @@ export const getSystemOverview = async () => {
 	return data;
 };
 
-/**
- * Suspends a user account.
- */
 export const suspendUser = async (id: string) => {
 	const { data } = await axiosClient.patch<ApiSuccessResponse<UserItemPayload>>(
 		`/admin/users/${id}/suspend`,
@@ -65,9 +57,6 @@ export const suspendUser = async (id: string) => {
 	return data;
 };
 
-/**
- * Lifts a suspension on a suspended user.
- */
 export const unsuspendUser = async (id: string) => {
 	const { data } = await axiosClient.patch<ApiSuccessResponse<UserItemPayload>>(
 		`/admin/users/${id}/unsuspend`,
@@ -75,9 +64,6 @@ export const unsuspendUser = async (id: string) => {
 	return data;
 };
 
-/**
- * Changes a user's role.
- */
 export const changeUserRole = async (id: string, role: UserRole) => {
 	const body: ChangeRolePayload = { role };
 	const { data } = await axiosClient.patch<ApiSuccessResponse<UserItemPayload>>(
@@ -87,9 +73,7 @@ export const changeUserRole = async (id: string, role: UserRole) => {
 	return data;
 };
 
-/**
- * Force-logs-out a user by revoking every active session.
- */
+/** Logs a user out of every device. */
 export const forceLogoutUser = async (id: string) => {
 	const { data } = await axiosClient.post<
 		ApiSuccessResponse<ForceLogoutPayload>
@@ -97,9 +81,7 @@ export const forceLogoutUser = async (id: string) => {
 	return data;
 };
 
-/**
- * Soft-deletes a user account.
- */
+/** Moves a user to the trash; they can be restored. */
 export const softDeleteUser = async (id: string) => {
 	const { data } = await axiosClient.delete<
 		ApiSuccessResponse<UserItemPayload>
@@ -107,9 +89,6 @@ export const softDeleteUser = async (id: string) => {
 	return data;
 };
 
-/**
- * Reverses a soft-delete on a user account.
- */
 export const restoreUser = async (id: string) => {
 	const { data } = await axiosClient.post<ApiSuccessResponse<UserItemPayload>>(
 		`/admin/users/${id}/restore`,
@@ -117,9 +96,7 @@ export const restoreUser = async (id: string) => {
 	return data;
 };
 
-/**
- * Permanently deletes a user and all their files/directories. Irreversible.
- */
+/** Deletes a user and all their files and folders for good. */
 export const hardDeleteUser = async (id: string) => {
 	const { data } = await axiosClient.delete<
 		ApiSuccessResponse<HardDeletePayload>

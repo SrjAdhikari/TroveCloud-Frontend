@@ -42,8 +42,8 @@ export interface UsersListPayload {
 	};
 }
 
-// Query parameters for GET /api/admin/users
-// All parameters are optional backend  defaults page=1, limit=20
+// Query parameters for GET /api/admin/users. All are optional; the server
+// defaults to page=1, limit=20.
 export interface UsersListParams {
 	page?: number;
 	limit?: number;
@@ -70,7 +70,7 @@ export interface HardDeletePayload {
 	bytesFreed: number;
 }
 
-// Point-in-time system aggregates returned by GET /api/admin/overview
+// Site-wide totals returned by GET /api/admin/overview
 export interface SystemOverviewPayload {
 	users: {
 		total: number;

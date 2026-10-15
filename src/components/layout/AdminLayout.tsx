@@ -15,8 +15,8 @@ import SidebarNav from "@/components/dashboard/sidebar/SidebarNav";
 import SidebarUserMenu from "@/components/dashboard/sidebar/SidebarUserMenu";
 
 /**
- * Admin console layout — same sidebar shell as the dashboard (minus the "New" button)
- * plus a fixed header that hosts the Overview / Users tab strip.
+ * Layout for the admin pages: the dashboard sidebar (without "New") and a
+ * header with the Overview and Users tabs.
  */
 const AdminLayout = () => {
 	return (

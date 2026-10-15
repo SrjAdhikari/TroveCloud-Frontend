@@ -19,10 +19,8 @@ import { useRegister } from "@/hooks/useAuth";
 import useGoogleAuth from "@/hooks/useGoogleAuth";
 
 /**
- * Register page — name, email, and password form inside the shared AuthLayout.
- * On success, opens the OTP verification dialog. Errors render inline as an
- * AlertBanner above the form (per feedback patterns — auth errors belong in
- * context, not as a toast).
+ * Sign-up form. On success, opens the code dialog. Errors show in a banner
+ * above the form, not as a toast.
  */
 const RegisterPage = () => {
 	const [showOTP, setShowOTP] = useState(false);

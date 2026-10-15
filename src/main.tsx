@@ -22,9 +22,8 @@ if (!GOOGLE_CLIENT_ID || !GITHUB_CLIENT_ID) {
 }
 
 /**
- * App entry point — sets up global providers and renders the app.
- * Providers: React Query (server state), BrowserRouter (routing), Sonner
- * (toasts), Google OAuth (sign-in with Google).
+ * Starts the app and wraps it in the shared providers: React Query, the
+ * router, toasts, and Google sign-in.
  */
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>

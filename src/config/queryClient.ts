@@ -3,10 +3,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/types/api.types";
 
-/**
- * Register ApiError as the default error type for all queries and mutations.
- * This replaces the default `Error` type so `error.code` is typed everywhere.
- */
+/** Makes ApiError the error type for all queries, so `error.code` is typed. */
 declare module "@tanstack/react-query" {
 	interface Register {
 		defaultError: ApiError;
@@ -14,9 +11,8 @@ declare module "@tanstack/react-query" {
 }
 
 /**
- * Shared TanStack Query client used by the QueryClientProvider in App.tsx.
- * - retry: false — failed requests won't auto-retry (we handle errors explicitly).
- * - refetchOnWindowFocus: false — prevents unexpected refetches when switching tabs.
+ * Shared React Query client. Failed requests aren't retried (we handle
+ * errors ourselves), and switching tabs doesn't reload data.
  */
 const queryClient = new QueryClient({
 	defaultOptions: {

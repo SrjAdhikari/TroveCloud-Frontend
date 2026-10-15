@@ -2,10 +2,7 @@
 
 import type { SVGProps } from "react";
 
-/**
- * GitHub Octocat mark. `currentColor` so it picks up the surrounding text
- * color, keeping it readable in both light and dark themes without per-mode variants.
- */
+/** GitHub logo. Uses the text color, so it works in light and dark mode. */
 const GitHubIcon = ({ className, ...props }: SVGProps<SVGSVGElement>) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"

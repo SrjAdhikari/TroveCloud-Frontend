@@ -2,7 +2,7 @@
 
 import { MAX_FILE_SIZE_BYTES } from "@/lib/constants";
 
-/** Splits files into ones that fit the per-file cap and ones that exceed it. */
+/** Splits files into ones under the size limit and ones over it. */
 const splitFilesBySize = (files: File[]) => {
 	const allowed: File[] = [];
 	const oversized: File[] = [];

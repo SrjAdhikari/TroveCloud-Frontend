@@ -4,10 +4,7 @@ interface OrDividerProps {
 	label: string;
 }
 
-/**
- * Horizontal divider with centered label — used between OAuth buttons
- * and the email/password form on Login and Register pages.
- */
+/** A line with a label in the middle, like "Or continue with email". */
 const OrDivider = ({ label }: OrDividerProps) => (
 	<div className="relative">
 		<div aria-hidden="true" className="absolute inset-0 flex items-center">

@@ -53,8 +53,8 @@ const PREVIEW_TYPE_MAP: Record<string, PreviewType> = {
 };
 
 /**
- * Determines how a file should be previewed based on its extension.
- * Returns "unsupported" for file types the browser can't render inline.
+ * Picks how to preview a file from its extension.
+ * Returns "unsupported" when the browser can't show it.
  */
 export const getPreviewType = (extension: string): PreviewType => {
 	const ext = extension.toLowerCase().replace(".", "");

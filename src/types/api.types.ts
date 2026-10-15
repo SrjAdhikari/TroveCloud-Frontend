@@ -5,14 +5,14 @@
  * These mirror the backend's response format from the global error middleware.
  */
 
-// Shape of success responses from controllers
+// Shape of every successful server response
 export interface ApiSuccessResponse<T = undefined> {
 	success: true;
 	message: string;
 	data: T;
 }
 
-// Shape of error responses from the global error middleware
+// Shape of every error response from the server
 export interface ApiErrorResponse {
 	status: "fail" | "error";
 	error: {
@@ -21,7 +21,7 @@ export interface ApiErrorResponse {
 	};
 }
 
-// Normalized error shape after Axios interceptor processes it
+// Error shape after our Axios setup cleans it up
 export interface ApiError {
 	message: string;
 	code: string;

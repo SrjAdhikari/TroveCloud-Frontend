@@ -47,8 +47,8 @@ const statePreconditionMet = (action: AdminAction, status: UserStatus): boolean 
 };
 
 /**
- * True when the caller may perform `action` on `target`. Mirrors the backend's
- * role + state + self/peer gates — defense in depth for UI gating only.
+ * Checks if the signed-in admin can do `action` to `target`. Uses the same
+ * rules as the server, but only to hide buttons; the server still checks.
  */
 export const canPerformAdminAction = (
 	caller: UserPayload,
@@ -89,7 +89,7 @@ export const PRIMARY_BY_STATUS: Record<UserStatus, AdminAction> = {
 	deleted: "restore",
 };
 
-// Order matters — these render top-to-bottom in any "More" / row dropdown.
+// Shown in this order, top to bottom, in the "More" and row menus.
 export const MORE_ACTIONS: AdminAction[] = [
 	"changeRole",
 	"forceLogout",

@@ -18,9 +18,8 @@ interface HardDeleteDialogProps {
 const TEXT = ADMIN_ACTION_TEXT.hardDelete;
 
 /**
- * Type-to-confirm wrapper around ConfirmActionDialog for permanent user
- * deletion. Confirm button stays disabled until the typed value matches
- * the target email (case-insensitive, whitespace-trimmed).
+ * Confirm step for permanently deleting a user. The button stays disabled
+ * until the admin types the user's email (case and extra spaces ignored).
  */
 const HardDeleteDialog = ({
 	onClose,

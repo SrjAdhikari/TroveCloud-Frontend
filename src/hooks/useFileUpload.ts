@@ -61,8 +61,8 @@ const readStatus = (error: unknown) =>
 	(error as { response?: { status?: number } })?.response?.status;
 
 /**
- * A chain of confirmations to ensure they run one at a time.
- * Process-wide — every enqueued confirm must be left settled or the chain stalls.
+ * Confirms run one at a time, in order, across all uploads. Each one must
+ * finish (pass or fail), or the ones after it never start.
  */
 let confirmChain: Promise<void> = Promise.resolve();
 
@@ -75,7 +75,7 @@ const enqueueConfirm = <T>(task: () => Promise<T>) => {
 	return result;
 };
 
-/** Resolves after ms, or immediately if the signal is or becomes aborted. */
+/** Waits `ms`, but stops early if the upload is cancelled. */
 const sleep = (ms: number, signal: AbortSignal) =>
 	new Promise<void>((resolve) => {
 		if (signal.aborted) return resolve();
@@ -148,7 +148,6 @@ export interface UploadItem {
 	errorMessage?: string;
 }
 
-/** A hook for uploading files to R2, with progress tracking and error handling. */
 const useFileUpload = (dirId?: string) => {
 	const queryClient = useQueryClient();
 	const [uploads, setUploads] = useState<UploadItem[]>([]);
@@ -186,7 +185,7 @@ const useFileUpload = (dirId?: string) => {
 		setUploads((prev) => prev.filter((item) => item.id !== id));
 	}, []);
 
-	/** Aborts the upload, which also stops its state machine. */
+	/** Cancels the upload and skips its remaining steps. */
 	const cancel = useCallback(
 		(id: string) => {
 			abortControllers.current.get(id)?.abort();
@@ -215,7 +214,7 @@ const useFileUpload = (dirId?: string) => {
 					const ticket = await createUploadTicket(file, dirId);
 					fileId = ticket.data.fileId;
 
-					// Quota commits at mint, not confirm.
+					// Space is reserved when the ticket is created, so free it here.
 					if (controller.signal.aborted) {
 						cancelPendingFile(fileId);
 						queryClient.invalidateQueries({ queryKey: ["storageUsage"] });
@@ -245,7 +244,7 @@ const useFileUpload = (dirId?: string) => {
 						await confirmWithRetry(ticket.data.fileId, controller.signal);
 					});
 
-					// The server may have committed the upload before the abort landed.
+					// The server may have saved the file before the cancel reached it.
 					if (controller.signal.aborted) {
 						cancelPendingFile(fileId);
 						queryClient.invalidateQueries({ queryKey: ["directory"] });
@@ -274,7 +273,7 @@ const useFileUpload = (dirId?: string) => {
 					if (controller.signal.aborted) {
 						if (fileId) cancelPendingFile(fileId);
 
-						// An issued confirm may still have committed before the abort landed.
+						// A confirm that was already sent may have saved the file anyway.
 						if (step === "confirm") {
 							queryClient.invalidateQueries({ queryKey: ["directory"] });
 						}

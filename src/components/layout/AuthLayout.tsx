@@ -44,17 +44,15 @@ const FEATURES: Feature[] = [
 ];
 
 /**
- * Split-screen layout for all auth pages (login, register, forgot password, verify OTP).
- * Left panel shows branding, tagline, and feature cards.
- * Right panel renders the matched child route via <Outlet />.
- * On viewports below `lg` the left panel is hidden so forms get the full width.
+ * Two-panel layout for the sign-in pages: branding on the left, the form on
+ * the right. On small screens the left panel is hidden.
  */
 const AuthLayout = () => {
 	return (
 		<div className="flex min-h-screen bg-background">
 			{/* Left panel — branding + features (hidden on mobile) */}
 			<aside className="hidden lg:flex lg:w-1/2 flex-col p-5 xl:p-8 bg-sidebar relative overflow-hidden isolate">
-				{/* Subtle purple glow — centered horizontally, slightly below vertical center */}
+				{/* Soft purple glow, a little below the middle */}
 				<div
 					aria-hidden="true"
 					className="pointer-events-none absolute top-[55%] left-1/2 size-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple/15 blur-3xl -z-10"

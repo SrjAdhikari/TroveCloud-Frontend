@@ -32,9 +32,8 @@ interface ConfirmActionDialogProps {
 }
 
 /**
- * Confirmation dialog for admin mutations. Async confirm with inline
- * AlertBanner on rejection, errorCopy[code] → generic fallback (never
- * error.message). Auto-closes via onClose on success or dialog dismiss.
+ * Asks the admin to confirm an action. If it fails, shows our own message for
+ * the error code, never the server's text. Closes on success or when dismissed.
  */
 const ConfirmActionDialog = ({
 	onClose,

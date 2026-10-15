@@ -19,9 +19,8 @@ export interface AdminActionText {
 	errorCopy: Record<string, string>;
 }
 
-// Error codes the backend can return for any admin mutation regardless of
-// which action was attempted. Per-action maps spread this in and override
-// INVALID_INPUT with action-specific state copy.
+// Error messages shared by every admin action. Each action adds these to its
+// own messages, along with its own INVALID_INPUT message.
 const COMMON_ERROR_COPY: Record<string, string> = {
 	CANNOT_ACT_ON_SELF:
 		"You can't perform this action on your own account.",

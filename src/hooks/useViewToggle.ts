@@ -4,19 +4,11 @@ import { useState } from "react";
 
 const STORAGE_KEY = "view";
 
-/**
- * Reads the saved view preference from localStorage.
- * Falls back to "grid" if no preference is stored.
- */
 const getSavedView = (): "grid" | "list" => {
 	const saved = localStorage.getItem(STORAGE_KEY);
 	return saved === "list" ? "list" : "grid";
 };
 
-/**
- * Manages grid/list view toggle state with localStorage persistence.
- * Reusable across any page that needs a view switcher.
- */
 const useViewToggle = () => {
 	const [view, setView] = useState<"grid" | "list">(getSavedView);
 

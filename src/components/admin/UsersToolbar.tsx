@@ -37,8 +37,8 @@ const STATUS_OPTIONS: ReadonlyArray<{ value: UserStatus; label: string }> = [
 ];
 
 /**
- * Toolbar above the users table — search + role/status filters + include-deleted
- * toggle. All state comes from the parent; this component is pure presentation.
+ * Search box and filters above the users table. It only shows the values and
+ * reports changes; the parent keeps the state.
  */
 const UsersToolbar = ({
 	localQuery,

@@ -17,10 +17,7 @@ const STATUS_MAP: Record<
 	deleted: { variant: "muted", label: "Deleted" },
 };
 
-/**
- * Pill rendering a user's derived lifecycle status. 
- * Tints come from the extended Badge variants — `success` / `warning` / `muted`.
- */
+/** Badge for a user's status: active, suspended, or deleted. */
 const StatusBadge = ({ status, className }: StatusBadgeProps) => (
 	<Badge variant={STATUS_MAP[status].variant} className={className}>
 		{STATUS_MAP[status].label}

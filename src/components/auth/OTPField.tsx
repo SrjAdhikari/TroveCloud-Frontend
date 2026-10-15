@@ -20,11 +20,8 @@ interface OTPFieldProps {
 }
 
 /**
- * A shared 6-slot OTP entry component.
- *
- * `input-otp` renders one real input behind the slots and spreads `InputOTP`
- * props onto it, so the name, invalid state and error association go there;
- * the slots keep `aria-invalid` purely to drive their red border.
+ * The 6-box code input. There's one real input behind the boxes, so the name
+ * and error details go on it; the boxes only use `aria-invalid` to turn red.
  */
 const OTPField = ({
 	label,

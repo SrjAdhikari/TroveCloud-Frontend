@@ -8,10 +8,7 @@ interface LoadingSpinnerProps {
 	fullScreen?: boolean;
 }
 
-/**
- * Reusable loading spinner with optional full-screen centered layout.
- * Uses Lucide's LoaderIcon icon with CSS spin animation.
- */
+/** Spinning loader. `fullScreen` centers it on the page with "Loading...". */
 const LoadingSpinner = ({
 	className,
 	fullScreen = false,

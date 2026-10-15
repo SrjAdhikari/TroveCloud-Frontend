@@ -18,9 +18,8 @@ type Validation =
 	| { kind: "code"; code: string };
 
 /**
- * Reads the callback URL once and decides whether to surface an error or
- * forward the code to the backend exchange. `consumeState()` clears the
- * CSRF token from sessionStorage as a side effect — call exactly once.
+ * Checks the URL GitHub sent back: is there an error, or a code to send to
+ * the server? `consumeState()` deletes the saved one-time code, so call once.
  */
 const validateCallback = (params: URLSearchParams): Validation => {
 	const githubError = params.get("error");
@@ -40,29 +39,22 @@ const validateCallback = (params: URLSearchParams): Validation => {
 };
 
 /**
- * Landing page for `/auth/github/callback`. GitHub redirects here with one of:
- *   - `?code=...&state=...` (success path)
- *   - `?error=...` (user denied or GitHub rejected)
- *
- * On success: exchanges the code with the backend; GuestRoute auto-redirects
- * to /my-files once the auth query refetches.
- *
- * On any failure: renders an error panel with a "Back to sign in" link.
+ * The page GitHub sends users back to after sign-in. On success, sends the
+ * code to the server and the app moves on to /my-files. On any error, shows
+ * a message with a "Back to sign in" link.
  */
 const GitHubCallbackPage = () => {
 	const [params] = useSearchParams();
 	const navigate = useNavigate();
 
-	// Validate once on mount via useState's lazy initializer. `consumeState()`
-	// removes the CSRF token from sessionStorage; running it inside the
-	// initializer means it fires exactly once per component instance and the
-	// result feeds both `error` initial state and the effect below.
+	// Check the URL only once, when the page first loads. `consumeState()`
+	// deletes the saved code, so it must not run again.
 	const [validation] = useState<Validation>(() => validateCallback(params));
 	const [error, setError] = useState<string | null>(() =>
 		validation.kind === "error" ? validation.message : null,
 	);
 
-	// Stable callback so useGitHubAuth's useCallback deps don't churn.
+	// Stays the same between renders, so useGitHubAuth's handler does too.
 	const goToMyFiles = useCallback(() => {
 		navigate(ROUTES.MY_FILES, { replace: true });
 	}, [navigate]);

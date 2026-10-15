@@ -3,10 +3,7 @@
 import { useSearchParams } from "react-router";
 import { useCurrentDirectory } from "@/hooks/useDirectory";
 
-/**
- * Fetches the current directory contents and filters by search query.
- * Reads `dir` and `q` from URL search params.
- */
+/** Gets the folder (`dir`) and search text (`q`) from the URL. */
 const useDirectoryContents = () => {
 	const [searchParams] = useSearchParams();
 
@@ -19,7 +16,6 @@ const useDirectoryContents = () => {
 
 	const isRoot = !directory?.parentDirId;
 
-	/** Filter folders and files by name when a search query is active */
 	const folders = (directory?.childDirectories ?? []).filter((f) =>
 		f.name.toLowerCase().includes(searchQuery),
 	);

@@ -1,8 +1,6 @@
 //* src/types/drive.types.ts
 
-/**
- * Types for the Google Drive Import flow.
- */
+/** Why a picked Drive item couldn't be imported. */
 export type DriveImportFailureReason =
 	| "DRIVE_ITEM_NOT_FOUND"
 	| "UNSUPPORTED_DRIVE_TYPE"
@@ -12,8 +10,8 @@ export type DriveImportFailureReason =
 	| "DRIVE_IMPORT_FAILED";
 
 /**
- * A single item the user picked in the Google Picker.
- * `id` and `mimeType` are the only fields the backend needs to fetch + classify the item.
+ * An item the user picked in Google's file picker. The server only needs
+ * `id` and `mimeType` to fetch it.
  */
 export interface DrivePickedItem {
 	id: string;

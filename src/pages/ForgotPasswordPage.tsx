@@ -17,12 +17,9 @@ import { resendOTPSchema, type ResendOTPFormData } from "@/schemas/auth.schema";
 import { useForgotPassword } from "@/hooks/useAuth";
 
 /**
- * Forgot password page — collects the user's email and triggers the
- * /auth/forgot-password endpoint to send a 6-digit OTP. On success the
- * ForgotPasswordDialog opens to collect the OTP and the new password.
- *
- * The form-shape is identical to resend-OTP (single email field) so we reuse
- * `resendOTPSchema` rather than declare a duplicate.
+ * Asks for the email and sends a 6-digit code, then ForgotPasswordDialog
+ * asks for the code and the new password. Reuses `resendOTPSchema`, since
+ * it's the same single email field.
  */
 const ForgotPasswordPage = () => {
 	const [showDialog, setShowDialog] = useState(false);
@@ -100,8 +97,8 @@ const ForgotPasswordPage = () => {
 		setShowDialog(false);
 		reset();
 
-		// Backend invalidates all sessions on reset; clear the cached
-		// currentUser so route guards on `/` don't see stale auth state.
+		// The server logs out every device after a reset, so clear the saved user
+		// too, or the sign-in page may think they're still logged in.
 		queryClient.invalidateQueries({ queryKey: ["currentUser"] });
 
 		toast.success("Password reset successfully. Please sign in.");

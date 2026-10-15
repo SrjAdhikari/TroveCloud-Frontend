@@ -10,10 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useTheme from "@/hooks/useTheme";
 
-/**
- * Dropdown button that lets the user pick between light, dark, or system theme.
- * Displays a sun or moon icon based on the current effective theme.
- */
+/** Menu to pick a light, dark, or system theme. Shows a sun or moon icon. */
 const ThemeToggle = () => {
 	const { setTheme } = useTheme();
 

@@ -16,9 +16,8 @@ const LABEL_MAP: Record<UserRole, string> = {
 };
 
 /**
- * Pill rendering a user's role. `user` → shadcn `secondary`, `admin` →
- * extended `info` (blue tint), `superadmin` → accent tokens (purple,
- * dark-mode-adaptive) inlined — no `accent` Badge variant added for a single consumer.
+ * Badge for a user's role: grey for user, blue for admin, purple for
+ * superadmin. Purple is set here because only this badge uses it.
  */
 const RoleBadge = ({ role, className }: RoleBadgeProps) => {
 	if (role === "superadmin") {

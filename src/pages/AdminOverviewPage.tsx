@@ -6,10 +6,7 @@ import OverviewLoadFailed from "@/components/admin/OverviewLoadFailed";
 import OverviewStats from "@/components/admin/OverviewStats";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
-/**
- * Admin console landing page — fetches point-in-time system aggregates
- * (users, roles, storage, signups, sessions) and renders them as a card grid.
- */
+/** Admin home page: site-wide totals (users, storage, sign-ups, sessions). */
 const AdminOverviewPage = () => {
 	const { data, isLoading, error } = useSystemOverview();
 

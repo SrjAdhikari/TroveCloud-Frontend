@@ -7,8 +7,8 @@ import isAdminRole from "@/lib/role";
 import LoadingSpinner from "@/components/ui/loading-spinner";
 
 /**
- * Route guard for admin-only pages.
- * Redirects unauthenticated visitors to the sign-in page and plain users to /my-files.
+ * Only lets admins through. Signed-out visitors go to sign-in; regular
+ * users go to /my-files.
  */
 const AdminRoute = () => {
 	const { data, isLoading } = useCurrentUser();

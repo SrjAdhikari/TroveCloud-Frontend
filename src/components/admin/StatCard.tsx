@@ -15,11 +15,7 @@ interface StatCardProps {
 	breakdown: BreakdownRow[];
 }
 
-/**
- * Single admin stat card — icon + label header followed by a uniform list of
- * label/value rows. Every card on a page renders with the same internal
- * structure so the grid reads as a single scannable block.
- */
+/** One stat card: an icon and title, then a list of label/value rows. */
 const StatCard = ({ label, icon: Icon, breakdown }: StatCardProps) => {
 	return (
 		<Card size="sm" className="bg-background">

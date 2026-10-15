@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-/**
- * Listens for custom DOM events dispatched by the sidebar "New" button
- * and manages the dialog open states for creating folders, uploading files,
- * and importing from Google Drive.
- */
+/** Opens the right dialog when an option in the sidebar "New" menu is used. */
 const useSidebarActions = () => {
 	const [showCreateFolder, setShowCreateFolder] = useState(false);
 	const [showUpload, setShowUpload] = useState(false);

@@ -22,9 +22,8 @@ interface FilePreviewDialogProps {
 }
 
 /**
- * Dialog for previewing files inline within the app.
- * Renders images, PDFs, videos, and audio natively.
- * Includes a download button and shows a fallback for unsupported types.
+ * Previews a file inside the app (images, PDFs, video, audio, and text).
+ * Has a download button, and a fallback for types that can't be shown.
  */
 const FilePreviewDialog = ({
 	onClose,

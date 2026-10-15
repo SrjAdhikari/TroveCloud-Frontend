@@ -35,9 +35,7 @@ interface DriveImportBodyProps {
 	onConnect: () => void;
 }
 
-/**
- * Renders the dialog body for each state of the import flow.
- */
+/** The dialog's content for each step of the import. */
 const DriveImportBody = ({
 	status,
 	error,
@@ -83,8 +81,8 @@ const IdleState = ({ onConnect }: { onConnect: () => void }) => (
 );
 
 /**
- * Importing state — spinner + headline + dismissible hint, plus a bordered
- * list of picked items so the user has visibility into what's being processed
+ * Shown while importing: a spinner, a note that the dialog can be closed,
+ * and the list of picked items.
  */
 const ImportingState = ({
 	pickedNames,
@@ -135,7 +133,7 @@ const ImportingState = ({
 	);
 };
 
-/** Panel displaying the results of the drive import operation. */
+/** Shows what imported and what failed. */
 const ResultPanel = ({
 	result,
 	pickedNames,

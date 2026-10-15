@@ -16,7 +16,7 @@ interface DirectoryGridViewProps {
 	currentPath: string;
 }
 
-/** Titled section wrapping a responsive auto-fill card grid. */
+/** A titled section with a grid of cards that fits the screen width. */
 const GridSection = ({
 	title,
 	children,
@@ -33,14 +33,7 @@ const GridSection = ({
 	</section>
 );
 
-/**
- * Directory Grid View component
- *
- * @param folders - Array of folder items
- * @param files - Array of file items
- * @param currentPath - Path of the directory currently being viewed
- * @returns Directory Grid View component
- */
+/** Shows folders and files as a grid of cards. */
 const DirectoryGridView = ({
 	folders,
 	files,

@@ -9,9 +9,8 @@ interface GitHubSignInButtonProps {
 }
 
 /**
- * GitHub sign-in button. On click, stores a CSRF state token and redirects
- * the browser to GitHub's authorize page. Control returns to the app via
- * `/auth/github/callback`, which exchanges the `code` with the backend.
+ * Saves a one-time code, then sends the user to GitHub to sign in. GitHub
+ * sends them back to `/auth/github/callback`, which finishes the sign-in.
  */
 const GitHubSignInButton = ({
 	disabled = false,

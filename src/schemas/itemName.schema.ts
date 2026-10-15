@@ -2,10 +2,7 @@
 
 import { z } from "zod/v4";
 
-/**
- * Creates a validation schema for a name input (file or folder).
- * Name must be 3–50 characters (matches backend constraint).
- */
+/** Name rules for a file or folder: 3–50 characters, like the server. */
 const itemNameSchema = (label: string) =>
 	z.object({
 		name: z

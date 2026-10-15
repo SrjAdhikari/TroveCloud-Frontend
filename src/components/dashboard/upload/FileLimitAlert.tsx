@@ -8,9 +8,8 @@ interface FileLimitAlertProps {
 }
 
 /**
- * Inline rejection notice for files that exceed the per-file size cap.
- * Renders nothing when no oversized files are queued, so the parent
- * doesn't need its own conditional guard.
+ * Lists the files that are too big to upload. Shows nothing when there are
+ * none, so the parent can always render it.
  */
 const FileLimitAlert = ({ names }: FileLimitAlertProps) => {
 	if (names.length === 0) return null;

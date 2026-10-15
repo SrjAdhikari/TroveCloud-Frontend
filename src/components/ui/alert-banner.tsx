@@ -33,9 +33,8 @@ const variantRoles: Record<Variant, "alert" | "status"> = {
 };
 
 /**
- * Tinted banner for contextual feedback that doesn't belong to a single field.
- * Use above forms for: wrong credentials, account locked, email-not-verified,
- * OAuth provider mismatch, storage-quota warnings, etc.
+ * Colored banner for messages about the whole form, not one field, e.g.
+ * wrong password or account locked. Usually placed above the form.
  */
 const AlertBanner = ({ variant, children, className, id }: AlertBannerProps) => (
 	<div

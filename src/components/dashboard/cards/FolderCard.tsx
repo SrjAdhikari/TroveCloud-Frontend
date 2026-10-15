@@ -19,10 +19,7 @@ interface FolderCardProps {
 	view?: "grid" | "list";
 }
 
-/**
- * Renders a single folder as a clickable card.
- * Clicking navigates into the folder by setting the `dir` search param.
- */
+/** A folder shown as a card. Clicking it opens the folder. */
 const FolderCard = ({
 	folder,
 	currentPath,

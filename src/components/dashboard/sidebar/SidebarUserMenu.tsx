@@ -32,10 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-/**
- * Sidebar footer with user avatar, info, and a dropdown menu
- * containing storage usage, settings, and logout actions.
- */
+/** The user's picture and name at the bottom of the sidebar, with a menu. */
 const SidebarUserMenu = () => {
 	const navigate = useNavigate();
 

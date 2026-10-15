@@ -9,10 +9,8 @@ interface FileIconEntry {
 	src: string;
 }
 
-/** Base path for custom file-type SVG icons */
 const ICON_BASE = "/assets/icons";
 
-/** Maps file extensions to custom SVG icons, grouped by category */
 const FILE_ICON_MAP: Record<string, FileIconEntry> = {
 	// Documents
 	pdf: { color: "text-red-500", src: `${ICON_BASE}/pdf.svg` },
@@ -72,8 +70,8 @@ const DEFAULT_FILE_ICON: FileIconEntry = {
 };
 
 /**
- * Returns the color and custom SVG path for a file based on its extension.
- * Falls back to a generic file icon for unknown extensions.
+ * Gets the icon and color for a file from its extension.
+ * Unknown extensions get a plain file icon.
  */
 export const getFileIcon = (extension: string): FileIconEntry => {
 	const ext = extension.toLowerCase().replace(".", "");
@@ -82,9 +80,7 @@ export const getFileIcon = (extension: string): FileIconEntry => {
 
 // ─── Folder Icon ─────────────────────────────────────────────
 
-/**
- * A single uniform folder icon for every folder, like Explorer/Finder/Drive.
- */
+/** Every folder uses the same icon, like in Explorer, Finder, or Drive. */
 export const FOLDER_ICON = {
 	icon: Folder,
 	className: "fill-amber-500 text-amber-500",

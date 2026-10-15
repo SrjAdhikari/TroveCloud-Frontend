@@ -7,9 +7,6 @@ import type {
 	DriveImportResult,
 } from "@/types/drive.types";
 
-/**
- * Imports the picked items from Google Drive into TroveCloud.
- */
 const importFromDrive = async (payload: DriveImportPayload) => {
 	const { data } = await axiosClient.post<
 		ApiSuccessResponse<DriveImportResult>

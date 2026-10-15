@@ -27,7 +27,7 @@ type DetailsDialogProps = {
 	| { type: "folder"; item: DirectoryItemPayload }
 );
 
-// A short metadata row — label on the left, value flush right on a single line.
+// One row: label on the left, value on the right.
 const DetailRow = ({ label, value }: { label: string; value: ReactNode }) => (
 	<div className="flex items-center justify-between gap-4 text-sm">
 		<span className="shrink-0 text-muted-foreground">{label}</span>
@@ -35,12 +35,10 @@ const DetailRow = ({ label, value }: { label: string; value: ReactNode }) => (
 	</div>
 );
 
-// Approx chars that fit the path value on one line in this ~280px-wide dialog.
-// Past it, the path drops to a stacked, wrapping block so nothing gets clipped.
+// About how many characters of the path fit on one line in this dialog.
 const PATH_INLINE_MAX = 32;
 
-// Path stays an inline DetailRow until it's too long for one line, then becomes
-// a full-width wrapping block so the whole location stays readable.
+// Shows the path in a normal row, or on its own wrapping line if too long.
 const PathDetail = ({ path }: { path: string }) =>
 	path.length <= PATH_INLINE_MAX ? (
 		<DetailRow label="Path" value={path} />
@@ -53,7 +51,7 @@ const PathDetail = ({ path }: { path: string }) =>
 		</div>
 	);
 
-// Type-appropriate header icon: image for files, uniform folder glyph for folders.
+// Header icon: the file-type icon for files, the folder icon for folders.
 const HeaderIcon = (props: DetailsDialogProps) => {
 	if (props.type === "file") {
 		return (
@@ -71,7 +69,7 @@ const HeaderIcon = (props: DetailsDialogProps) => {
 	);
 };
 
-/** Read-only dialog showing a file or folder's metadata */
+/** Shows the details of a file or folder. Nothing here can be edited. */
 const DetailsDialog = (props: DetailsDialogProps) => {
 	const { onClose, currentPath } = props;
 	const { name, createdAt, updatedAt } = props.item;
