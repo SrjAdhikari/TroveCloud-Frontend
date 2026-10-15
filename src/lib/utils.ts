@@ -3,11 +3,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-/**
- * Utility function for merging Tailwind CSS classes
- * @param inputs - Array of Tailwind CSS class strings
- * @returns Merged Tailwind CSS class string
- */
+/** Joins class names and drops Tailwind classes that clash. */
 const cn = (...inputs: ClassValue[]) => {
 	return twMerge(clsx(inputs));
 };

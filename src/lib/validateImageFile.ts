@@ -10,8 +10,8 @@ export type ImageValidationResult =
 	| { ok: false; code: "INVALID_IMAGE_TYPE" | "IMAGE_TOO_LARGE" };
 
 /**
- * Client-side guard mirroring the backend's profile-picture rules for image files.
- * Type is checked before size so a wrong-format file reports the type error first.
+ * Checks a profile picture against the same rules the server uses. Checks the
+ * type before the size, so a wrong file type is reported first.
  */
 const validateImageFile = (file: File): ImageValidationResult => {
 	if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {

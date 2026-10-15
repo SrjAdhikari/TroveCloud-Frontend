@@ -2,12 +2,7 @@
 
 import type { UserRole } from "@/types/auth.types";
 
-/**
- * Checks if the given role is admin or superadmin.
- *
- * @param role - The role to check.
- * @returns True if the role is admin or superadmin, false otherwise.
- */
+/** True for both "admin" and "superadmin". */
 const isAdminRole = (role: UserRole | undefined): boolean =>
 	role === "admin" || role === "superadmin";
 

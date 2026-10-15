@@ -18,9 +18,8 @@ interface CategoryMeta {
 }
 
 /**
- * Per-category icon + bar-color token. The API's `icon` string is unused — the
- * FE owns presentation (color isn't in the payload). Unknown / future
- * categories fall back to the neutral `Other` entry.
+ * Icon and bar color for each storage category. We pick these here and ignore
+ * the `icon` the server sends. Unknown categories use the `Other` entry.
  */
 export const STORAGE_CATEGORY_META: Record<StorageCategory, CategoryMeta> = {
 	Documents: { icon: FileText, barColor: "bg-chart-4" },
@@ -39,7 +38,7 @@ interface BreakdownRow {
 	barColor: string;
 }
 
-/** Used/total as a whole-number percent, clamped to 0–100. */
+/** Percent of storage used, as a whole number from 0 to 100. */
 export const getUsagePercent = (used: number, total: number): number => {
 	if (!Number.isFinite(total) || total <= 0) return 0;
 
@@ -48,9 +47,8 @@ export const getUsagePercent = (used: number, total: number): number => {
 };
 
 /**
- * Bar-color token for the main usage bar, escalating with fill level:
- * brand `primary` below 75%, `warning` from 75%, `danger` from 90%.
- * `danger` (not `destructive`) — this is a status, not a destructive action.
+ * Color for the main usage bar: normal below 75%, warning from 75%, and
+ * danger from 90%. (`danger` shows a status; `destructive` is for actions.)
  */
 export const getUsageBarColor = (percent: number): string => {
 	if (percent >= 90) return "bg-danger";
@@ -59,8 +57,8 @@ export const getUsageBarColor = (percent: number): string => {
 };
 
 /**
- * Maps the API breakdown into render-ready rows. Bar widths are relative to
- * `used` so the category bars compose the used portion.
+ * Turns the server's breakdown into rows for the screen. Each bar's width is
+ * its share of the used space, so together they fill the used part.
  */
 export const buildBreakdown = (usage: StorageUsage): BreakdownRow[] => {
 	const { used, breakdown } = usage;
@@ -86,7 +84,7 @@ interface QuotaCheck {
 	remaining: number;
 }
 
-/** Checks whether an incoming upload would exceed the user's storage quota */
+/** Checks if an upload would go over the user's storage limit. */
 export const checkUploadQuota = (
 	incomingBytes: number,
 	usage: StorageUsage | undefined,

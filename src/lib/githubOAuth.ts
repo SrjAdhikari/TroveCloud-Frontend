@@ -19,8 +19,8 @@ const STATE_STORAGE_KEY = "github_oauth_state";
 const AUTHORIZE_URL = "https://github.com/login/oauth/authorize";
 
 /**
- * Generates a cryptographically random CSRF state token, persists it in
- * sessionStorage, and returns it for the authorize URL.
+ * Creates a random one-time code, saves it for this tab, and returns it.
+ * GitHub sends it back, so we can check the sign-in really started here.
  */
 export const generateState = (): string => {
 	const state = crypto.randomUUID();
@@ -29,9 +29,8 @@ export const generateState = (): string => {
 };
 
 /**
- * Reads and clears the stored state. Returns `null` if none was stored
- * (e.g. user navigated directly to the callback URL or reloaded after
- * the state was already consumed).
+ * Reads the saved code and deletes it. Returns `null` if there is none, e.g.
+ * the user opened the callback link directly or reloaded the page.
  */
 export const consumeState = (): string | null => {
 	const stored = sessionStorage.getItem(STATE_STORAGE_KEY);
@@ -40,16 +39,12 @@ export const consumeState = (): string | null => {
 };
 
 /**
- * Computes the redirect URI for the current origin — matches whatever
- * dev/staging/prod the app is running on. The same URL must be added to
- * the GitHub OAuth app's "Authorization callback URL" allowlist.
+ * The page GitHub sends the user back to, on whatever site the app runs on.
+ * This URL must also be listed in the GitHub OAuth app settings.
  */
 const getRedirectUri = (): string =>
 	`${window.location.origin}${ROUTES.GITHUB_CALLBACK}`;
 
-/**
- * Builds the GitHub authorize URL the browser should be redirected to.
- */
 export const buildAuthorizeUrl = (clientId: string, state: string): string => {
 	const params = new URLSearchParams({
 		client_id: clientId,

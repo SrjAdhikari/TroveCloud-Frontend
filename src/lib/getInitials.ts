@@ -1,8 +1,8 @@
 //* src/lib/getInitials.ts
 
 /**
- * Returns up to two uppercase initials from a user's name.
- * e.g., "Suraj Adhikari" → "SA", "suraj" → "SU"
+ * Up to two capital letters from a name.
+ * e.g. "Suraj Adhikari" → "SA", "suraj" → "SU"
  */
 const getInitials = (name: string) => {
 	const trimmed = name.trim();

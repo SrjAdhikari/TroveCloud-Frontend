@@ -4,9 +4,8 @@ import { AxiosError } from "axios";
 import type { ApiError, ApiErrorResponse } from "@/types/api.types";
 
 /**
- * Extracts a consistent error object from an Axios error.
- * If the backend returned a structured error response, pulls out the code and message.
- * Falls back to a generic message for network failures or unexpected shapes.
+ * Turns any failed request into the same { code, message } shape. Uses the
+ * server's code and message when it sent them, or a general message if not.
  */
 const normalizeError = (error: unknown): ApiError => {
 	if (error instanceof AxiosError && error.response) {
