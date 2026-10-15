@@ -74,7 +74,7 @@ let pickerLoadPromise: Promise<void> | null = null;
  * (Drive Import needs an API key with Picker API + Drive API enabled, separate from the OAuth client ID).
  * On load failure the cache is cleared so a future call can retry.
  */
-const loadPickerApi = (): Promise<void> => {
+export const loadPickerApi = (): Promise<void> => {
 	if (pickerLoadPromise) return pickerLoadPromise;
 
 	if (!GOOGLE_API_KEY) {
@@ -131,7 +131,7 @@ interface OpenPickerOptions {
  * Hands picked items back as {id, mimeType}[] — exactly what POST /api/drive/import expects.
  * Folder picks are imported recursively server-side.
  */
-const openPicker = async ({
+export const openPicker = async ({
 	accessToken,
 	onPicked,
 	onCancel,
@@ -177,5 +177,3 @@ const openPicker = async ({
 
 	picker.setVisible(true);
 };
-
-export { loadPickerApi, openPicker };

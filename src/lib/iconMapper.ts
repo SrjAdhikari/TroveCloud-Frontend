@@ -75,7 +75,7 @@ const DEFAULT_FILE_ICON: FileIconEntry = {
  * Returns the color and custom SVG path for a file based on its extension.
  * Falls back to a generic file icon for unknown extensions.
  */
-const getFileIcon = (extension: string): FileIconEntry => {
+export const getFileIcon = (extension: string): FileIconEntry => {
 	const ext = extension.toLowerCase().replace(".", "");
 	return FILE_ICON_MAP[ext] ?? DEFAULT_FILE_ICON;
 };
@@ -85,9 +85,7 @@ const getFileIcon = (extension: string): FileIconEntry => {
 /**
  * A single uniform folder icon for every folder, like Explorer/Finder/Drive.
  */
-const FOLDER_ICON = {
+export const FOLDER_ICON = {
 	icon: Folder,
 	className: "fill-amber-500 text-amber-500",
 };
-
-export { getFileIcon, FOLDER_ICON };

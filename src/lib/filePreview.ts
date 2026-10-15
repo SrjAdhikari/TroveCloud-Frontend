@@ -1,6 +1,12 @@
 //* src/lib/filePreview.ts
 
-type PreviewType = "image" | "pdf" | "video" | "audio" | "text" | "unsupported";
+export type PreviewType =
+	| "image"
+	| "pdf"
+	| "video"
+	| "audio"
+	| "text"
+	| "unsupported";
 
 const PREVIEW_TYPE_MAP: Record<string, PreviewType> = {
 	// Images
@@ -50,11 +56,7 @@ const PREVIEW_TYPE_MAP: Record<string, PreviewType> = {
  * Determines how a file should be previewed based on its extension.
  * Returns "unsupported" for file types the browser can't render inline.
  */
-const getPreviewType = (extension: string): PreviewType => {
+export const getPreviewType = (extension: string): PreviewType => {
 	const ext = extension.toLowerCase().replace(".", "");
 	return PREVIEW_TYPE_MAP[ext] ?? "unsupported";
 };
-
-export type { PreviewType };
-
-export { getPreviewType };

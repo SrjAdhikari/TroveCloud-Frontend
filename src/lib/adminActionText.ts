@@ -11,7 +11,7 @@ import type { AdminAction } from "@/lib/adminAction";
  * strings, and gives QA a single place to scan when copy needs to change.
  */
 
-interface AdminActionText {
+export interface AdminActionText {
 	title: string;
 	description: (name: string) => string;
 	confirmLabel: string;
@@ -110,4 +110,3 @@ const ADMIN_ACTION_TEXT: Record<AdminAction, AdminActionText> = {
 };
 
 export default ADMIN_ACTION_TEXT;
-export type { AdminActionText };
