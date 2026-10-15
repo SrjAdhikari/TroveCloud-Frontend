@@ -24,7 +24,6 @@ const ROUTES = {
 /**
  * Builds the concrete URL for the admin user-detail route.
  */
-const adminUserDetailPath = (id: string) => `/admin/users/${id}`;
+export const adminUserDetailPath = (id: string) => `/admin/users/${id}`;
 
 export default ROUTES;
-export { adminUserDetailPath };

@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import FormField from "@/components/form/FormField";
 
 /** Visual and text content for the dialog */
-interface NameDialogContent {
+export interface NameDialogContent {
 	icon: LucideIcon;
 	title: string;
 	description: string;
@@ -130,7 +130,5 @@ const NameDialog = ({
 		</Dialog>
 	);
 };
-
-export type { NameDialogContent };
 
 export default NameDialog;
