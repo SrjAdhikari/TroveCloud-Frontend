@@ -12,11 +12,11 @@ interface FileUploadProgressProps {
 	onCancel: (id: string) => void;
 }
 
-/** Determines if an upload is currently in flight (i.e., can be canceled) */
+/** True while an upload is still running and can be cancelled. */
 const isInFlight = (status: UploadItem["status"]) =>
 	status === "reserving" || status === "uploading" || status === "confirming";
 
-/** Status line shown below the file name for every status except uploading */
+/** Status text under the file name (not shown while uploading). */
 const StatusLabel = ({
 	status,
 	errorMessage,
@@ -46,8 +46,8 @@ const StatusLabel = ({
 };
 
 /**
- * Fixed bottom-right panel showing upload progress for each file.
- * Auto-hides when there are no uploads to show.
+ * Upload progress panel in the bottom-right corner. Hidden when there are
+ * no uploads.
  */
 const FileUploadProgress = ({
 	uploads,

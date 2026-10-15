@@ -34,9 +34,8 @@ const navItems: NavItem[] = [
 ];
 
 /**
- * Sidebar navigation links for the dashboard.
- * Active item is determined by the current route path.
- * Disabled items are dimmed placeholders for features not yet supported.
+ * Sidebar links. The current page is highlighted, and links for features
+ * that aren't ready yet are greyed out.
  */
 const SidebarNav = () => {
 	const navigate = useNavigate();

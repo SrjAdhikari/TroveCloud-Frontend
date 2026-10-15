@@ -28,9 +28,8 @@ interface FileUploadDialogProps {
 const QUOTA_ALERT_ID = "upload-quota-alert";
 
 /**
- * Custom upload dialog with drag-and-drop zone and file preview list.
- * Replaces the native file picker with a more polished experience.
- * Selected files are passed to the parent's onUpload callback on confirm.
+ * Upload dialog with a drag-and-drop area and a list of picked files.
+ * Hands the files to the parent's `onUpload` when the user confirms.
  */
 const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 	const [oversizedNames, setOversizedNames] = useState<string[]>([]);
@@ -41,7 +40,7 @@ const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 		storageResponse?.data,
 	);
 
-	/** Reject oversized files at add-time so the backend never sees them. */
+	/** Turns away files over the size limit before they're added. */
 	const acceptFiles = (incoming: FileList | File[]) => {
 		const { allowed, oversized } = splitFilesBySize(Array.from(incoming));
 
@@ -54,7 +53,7 @@ const FileUploadDialog = ({ onClose, onUpload }: FileUploadDialogProps) => {
 		if (allowed.length > 0) addFiles(allowed);
 	};
 
-	/** Converts the File[] back to a FileList-like object and triggers upload */
+	/** Puts the files back into a FileList, which `onUpload` expects. */
 	const handleUpload = () => {
 		if (selectedFiles.length === 0 || blocked) return;
 

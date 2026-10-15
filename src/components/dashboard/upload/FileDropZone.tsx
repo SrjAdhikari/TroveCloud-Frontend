@@ -10,9 +10,8 @@ interface FileDropZoneProps {
 }
 
 /**
- * Click-to-browse + drag-and-drop file picker. Owns its own drag highlight
- * state and the hidden <input type="file">; the parent only receives the
- * raw file list via onFiles.
+ * Click to browse, or drag and drop files. Handles its own highlight and
+ * hidden file input, and passes the picked files to `onFiles`.
  */
 const FileDropZone = ({ onFiles }: FileDropZoneProps) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);

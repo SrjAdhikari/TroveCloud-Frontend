@@ -16,14 +16,7 @@ interface DirectoryListViewProps {
 const TABLE_GRID =
 	"grid grid-cols-[auto_1fr_4rem] md:grid-cols-[auto_3fr_2fr_4rem] lg:grid-cols-[auto_3fr_2fr_1fr_4rem]";
 
-/**
- * Directory List View component
- *
- * @param folders - Array of folder items
- * @param files - Array of file items
- * @param currentPath - Path of the directory currently being viewed
- * @returns Directory List View component
- */
+/** Shows folders and files as a list. */
 const DirectoryListView = ({
 	folders,
 	files,

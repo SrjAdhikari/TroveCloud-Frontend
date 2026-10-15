@@ -9,16 +9,13 @@ interface TextPreviewProps {
 	url: string;
 }
 
-/**
- * Fetches and displays file content as plain text in a scrollable code block.
- * Shows a loading spinner while fetching and an error message on failure.
- */
+/** Loads a text file and shows it in a scrollable code box. */
 const TextPreview = ({ url }: TextPreviewProps) => {
 	const [content, setContent] = useState<string | null>(null);
 	const [error, setError] = useState(false);
 	const [copied, setCopied] = useState(false);
 
-	/** Bare fetch — the URL is a presigned R2 target, so send no credentials */
+	// Plain fetch with no cookies: the link already includes its own access.
 	useEffect(() => {
 		const controller = new AbortController();
 

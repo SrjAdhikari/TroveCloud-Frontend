@@ -18,16 +18,13 @@ interface RenameDialogProps {
 	type: "file" | "folder";
 }
 
-/**
- * Strips the extension from a file name (e.g. "report.pdf" → "report").
- * Returns the full name if there's no extension.
- */
+/** "report.pdf" → "report". A name with no extension is returned as is. */
 const stripExtension = (name: string) => {
 	const lastDot = name.lastIndexOf(".");
 	return lastDot > 0 ? name.slice(0, lastDot) : name;
 };
 
-/** Returns dialog content text based on item type */
+/** The dialog's icon and text for a file or a folder. */
 const getContent = (type: "file" | "folder"): NameDialogContent => {
 	const label = type === "folder" ? "Folder" : "File";
 	return {
@@ -42,9 +39,8 @@ const getContent = (type: "file" | "folder"): NameDialogContent => {
 };
 
 /**
- * Dialog for renaming a file or folder.
- * For files, only the name part is editable — the extension is preserved.
- * Delegates UI to NameDialog and handles the rename mutation.
+ * Renames a file or folder. For files, only the part before the extension
+ * can be edited; the extension is kept.
  */
 const RenameDialog = ({
 	onClose,
@@ -60,12 +56,12 @@ const RenameDialog = ({
 	const content = useMemo(() => getContent(type), [type]);
 	const schema = type === "folder" ? folderNameSchema : fileNameSchema;
 
-	// For files, show only the name without extension in the input
+	// For files, the input shows the name without its extension.
 	const displayName =
 		type === "file" ? stripExtension(currentName) : currentName;
 
 	const handleSubmit = (name: string) => {
-		// Re-append the original extension for files (guard against no-extension files)
+		// Add the original extension back (if the file had one).
 		const dotIndex = currentName.lastIndexOf(".");
 		const extension = dotIndex > 0 ? currentName.slice(dotIndex) : "";
 		const fullName = type === "file" ? `${name}${extension}` : name;

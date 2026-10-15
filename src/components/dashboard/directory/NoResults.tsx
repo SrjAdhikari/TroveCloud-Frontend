@@ -8,9 +8,7 @@ interface NoResultsProps {
 	query: string;
 }
 
-/**
- * Placeholder shown when a search query returns no matching files or folders.
- */
+/** Shown when a search finds no files or folders. */
 const NoResults = ({ query }: NoResultsProps) => {
 	return (
 		<EmptyStatePlaceholder

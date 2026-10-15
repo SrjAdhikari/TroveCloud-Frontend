@@ -18,11 +18,7 @@ interface DirectoryToolbarProps {
 	onToggleView: () => void;
 }
 
-/**
- * Toolbar with icon buttons for directory actions —
- * new folder, upload files, upload folder (placeholder),
- * import from drive, and grid/list view toggle.
- */
+/** Buttons above the file list (new folder, upload, import, view switch). */
 const DirectoryToolbar = ({
 	view,
 	onNewFolder,

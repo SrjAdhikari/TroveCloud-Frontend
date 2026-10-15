@@ -10,7 +10,7 @@ interface DriveImportFooterProps {
 	onReset: () => void;
 }
 
-/** Footer buttons whose layout depends on the current flow state. */
+/** The dialog's buttons, which change with each step of the import. */
 const DriveImportFooter = ({
 	status,
 	onClose,
@@ -52,7 +52,7 @@ const DriveImportFooter = ({
 		);
 	}
 
-	// idle / picking / importing — single Cancel/Close action.
+	// Before and during the import there's one button: Cancel or Close.
 	const label = status === "importing" ? "Close" : "Cancel";
 
 	return (

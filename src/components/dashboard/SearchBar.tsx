@@ -6,17 +6,15 @@ import { useSearchParams } from "react-router";
 import SearchInput from "@/components/ui/search-input";
 
 /**
- * Search input for the dashboard header bar. Syncs the query with the `q`
- * search param in the URL, debouncing typing by 300ms. Clearing via the X
- * button bypasses the debounce so the file list reacts immediately.
+ * Search box in the dashboard header. Saves the search in the URL (`q`),
+ * waiting 300ms after typing stops. Clearing with X updates the list at once.
  */
 const SearchBar = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [query, setQuery] = useState(searchParams.get("q") || "");
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// Reconcile the input value when the URL `q` changes externally
-	// (back/forward nav, programmatic setSearchParams from elsewhere).
+	// Update the box when the URL changes some other way, like Back or Forward.
 	useEffect(() => {
 		const urlQuery = searchParams.get("q") ?? "";
 		// eslint-disable-next-line react-hooks/set-state-in-effect

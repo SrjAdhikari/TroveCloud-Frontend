@@ -39,16 +39,7 @@ interface MenuItemProps {
 	variant?: "default" | "destructive";
 }
 
-/**
- * Internal helper - wraps `DropdownMenuItem` with the project's icon label layout.
- *
- * @param Icon - Icon to be displayed
- * @param children - Child elements
- * @param onClick - Function to be called on click
- * @param disabled - To disable the menu item
- * @param variant - Variant of the menu item
- * @returns MenuItem component
- */
+/** One menu item with an icon and a label. */
 const MenuItem = ({
 	icon: Icon,
 	children,
@@ -78,16 +69,7 @@ const MenuItem = ({
 	);
 };
 
-/**
- * Item Actions Component - Three-dot dropdown menu with actions for a file or folder card.
- *
- * @param onRename - Function to rename the item
- * @param onDelete - Function to delete the item
- * @param onDetails - Function to open the item's details dialog
- * @param onPreview - Function to preview the item
- * @param onDownload - Function to download the item
- * @returns ItemActions component
- */
+/** The three-dot menu on a file or folder card. */
 const ItemActions = ({
 	onRename,
 	onDelete,
@@ -96,11 +78,9 @@ const ItemActions = ({
 	onDownload,
 }: ItemActionsProps) => {
 	return (
-		// FileCard / FolderCard are clickable (open preview / navigate into folder).
-		// Stop click bubbling on both the Trigger (dot click) and the Content (menu
-		// item clicks) so opening or using this menu doesn't also fire the parent
-		// card's onClick. Radix onSelect only stops its own custom event — the
-		// underlying React click still bubbles up the React tree.
+		// Cards open something when clicked. Stop clicks on this menu from
+		// reaching the card, or using the menu would also open the file or folder.
+		// (Radix's onSelect alone doesn't stop the click from reaching the card.)
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button

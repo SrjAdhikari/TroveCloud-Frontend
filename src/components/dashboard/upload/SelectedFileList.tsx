@@ -9,10 +9,7 @@ interface SelectedFileListProps {
 	onRemove: (index: number) => void;
 }
 
-/**
- * Displays the list of files selected for upload with individual
- * remove buttons. Shows total count and combined file size.
- */
+/** Picked files with remove buttons, plus their total count and size. */
 const SelectedFileList = ({
 	files,
 	totalSize,

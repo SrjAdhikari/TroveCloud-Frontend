@@ -17,10 +17,7 @@ interface ErrorCopy {
 	description: string;
 }
 
-/**
- * Maps backend error codes to user-facing copy. 
- * Static strings only - never use the backend's `error.message`.
- */
+/** Our own message for each error code; the server's text is never shown. */
 const ERROR_COPY: Record<string, ErrorCopy> = {
 	DIRECTORY_NOT_FOUND: {
 		title: "Folder not found",
@@ -42,8 +39,8 @@ const FALLBACK_COPY: ErrorCopy = {
 };
 
 /**
- * Placeholder shown when the directory query fails — maps known error codes
- * to friendly copy and offers a recovery link to the user's root directory.
+ * Shown when a folder fails to load. Explains the error in plain words and
+ * links back to My Files.
  */
 const DirectoryLoadFailed = ({ error }: DirectoryLoadFailedProps) => {
 	const { title, description } = ERROR_COPY[error.code] ?? FALLBACK_COPY;

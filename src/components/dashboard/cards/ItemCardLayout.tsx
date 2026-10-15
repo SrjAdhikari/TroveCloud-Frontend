@@ -35,7 +35,7 @@ const ItemCardLayout = ({
 }: ItemCardLayoutProps) => {
 	const navigate = useNavigate();
 
-	// A card navigates (`to`) or runs an imperative action (`onActivate`)
+	// A card either goes to a page (`to`) or runs a function (`onActivate`).
 	const activate = to ? () => navigate(to) : onActivate;
 
 	if (view === "grid") {
@@ -45,7 +45,7 @@ const ItemCardLayout = ({
 				tabIndex={0}
 				onClick={activate}
 				onKeyDown={(e) => {
-					// role="button" must honor both Enter and Space
+					// Like a real button, respond to both Enter and Space.
 					if (e.key === "Enter" || e.key === " ") {
 						e.preventDefault();
 						activate?.();
@@ -53,7 +53,7 @@ const ItemCardLayout = ({
 				}}
 				className={GRID_CARD}
 			>
-				{/* Action menu — absolute top-right so it doesn't break centering */}
+				{/* Actions menu, pinned top-right so the icon stays centered */}
 				<div className="absolute right-2 top-2">{actions}</div>
 
 				{/* Icon above the divider */}
@@ -67,7 +67,7 @@ const ItemCardLayout = ({
 		);
 	}
 
-	// A variable holding JSX for list view, so we can reuse it for both the <Link> and <button> cases.
+	// List-view cells, shared by the <Link> and <button> versions below.
 	const cells = (
 		<>
 			<div className="flex size-8 shrink-0 items-center justify-center">

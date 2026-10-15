@@ -15,13 +15,12 @@ import {
 
 import type { DirectoryCrumbPayload } from "@/types/directory.types";
 
-// Root → current folder, self-inclusive (last crumb = the folder you're in).
+// The path from the top folder to the current one, which is the last item.
 interface BreadcrumbsProps {
 	breadcrumb: DirectoryCrumbPayload[];
 }
 
-// Collapse intermediate crumbs into "…" once the trail
-// (root + middle + current) is deeper than this many entries.
+// Above this many items, the middle folders are replaced with "…".
 const TRUNCATE_THRESHOLD = 5;
 
 const Breadcrumbs = ({ breadcrumb }: BreadcrumbsProps) => {
@@ -29,16 +28,16 @@ const Breadcrumbs = ({ breadcrumb }: BreadcrumbsProps) => {
 
 	const current = breadcrumb[breadcrumb.length - 1];
 
-	// Folders strictly between root and current.
+	// Folders between the top folder and the current one.
 	const middle = breadcrumb.slice(1, -1);
 	const isLong = breadcrumb.length > TRUNCATE_THRESHOLD;
 	const visibleMiddle = isLong ? middle.slice(-2) : middle;
 
-	// At root the only crumb is the root folder itself; label it "My Files"
-	// rather than leaking the raw root name (e.g. "root-<email>").
+	// At the top level, show "My Files" instead of the folder's real name
+	// (which looks like "root-<email>").
 	const isRootOnly = breadcrumb.length === 1;
 
-	// Only show the root link crumb when we aren't already at root.
+	// Only link back to the top folder when we're not already there.
 	const hasRoot = !isRootOnly;
 
 	return (

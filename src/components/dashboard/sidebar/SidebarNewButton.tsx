@@ -16,15 +16,12 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-/** Dispatches a custom event to trigger an action in DashboardPage */
+/** Sends a browser event that DashboardPage listens for. */
 const dispatchAction = (action: string) => {
 	window.dispatchEvent(new CustomEvent("dashboard:action", { detail: action }));
 };
 
-/**
- * "New" button in the sidebar that opens a dropdown with creation actions.
- * Communicates with DashboardPage via custom DOM events to open dialogs.
- */
+/** The sidebar "New" menu. Each option opens a dialog on the dashboard. */
 const SidebarNewButton = () => {
 	return (
 		<SidebarMenu className="px-2 pt-3 pb-2">

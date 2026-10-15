@@ -31,9 +31,8 @@ const UnsupportedPreview = ({ file }: PreviewContentProps) => {
 };
 
 /**
- * Renders the appropriate preview element based on the file type.
- * The signed URL is created per mount and never cached, so an expiring 
- * URL cannot outlive the open dialog.
+ * Shows the right preview for the file type. A fresh link is fetched each
+ * time it opens, so it's never an old, expired one.
  */
 const PreviewContent = ({ file }: PreviewContentProps) => {
 	const previewType = getPreviewType(file.extension);

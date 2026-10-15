@@ -10,10 +10,7 @@ interface EmptyDirectoryProps {
 	onNewFolder: () => void;
 }
 
-/**
- * Placeholder shown when a directory has no files or folders.
- * Renders Upload + Create folder CTAs so the empty state is also a starting point.
- */
+/** Shown in an empty folder, with buttons to upload or create a folder. */
 const EmptyDirectory = ({ onUploadFiles, onNewFolder }: EmptyDirectoryProps) => {
 	return (
 		<EmptyStatePlaceholder
